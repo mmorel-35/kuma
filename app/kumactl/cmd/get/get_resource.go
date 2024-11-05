@@ -15,7 +15,7 @@ import (
 
 func NewGetResourceCmd(pctx *kumactl_cmd.RootContext, desc core_model.ResourceTypeDescriptor) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   fmt.Sprintf("%s NAME", desc.KumactlArg),
+		Use:   desc.KumactlArg + " NAME",
 		Short: fmt.Sprintf("Show a single %s resource", desc.Name),
 		Long:  fmt.Sprintf("Show a single %s resource.", desc.Name),
 		Args:  cobra.ExactArgs(1),

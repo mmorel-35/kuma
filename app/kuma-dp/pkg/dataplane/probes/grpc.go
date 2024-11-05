@@ -2,9 +2,10 @@ package probes
 
 import (
 	"context"
-	"fmt"
+
 	"net"
 	"net/http"
+	"strconv"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -20,7 +21,7 @@ func (p *Prober) probeGRPC(writer http.ResponseWriter, req *http.Request) {
 	// /grpc/<port>
 
 	opts := []grpc.DialOption{
-		grpc.WithUserAgent(fmt.Sprintf("kube-probe/%s", version.Build.Version)),
+		grpc.WithUserAgent("kube-probe/" + version.Build.Version),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithContextDialer(func(ctx context.Context, addr string) (net.Conn, error) {
 			return createProbeDialer(p.isPodAddrIPV6).DialContext(ctx, "tcp", addr)
@@ -34,7 +35,7 @@ func (p *Prober) probeGRPC(writer http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	addr := net.JoinHostPort(p.podAddress, fmt.Sprintf("%d", port))
+	addr := net.JoinHostPort(p.podAddress, strconv.Itoa(port))
 	conn, err := grpc.NewClient(addr, opts...)
 	if err != nil {
 		logger.V(1).Info("unable to connect to upstream server", "error", err)
@@ -66,7 +67,7 @@ func (p *Prober) probeGRPC(writer http.ResponseWriter, req *http.Request) {
 				writeProbeResult(writer, Unhealthy)
 				return
 			default:
-				logger.V(1).Info(fmt.Sprintf("the upstream check request failed with code %s", stat.Code().String()))
+				logger.V(1).Info("the upstream check request failed with code " + stat.Code().String())
 				writeProbeResult(writer, Unhealthy)
 				return
 			}

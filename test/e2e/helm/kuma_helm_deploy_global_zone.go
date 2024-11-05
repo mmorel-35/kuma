@@ -2,7 +2,7 @@ package helm
 
 import (
 	"encoding/json"
-	"fmt"
+
 	"net/http"
 	"strings"
 	"time"
@@ -35,10 +35,7 @@ func ZoneAndGlobalWithHelmChart() {
 			WithTimeout(6 * time.Second).
 			WithRetries(60)
 
-		releaseName := fmt.Sprintf(
-			"kuma-%s",
-			strings.ToLower(random.UniqueId()),
-		)
+		releaseName := "kuma-" + strings.ToLower(random.UniqueId())
 
 		err := NewClusterSetup().
 			Install(Kuma(core.Global,

@@ -1,8 +1,6 @@
 package v3
 
 import (
-	"fmt"
-
 	envoy_listener "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	rbac_config "github.com/envoyproxy/go-control-plane/envoy/config/rbac/v3"
 	rbac "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/rbac/v3"
@@ -57,7 +55,7 @@ func createRbacRule(statsName string, permission *core_mesh.TrafficPermissionRes
 			Action:   rbac_config.RBAC_ALLOW,
 			Policies: policies,
 		},
-		StatPrefix: fmt.Sprintf("%s.", util_xds.SanitizeMetric(statsName)), // we include dot to change "inbound:127.0.0.1:21011rbac.allowed" metric to "inbound:127.0.0.1:21011.rbac.allowed"
+		StatPrefix: util_xds.SanitizeMetric(statsName) + ".", // we include dot to change "inbound:127.0.0.1:21011rbac.allowed" metric to "inbound:127.0.0.1:21011.rbac.allowed"
 	}
 }
 

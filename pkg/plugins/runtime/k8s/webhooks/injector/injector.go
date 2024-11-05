@@ -222,7 +222,7 @@ func (i *KumaInjector) InjectKuma(ctx context.Context, pod *kube_core.Pod) error
 			injectedInitContainer = &injected
 		} else if podRedirect.RedirectInbound {
 			ipFamilyMode := podRedirect.IpFamilyMode
-			inboundPort := fmt.Sprintf("%d", podRedirect.RedirectPortInbound)
+			inboundPort := strconv.FormatUint(uint64(podRedirect.RedirectPortInbound), 10)
 			validationContainer := i.NewValidationContainer(ipFamilyMode, inboundPort, sidecarTmp.Name)
 			injected, err := i.applyCustomPatches(logger, validationContainer, initPatches)
 			if err != nil {
@@ -684,9 +684,9 @@ func (i *KumaInjector) NewAnnotations(pod *kube_core.Pod, logger logr.Logger) (m
 	result := map[string]string{
 		metadata.KumaSidecarInjectedAnnotation:                 metadata.AnnotationTrue,
 		metadata.KumaTransparentProxyingAnnotation:             metadata.AnnotationEnabled,
-		metadata.KumaSidecarUID:                                fmt.Sprintf("%d", i.cfg.SidecarContainer.UID),
-		metadata.KumaTransparentProxyingOutboundPortAnnotation: fmt.Sprintf("%d", portOutbound),
-		metadata.KumaTransparentProxyingInboundPortAnnotation:  fmt.Sprintf("%d", portInbound),
+		metadata.KumaSidecarUID:                                strconv.FormatInt(i.cfg.SidecarContainer.UID, 10),
+		metadata.KumaTransparentProxyingOutboundPortAnnotation: strconv.FormatUint(uint64(portOutbound), 10),
+		metadata.KumaTransparentProxyingInboundPortAnnotation:  strconv.FormatUint(uint64(portInbound), 10),
 	}
 
 	if i.cfg.CNIEnabled {
@@ -780,7 +780,7 @@ func (i *KumaInjector) NewAnnotations(pod *kube_core.Pod, logger logr.Logger) (m
 		); err != nil {
 			return nil, err
 		} else {
-			result[metadata.KumaBuiltinDNSPort] = fmt.Sprintf("%d", v)
+			result[metadata.KumaBuiltinDNSPort] = strconv.FormatUint(uint64(v), 10)
 		}
 
 		if v, _, err := annotations.GetEnabledWithDefault(
@@ -800,14 +800,14 @@ func (i *KumaInjector) NewAnnotations(pod *kube_core.Pod, logger logr.Logger) (m
 	); err != nil {
 		return nil, errors.Wrap(
 			err,
-			fmt.Sprintf("unable to set %s", metadata.KumaVirtualProbesAnnotation),
+			"unable to set "+metadata.KumaVirtualProbesAnnotation,
 		)
 	}
 
 	if err := setVirtualProbesPortAnnotation(result, pod, i.cfg); err != nil {
 		return nil, errors.Wrap(
 			err,
-			fmt.Sprintf("unable to set %s", metadata.KumaVirtualProbesPortAnnotation),
+			"unable to set "+metadata.KumaVirtualProbesPortAnnotation,
 		)
 	}
 
@@ -818,7 +818,7 @@ func (i *KumaInjector) NewAnnotations(pod *kube_core.Pod, logger logr.Logger) (m
 	); err != nil {
 		return nil, errors.Wrap(
 			err,
-			fmt.Sprintf("unable to set %s", metadata.KumaApplicationProbeProxyPortAnnotation),
+			"unable to set "+metadata.KumaApplicationProbeProxyPortAnnotation,
 		)
 	}
 
@@ -851,7 +851,7 @@ func (i *KumaInjector) NewAnnotations(pod *kube_core.Pod, logger logr.Logger) (m
 	); err != nil {
 		return nil, err
 	} else {
-		result[metadata.KumaEnvoyAdminPort] = fmt.Sprintf("%d", v)
+		result[metadata.KumaEnvoyAdminPort] = strconv.FormatUint(uint64(v), 10)
 	}
 
 	if v, _ := annotations.GetStringWithDefault(
@@ -875,7 +875,7 @@ func (i *KumaInjector) NewAnnotations(pod *kube_core.Pod, logger logr.Logger) (m
 func portsToAnnotationValue(ports []uint32) string {
 	stringPorts := make([]string, len(ports))
 	for i, port := range ports {
-		stringPorts[i] = fmt.Sprintf("%d", port)
+		stringPorts[i] = strconv.FormatUint(uint64(port), 10)
 	}
 	return strings.Join(stringPorts, ",")
 }

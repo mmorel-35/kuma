@@ -183,7 +183,7 @@ func flag[T string | bool | uint32](name string, values ...T) []string {
 		boolValue, isBool := any(value).(bool)
 		switch {
 		case isBool && boolValue:
-			result = append(result, fmt.Sprintf("--%s", name))
+			result = append(result, "--"+name)
 		case value != *new(T):
 			result = append(result, fmt.Sprintf("--%s=%v", name, value))
 		}

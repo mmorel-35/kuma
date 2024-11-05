@@ -2,6 +2,7 @@ package apply
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -98,7 +99,7 @@ $ kumactl apply -f https://example.com/resource.yaml
 				}
 			}
 			if len(b) == 0 {
-				return fmt.Errorf("no resource(s) passed to apply")
+				return errors.New("no resource(s) passed to apply")
 			}
 			var resources []model.Resource
 			rawResources := yaml.SplitYAML(string(b))

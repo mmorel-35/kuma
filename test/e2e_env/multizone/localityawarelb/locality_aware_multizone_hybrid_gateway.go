@@ -158,7 +158,7 @@ conf:
 		// no lb priorities
 		gatewayIP := multizone.UniZone1.GetApp("lb-edge-gateway").GetIP()
 		Eventually(func() (map[string]int, error) {
-			return client.CollectResponsesByInstance(multizone.UniZone1, "gateway-client", fmt.Sprintf("http://%s", net.JoinHostPort(gatewayIP, "8080")), client.WithHeader("Host", "example.kuma.io"), client.WithNumberOfRequests(200))
+			return client.CollectResponsesByInstance(multizone.UniZone1, "gateway-client", "http://"+net.JoinHostPort(gatewayIP, "8080"), client.WithHeader("Host", "example.kuma.io"), client.WithNumberOfRequests(200))
 		}, "2m", "10s").Should(
 			And(
 				HaveKeyWithValue(Equal(`test-server-zone-4`), BeNumerically("~", 100, 50)),
@@ -172,7 +172,7 @@ conf:
 		Expect(multizone.Global.Install(YamlUniversal(meshLoadBalancingStrategyTestServer))).To(Succeed())
 
 		Eventually(func() (map[string]int, error) {
-			return client.CollectResponsesByInstance(multizone.UniZone1, "gateway-client", fmt.Sprintf("http://%s", net.JoinHostPort(gatewayIP, "8080")), client.WithHeader("Host", "example.kuma.io"), client.WithNumberOfRequests(100))
+			return client.CollectResponsesByInstance(multizone.UniZone1, "gateway-client", "http://"+net.JoinHostPort(gatewayIP, "8080"), client.WithHeader("Host", "example.kuma.io"), client.WithNumberOfRequests(100))
 		}, "1m", "10s").Should(
 			HaveKeyWithValue(Equal(`test-server-zone-4`), BeNumerically("~", 100, 10)),
 		)
@@ -182,7 +182,7 @@ conf:
 
 		// traffic goes to kuma-5 zone
 		Eventually(func() (map[string]int, error) {
-			return client.CollectResponsesByInstance(multizone.UniZone1, "gateway-client", fmt.Sprintf("http://%s", net.JoinHostPort(gatewayIP, "8080")), client.WithHeader("Host", "example.kuma.io"), client.WithNumberOfRequests(100))
+			return client.CollectResponsesByInstance(multizone.UniZone1, "gateway-client", "http://"+net.JoinHostPort(gatewayIP, "8080"), client.WithHeader("Host", "example.kuma.io"), client.WithNumberOfRequests(100))
 		}, "1m", "10s").Should(
 			HaveKeyWithValue(Equal(`test-server-zone-5`), BeNumerically("~", 100, 10)),
 		)
@@ -192,7 +192,7 @@ conf:
 
 		// traffic goes to kuma-1 zone
 		Eventually(func() (map[string]int, error) {
-			return client.CollectResponsesByInstance(multizone.UniZone1, "gateway-client", fmt.Sprintf("http://%s", net.JoinHostPort(gatewayIP, "8080")), client.WithHeader("Host", "example.kuma.io"), client.WithNumberOfRequests(100))
+			return client.CollectResponsesByInstance(multizone.UniZone1, "gateway-client", "http://"+net.JoinHostPort(gatewayIP, "8080"), client.WithHeader("Host", "example.kuma.io"), client.WithNumberOfRequests(100))
 		}, "1m", "10s").Should(
 			HaveKeyWithValue(Equal(`test-server-zone-1`), BeNumerically("~", 100, 10)),
 		)

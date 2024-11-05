@@ -124,7 +124,7 @@ spec:
 		Eventually(func(g Gomega) int {
 			egressClusters, err := egressTunnel.GetClusters()
 			g.Expect(err).ToNot(HaveOccurred())
-			cluster := egressClusters.GetCluster(fmt.Sprintf("%s:test-server_locality-aware-lb-egress_svc_80", mesh))
+			cluster := egressClusters.GetCluster(mesh + ":test-server_locality-aware-lb-egress_svc_80")
 			g.Expect(cluster).ToNot(BeNil())
 			return len(cluster.HostStatuses)
 		}, "2m", "5s").Should(Equal(2))
@@ -201,7 +201,7 @@ spec:
 		Eventually(func(g Gomega) int {
 			egressClusters, err := egressTunnel.GetClusters()
 			g.Expect(err).ToNot(HaveOccurred())
-			cluster := egressClusters.GetCluster(fmt.Sprintf("%s:test-server_locality-aware-lb-egress_svc_80", mesh))
+			cluster := egressClusters.GetCluster(mesh + ":test-server_locality-aware-lb-egress_svc_80")
 			g.Expect(cluster).ToNot(BeNil())
 			return cluster.GetPriorityForZone("kuma-5")
 		}, "2m", "5s").Should(Equal(1))

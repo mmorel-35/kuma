@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/pkg/errors"
 
@@ -57,10 +58,10 @@ func constructUrl(meshName string, tags map[string]string, gateway bool, ingress
 	}
 	query := result.Query()
 	if gateway {
-		query.Add("gateway", fmt.Sprintf("%t", gateway))
+		query.Add("gateway", strconv.FormatBool(gateway))
 	}
 	if ingress {
-		query.Add("ingress", fmt.Sprintf("%t", ingress))
+		query.Add("ingress", strconv.FormatBool(ingress))
 	}
 	for tag, value := range tags {
 		query.Add("tag", fmt.Sprintf("%s:%s", tag, value))

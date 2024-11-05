@@ -47,7 +47,7 @@ func (p KumaProbe) ToReal(virtualPort uint32) (KumaProbe, error) {
 		ProbeHandler: kube_core.ProbeHandler{
 			HTTPGet: &kube_core.HTTPGetAction{
 				Port: intstr.FromInt(int(vport)),
-				Path: fmt.Sprintf("/%s", strings.Join(segments[2:], "/")),
+				Path: "/" + strings.Join(segments[2:], "/"),
 			},
 		},
 	}, nil
@@ -60,7 +60,7 @@ func (p KumaProbe) ToVirtual(virtualPort uint32) (KumaProbe, error) {
 	}
 	probePath := p.Path()
 	if !strings.HasPrefix(p.Path(), "/") {
-		probePath = fmt.Sprintf("/%s", p.Path())
+		probePath = "/" + p.Path()
 	}
 	return KumaProbe{
 		ProbeHandler: kube_core.ProbeHandler{

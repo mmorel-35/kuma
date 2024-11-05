@@ -2,7 +2,8 @@ package zoneinsight_test
 
 import (
 	"context"
-	"fmt"
+
+	"strconv"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -31,7 +32,7 @@ var _ = Describe("ZoneInsight Manager", func() {
 		input := system.NewZoneInsightResource()
 		for i := 0; i < 10; i++ {
 			input.Spec.Subscriptions = append(input.Spec.Subscriptions, &v1alpha1.KDSSubscription{
-				Id: fmt.Sprintf("%d", i),
+				Id: strconv.Itoa(i),
 			})
 		}
 
@@ -64,7 +65,7 @@ var _ = Describe("ZoneInsight Manager", func() {
 		input := system.NewZoneInsightResource()
 		for i := 0; i < 10; i++ {
 			input.Spec.Subscriptions = append(input.Spec.Subscriptions, &v1alpha1.KDSSubscription{
-				Id: fmt.Sprintf("%d", i),
+				Id: strconv.Itoa(i),
 			})
 		}
 

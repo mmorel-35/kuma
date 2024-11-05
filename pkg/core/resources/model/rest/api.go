@@ -45,7 +45,7 @@ type nonMeshedApi struct {
 }
 
 func (r *nonMeshedApi) List(string) string {
-	return fmt.Sprintf("/%s", r.CollectionPath)
+	return "/" + r.CollectionPath
 }
 
 func (r *nonMeshedApi) Item(string, name string) string {

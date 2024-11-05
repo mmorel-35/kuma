@@ -1,7 +1,7 @@
 package cache_test
 
 import (
-	"fmt"
+	"errors"
 
 	envoy_types "github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -105,7 +105,7 @@ var _ = Describe("Snapshot", func() {
 			// when
 			var snapshot *cache.Snapshot
 			// then
-			Expect(snapshot.ConstructVersionMap()).To(Equal(fmt.Errorf("missing snapshot")))
+			Expect(snapshot.ConstructVersionMap()).To(Equal(errors.New("missing snapshot")))
 		})
 
 		It("should construct version map for resource", func() {

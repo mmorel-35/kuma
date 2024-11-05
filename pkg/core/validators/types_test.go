@@ -1,8 +1,6 @@
 package validators_test
 
 import (
-	"fmt"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -193,8 +191,8 @@ var _ = Describe("Validation Error", func() {
 				},
 				transformFunc: func(v validators.Violation) validators.Violation {
 					return validators.Violation{
-						Field:   fmt.Sprintf("spec.%s", v.Field),
-						Message: fmt.Sprintf("prefix: %s", v.Message),
+						Field:   "spec." + v.Field,
+						Message: "prefix: " + v.Message,
 					}
 				},
 				expected: &validators.ValidationError{

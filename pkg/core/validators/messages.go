@@ -38,5 +38,5 @@ func MustHaveExactlyOneOf(entity string, allowedValues ...string) string {
 }
 
 func MustHaveAtLeastOne(allowedValues ...string) string {
-	return fmt.Sprintf(`must have at least one defined: %s`, strings.Join(allowedValues, ", "))
+	return "must have at least one defined: " + strings.Join(allowedValues, ", ")
 }

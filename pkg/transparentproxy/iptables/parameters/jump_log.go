@@ -1,7 +1,7 @@
 package parameters
 
 import (
-	"fmt"
+	"strconv"
 )
 
 type LogParameter WrappingParameter
@@ -40,7 +40,7 @@ func Log(params ...*LogParameter) *JumpParameter {
 //
 // ref. https://git.netfilter.org/iptables/tree/extensions/libebt_log.c#n27
 func LogLevel(level uint16) *LogParameter {
-	return newLogParameter("--log-level", fmt.Sprintf("%d", level))
+	return newLogParameter("--log-level", strconv.FormatUint(uint64(level), 10))
 }
 
 // LogPrefix returns a --log-prefix parameter with prefix ending with ":"

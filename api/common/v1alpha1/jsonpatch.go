@@ -2,7 +2,8 @@ package v1alpha1
 
 import (
 	"encoding/json"
-	"fmt"
+
+	"errors"
 	"strconv"
 
 	"github.com/evanphx/json-patch/v5"
@@ -32,7 +33,7 @@ func ToJsonPatch(in []JsonPatchBlock) (jsonpatch.Patch, error) {
 
 	for _, o := range in {
 		if o.Path == nil {
-			errs = multierr.Append(errs, fmt.Errorf("path must be defined"))
+			errs = multierr.Append(errs, errors.New("path must be defined"))
 			continue
 		}
 

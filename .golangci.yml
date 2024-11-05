@@ -14,8 +14,11 @@ linters:
     - gosec
     - importas
     - ineffassign
+    - loggercheck
+    - makezero
     - misspell
     - nonamedreturns
+    - perfsprint
     - staticcheck
     - typecheck
     - unconvert
@@ -23,8 +26,6 @@ linters:
     - unused
     - whitespace
     - nosprintfhostport
-    - loggercheck
-    - makezero
 
 run:
   modules-download-mode: readonly
@@ -106,6 +107,18 @@ linters-settings:
     - cancelled # US English should be "canceled", but this is in the Retry API, so we can't change it.
   nonamedreturns:
     report-error-in-defer: false
+
+  perfsprint:
+    # Optimizes even if it requires an int or uint type cast.
+    int-conversion: true
+    # Optimizes into `err.Error()` even if it is only equivalent for non-nil errors.
+    err-error: true
+    # Optimizes `fmt.Errorf`.
+    errorf: true
+    # Optimizes `fmt.Sprintf` with only one argument.
+    sprintf1: true
+    # Optimizes into strings concatenation.
+    strconcat: true
 
 issues:
   fix: true

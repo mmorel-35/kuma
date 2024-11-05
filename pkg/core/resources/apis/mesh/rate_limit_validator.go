@@ -1,7 +1,7 @@
 package mesh
 
 import (
-	"fmt"
+	"strconv"
 
 	"github.com/kumahq/kuma/api/mesh/v1alpha1"
 	"github.com/kumahq/kuma/pkg/core/validators"
@@ -68,10 +68,10 @@ func (d *RateLimitResource) validateOnRateLimit(path validators.PathBuilder, onR
 	var err validators.ValidationError
 	for i, h := range onRateLimit.GetHeaders() {
 		if h.Key == "" {
-			err.AddViolationAt(path.Field("header").Key(fmt.Sprintf("%d", i)), "key must be set")
+			err.AddViolationAt(path.Field("header").Key(strconv.Itoa(i)), "key must be set")
 		}
 		if h.Value == "" {
-			err.AddViolationAt(path.Field("header").Key(fmt.Sprintf("%d", i)), "value must be set")
+			err.AddViolationAt(path.Field("header").Key(strconv.Itoa(i)), "value must be set")
 		}
 	}
 	return err

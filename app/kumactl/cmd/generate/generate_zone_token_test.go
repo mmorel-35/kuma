@@ -3,7 +3,7 @@ package generate_test
 import (
 	"bytes"
 	"errors"
-	"fmt"
+
 	"path/filepath"
 	"time"
 
@@ -35,7 +35,7 @@ func (s *staticZoneTokenGenerator) Generate(
 		return "", s.err
 	}
 
-	return fmt.Sprintf("token-for-%s", zone), nil
+	return "token-for-" + zone, nil
 }
 
 var _ = Describe("kumactl generate zone-token", func() {

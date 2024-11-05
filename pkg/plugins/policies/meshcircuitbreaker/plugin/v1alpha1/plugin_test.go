@@ -625,7 +625,7 @@ var _ = Describe("MeshCircuitBreaker", func() {
 
 			// then
 			Expect(getResource(generatedResources, envoy_resource.ClusterType)).
-				To(matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.gateway_cluster.golden.yaml", given.name))))
+				To(matchers.MatchGoldenYAML(filepath.Join("testdata", given.name+".gateway_cluster.golden.yaml")))
 		},
 		Entry("basic outbound cluster with connection limits", gatewayTestCase{
 			name:          "basic",

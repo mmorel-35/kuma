@@ -41,7 +41,7 @@ func CrossMeshGatewayOnMultizone() {
 	const crossMeshHostname = "gateway.mesh"
 
 	echoServerName := func(mesh string) string {
-		return fmt.Sprintf("echo-server-%s", mesh)
+		return "echo-server-" + mesh
 	}
 	echoServerService := func(mesh, namespace string) string {
 		return fmt.Sprintf("%s_%s_svc_80", echoServerName(mesh), namespace)

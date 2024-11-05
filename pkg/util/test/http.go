@@ -18,7 +18,7 @@ type healthCheckHandler struct {
 }
 
 func (h *healthCheckHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	if request.RequestURI == fmt.Sprintf("/%s", healthCheckPath) {
+	if request.RequestURI == "/"+healthCheckPath {
 		writer.WriteHeader(200)
 		return
 	}

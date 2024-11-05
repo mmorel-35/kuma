@@ -57,7 +57,7 @@ func newInspectPolicyCmd(policyDesc core_model.ResourceTypeDescriptor, pctx *cmd
 	var newApi bool
 	var offset int
 	cmd := &cobra.Command{
-		Use:   fmt.Sprintf("%s NAME", policyDesc.KumactlArg),
+		Use:   policyDesc.KumactlArg + " NAME",
 		Short: fmt.Sprintf("Inspect %s", policyDesc.Name),
 		Long:  fmt.Sprintf("Inspect %s.", policyDesc.Name),
 		Args:  cobra.ExactArgs(1),

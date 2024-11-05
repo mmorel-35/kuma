@@ -2,7 +2,7 @@ package v1alpha1_test
 
 import (
 	"context"
-	"fmt"
+
 	"path"
 	"path/filepath"
 	"time"
@@ -712,8 +712,8 @@ var _ = Describe("MeshRateLimit", func() {
 			Expect(plugin.Apply(generatedResources, xdsCtx, proxy)).To(Succeed())
 
 			// then
-			Expect(util_proto.ToYAML(generatedResources.ListOf(envoy_resource.RouteType)[0].Resource)).To(test_matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.gateway.routes.golden.yaml", given.name))))
-			Expect(util_proto.ToYAML(generatedResources.ListOf(envoy_resource.ListenerType)[0].Resource)).To(test_matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.gateway.listener.golden.yaml", given.name))))
+			Expect(util_proto.ToYAML(generatedResources.ListOf(envoy_resource.RouteType)[0].Resource)).To(test_matchers.MatchGoldenYAML(filepath.Join("testdata", given.name+".gateway.routes.golden.yaml")))
+			Expect(util_proto.ToYAML(generatedResources.ListOf(envoy_resource.ListenerType)[0].Resource)).To(test_matchers.MatchGoldenYAML(filepath.Join("testdata", given.name+".gateway.listener.golden.yaml")))
 		},
 		Entry("basic", gatewayTestCase{
 			name:          "basic",

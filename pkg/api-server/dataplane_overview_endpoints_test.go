@@ -185,10 +185,7 @@ var _ = Describe("Dataplane Overview Endpoints", func() {
 		func(tc testCase) {
 			// given
 			url := fmt.Sprintf("http://%s/%s", apiServer.Address(), tc.url)
-			goldenFileName := fmt.Sprintf(
-				"%s.json",
-				regexp.MustCompile(`[^a-zA-Z0-9 ]+`).ReplaceAllString(tc.url, "_"),
-			)
+			goldenFileName := regexp.MustCompile(`[^a-zA-Z0-9 ]+`).ReplaceAllString(tc.url, "_") + ".json"
 
 			// when
 			response, err := http.Get(url) // #nosec G107 -- these are just tests

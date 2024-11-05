@@ -127,7 +127,7 @@ var _ = Describe("MeshRetry", func() {
 
 		// then
 		Expect(getResourceYaml(resourceSet.ListOf(envoy_resource.ListenerType))).
-			To(matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.listeners.golden.yaml", given.goldenFilePrefix))))
+			To(matchers.MatchGoldenYAML(filepath.Join("testdata", given.goldenFilePrefix+".listeners.golden.yaml")))
 	},
 		Entry("http retry", testCase{
 			resources: []core_xds.Resource{{
@@ -780,9 +780,9 @@ var _ = Describe("MeshRetry", func() {
 
 			// then
 			Expect(getResourceYaml(generatedResources.ListOf(envoy_resource.ListenerType))).
-				To(matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.listeners.golden.yaml", given.goldenFilePrefix))))
+				To(matchers.MatchGoldenYAML(filepath.Join("testdata", given.goldenFilePrefix+".listeners.golden.yaml")))
 			Expect(getResourceYaml(generatedResources.ListOf(envoy_resource.RouteType))).
-				To(matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.routes.golden.yaml", given.goldenFilePrefix))))
+				To(matchers.MatchGoldenYAML(filepath.Join("testdata", given.goldenFilePrefix+".routes.golden.yaml")))
 		},
 		Entry("http retry", gatewayTestCase{
 			goldenFilePrefix: "gateway.http",

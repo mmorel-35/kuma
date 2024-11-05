@@ -107,7 +107,7 @@ func configurePrometheus(rs *core_xds.ResourceSet, proxy *core_xds.Proxy, promet
 			Backend:         backend,
 			ListenerName:    fmt.Sprintf("%s:%s", PrometheusListenerName, pointer.DerefOr(backend.ClientId, DefaultBackendName)),
 			EndpointAddress: proxy.Dataplane.Spec.GetNetworking().GetAddress(),
-			ClusterName:     fmt.Sprintf("_%s", envoy_names.GetMetricsHijackerClusterName()),
+			ClusterName:     "_" + envoy_names.GetMetricsHijackerClusterName(),
 			StatsPath:       PrometheusDataplaneStatsPath,
 		}
 

@@ -2,6 +2,7 @@ package gatewayapi
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/pkg/errors"
@@ -66,7 +67,7 @@ func convertSecret(secret *kube_core.Secret) ([]byte, error) {
 
 	if _, _, err := gateway.NewServerSecret(data); err != nil {
 		// Don't return the exact error
-		return nil, fmt.Errorf("malformed secret")
+		return nil, errors.New("malformed secret")
 	}
 
 	return data, nil

@@ -24,7 +24,7 @@ func API() {
 		Expect(DeleteMeshPolicyOrError(
 			kubernetes.Cluster,
 			v1alpha1.MeshRetryResourceTypeDescriptor,
-			fmt.Sprintf("mesh-retry-all-%s", meshName),
+			"mesh-retry-all-"+meshName,
 		)).To(Succeed())
 	})
 
@@ -73,6 +73,6 @@ spec:
 		mrls, err = kubernetes.Cluster.GetKumactlOptions().KumactlList("meshretries", meshName)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(mrls).To(HaveLen(1))
-		Expect(mrls[0]).To(Equal(fmt.Sprintf("mesh-retry.%s", Config.KumaNamespace)))
+		Expect(mrls[0]).To(Equal("mesh-retry." + Config.KumaNamespace))
 	})
 }

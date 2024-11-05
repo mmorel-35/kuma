@@ -2,7 +2,7 @@ package api_server
 
 import (
 	"context"
-	"fmt"
+
 	"strconv"
 
 	"github.com/emicklei/go-restful/v3"
@@ -162,7 +162,7 @@ func (cl *inspectClient) adminType(ctx context.Context, adType string) (adminTyp
 			return "", err
 		}
 	default:
-		return "", rest_errors.NewNotFoundError(fmt.Sprintf("invalid admin type: %s", adType))
+		return "", rest_errors.NewNotFoundError("invalid admin type: " + adType)
 	}
 	return res, nil
 }

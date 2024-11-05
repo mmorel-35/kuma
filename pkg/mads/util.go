@@ -48,7 +48,7 @@ func DataplaneLabels(dataplane *core_mesh.DataplaneResource, meshGateways []*cor
 		// e.g. `service => services`, `version => versions`, etc.
 		// if it happens that a user defined both `service` and `services` tags,
 		// user-defined `services` tag will override auto-generated one (since keys are iterated in a sorted order)
-		plural := fmt.Sprintf("%ss", key)
+		plural := key + "s"
 		labels[sanitizeLabelName(plural)] = MultiValue(values)
 	}
 	// then, we turn name extensions into labels

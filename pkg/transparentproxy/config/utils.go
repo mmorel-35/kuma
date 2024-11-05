@@ -420,7 +420,7 @@ func createBackupFile(prefix string) (*os.File, error) {
 // storing iptables rules temporarily
 func createTempFile(prefix string) (*os.File, error) {
 	// Construct a template for the temporary file name using the provided prefix.
-	nameTemplate := fmt.Sprintf("%s-rules.*.txt", prefix)
+	nameTemplate := prefix + "-rules.*.txt"
 
 	// Create the temporary file in the system's default temporary directory.
 	f, err := os.CreateTemp(os.TempDir(), nameTemplate)

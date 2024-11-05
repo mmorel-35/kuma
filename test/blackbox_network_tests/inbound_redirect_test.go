@@ -82,7 +82,7 @@ var _ = Describe("Inbound IPv4 TCP traffic from any ports", func() {
 				// This gives us more entropy as all generated ports will be
 				// different from each other
 				lockedPorts = append(lockedPorts, randomPorts...)
-				desc := fmt.Sprintf("to port %%d, from port %%d")
+				desc := "to port %%d, from port %%d"
 				entry := Entry(
 					EntryDescription(desc),
 					randomPorts[0],
@@ -162,7 +162,7 @@ var _ = Describe("Inbound IPv6 TCP traffic from any ports", func() {
 				// This gives us more entropy as all generated ports will be
 				// different from each other
 				lockedPorts = append(lockedPorts, randomPorts...)
-				desc := fmt.Sprintf("to port %%d, from port %%d")
+				desc := "to port %%d, from port %%d"
 				entry := Entry(
 					EntryDescription(desc),
 					randomPorts[0],
@@ -252,7 +252,7 @@ var _ = Describe("Inbound IPv4 TCP traffic from any ports except excluded ones",
 				// This gives us more entropy as all generated ports will be
 				// different from each other
 				lockedPorts = append(lockedPorts, randomPorts...)
-				desc := fmt.Sprintf("to port %%d, from port %%d (excluded: %%d)")
+				desc := "to port %%d, from port %%d (excluded: %%d)"
 				entry := Entry(
 					EntryDescription(desc),
 					randomPorts[0],
@@ -344,7 +344,7 @@ var _ = Describe("Inbound IPv6 TCP traffic from any ports except excluded ones",
 				// This gives us more entropy as all generated ports will be
 				// different from each other
 				lockedPorts = append(lockedPorts, randomPorts...)
-				desc := fmt.Sprintf("to port %%d, from port %%d (excluded: %%d)")
+				desc := "to port %%d, from port %%d (excluded: %%d)"
 				entry := Entry(
 					EntryDescription(desc),
 					randomPorts[0],
@@ -437,7 +437,7 @@ var _ = Describe("Inbound IPv4 TCP traffic only from included ports", func() {
 				// This gives us more entropy as all generated ports will be
 				// different from each other
 				lockedPorts = append(lockedPorts, randomPorts...)
-				desc := fmt.Sprintf("to port %%d, from port %%d (included: %%d)")
+				desc := "to port %%d, from port %%d (included: %%d)"
 				entry := Entry(
 					EntryDescription(desc),
 					randomPorts[0],
@@ -531,7 +531,7 @@ var _ = Describe("Inbound IPv6 TCP traffic only from included ports", func() {
 				// This gives us more entropy as all generated ports will be
 				// different from each other
 				lockedPorts = append(lockedPorts, randomPorts...)
-				desc := fmt.Sprintf("to port %%d, from port %%d (excluded: %%d)")
+				desc := "to port %%d, from port %%d (excluded: %%d)"
 				entry := Entry(
 					EntryDescription(desc),
 					randomPorts[0],
@@ -608,7 +608,7 @@ var _ = Describe("Inbound IPv4 TCP traffic from any ports", func() {
 				// This gives us more entropy as all generated ports will be
 				// different from each other
 				lockedPorts = append(lockedPorts, randomPorts...)
-				desc := fmt.Sprintf("to port %%d, from port %%d")
+				desc := "to port %%d, from port %%d"
 				entry := Entry(
 					EntryDescription(desc),
 					randomPorts[0],
@@ -685,7 +685,7 @@ var _ = Describe("Inbound IPv6 TCP traffic from any ports", func() {
 				// This gives us more entropy as all generated ports will be
 				// different from each other
 				lockedPorts = append(lockedPorts, randomPorts...)
-				desc := fmt.Sprintf("to port %%d, from port %%d")
+				desc := "to port %%d, from port %%d"
 				entry := Entry(
 					EntryDescription(desc),
 					randomPorts[0],

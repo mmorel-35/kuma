@@ -2,7 +2,7 @@ package v1alpha1_test
 
 import (
 	"context"
-	"fmt"
+
 	"path"
 	"path/filepath"
 
@@ -499,7 +499,7 @@ var _ = Describe("MeshHealthCheck", func() {
 
 			// then
 			Expect(getResourcesYaml(generatedResources.ListOf(envoy_resource.ClusterType))).
-				To(matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.gateway_cluster.golden.yaml", given.name))))
+				To(matchers.MatchGoldenYAML(filepath.Join("testdata", given.name+".gateway_cluster.golden.yaml")))
 		},
 		Entry("basic outbound cluster with HTTP health check", gatewayTestCase{
 			name:          "basic",

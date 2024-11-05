@@ -212,7 +212,7 @@ func egressLocality(crossZoneGroups []CrossZoneLbGroup) *core_xds.Locality {
 	}
 
 	return &core_xds.Locality{
-		Zone:     fmt.Sprintf("egress_%s", sha256.Hash(builder.String())[:8]),
+		Zone:     "egress_" + sha256.Hash(builder.String())[:8],
 		Priority: 1,
 	}
 }

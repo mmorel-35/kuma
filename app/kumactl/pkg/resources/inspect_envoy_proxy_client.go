@@ -77,7 +77,7 @@ func (h *httpInspectEnvoyProxyClient) executeInspectRequest(ctx context.Context,
 func (h *httpInspectEnvoyProxyClient) buildURL(rk core_model.ResourceKey, inspectionPath string) (*url.URL, error) {
 	var prefix string
 	if h.resDesc.Scope == core_model.ScopeMesh {
-		prefix = fmt.Sprintf("/meshes/%s", rk.Mesh)
+		prefix = "/meshes/" + rk.Mesh
 	}
 	plural := h.resDesc.WsPath
 	// todo(lobkovilya): rename mesh.ZoneIngressResourceTypeDescriptor.WsPath to "zoneingresses" and use it here

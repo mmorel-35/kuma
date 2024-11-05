@@ -2,6 +2,7 @@ package probes
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
@@ -131,7 +132,7 @@ func overrideProbe(probe *kube_core.Probe, virtualPort uint32,
 
 func SetApplicationProbeProxyPortAnnotation(annotations metadata.Annotations, podAnnotations map[string]string, defaultAppProbeProxyPort uint32) error {
 	str := func(port uint32) string {
-		return fmt.Sprintf("%d", port)
+		return strconv.FormatUint(uint64(port), 10)
 	}
 
 	// scenarios of switching between virtual probes (vp) and application probe proxy (proxy):

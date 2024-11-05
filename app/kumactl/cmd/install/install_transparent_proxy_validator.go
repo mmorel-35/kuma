@@ -5,7 +5,7 @@ package install
 
 import (
 	std_errors "errors"
-	"fmt"
+
 	"os"
 	"strings"
 
@@ -70,10 +70,7 @@ The result will be shown as text in stdout as well as the exit code.
 	cmd.Flags().Var(
 		&ipFamilyMode,
 		"ip-family-mode",
-		fmt.Sprintf(
-			"specify the IP family mode for traffic redirection when setting up the transparent proxy; accepted values: %s",
-			tproxy_config.AllowedIPFamilyModes(),
-		),
+		"specify the IP family mode for traffic redirection when setting up the transparent proxy; accepted values: "+tproxy_config.AllowedIPFamilyModes(),
 	)
 
 	cmd.Flags().Uint16Var(

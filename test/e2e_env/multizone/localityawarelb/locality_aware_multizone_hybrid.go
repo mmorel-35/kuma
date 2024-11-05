@@ -388,7 +388,7 @@ spec:
 }
 
 func collectMetric(cluster Cluster, name string, namespace string, metricName string) (int, error) {
-	resp, _, err := client.CollectResponse(cluster, name, fmt.Sprintf("http://localhost:9901/stats?filter=%s", metricName), client.FromKubernetesPod(namespace, name))
+	resp, _, err := client.CollectResponse(cluster, name, "http://localhost:9901/stats?filter="+metricName, client.FromKubernetesPod(namespace, name))
 	if err != nil {
 		return -1, err
 	}

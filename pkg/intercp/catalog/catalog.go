@@ -2,7 +2,7 @@ package catalog
 
 import (
 	"context"
-	"fmt"
+
 	"net"
 	"strconv"
 
@@ -17,7 +17,7 @@ type Instance struct {
 }
 
 func (i Instance) InterCpURL() string {
-	return fmt.Sprintf("grpcs://%s", net.JoinHostPort(i.Address, strconv.Itoa(int(i.InterCpPort))))
+	return "grpcs://" + net.JoinHostPort(i.Address, strconv.Itoa(int(i.InterCpPort)))
 }
 
 type Reader interface {

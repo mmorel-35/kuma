@@ -1,7 +1,6 @@
 package cni
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -33,7 +32,7 @@ func ExcludeOutboundPort() {
 			WithTimeout(6 * time.Second).
 			WithRetries(60)
 
-		releaseName := fmt.Sprintf("kuma-%s", strings.ToLower(random.UniqueId()))
+		releaseName := "kuma-" + strings.ToLower(random.UniqueId())
 
 		Expect(NewClusterSetup().
 			Install(Kuma(core.Zone,

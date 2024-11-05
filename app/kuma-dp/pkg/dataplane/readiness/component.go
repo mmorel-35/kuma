@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strconv"
 	"sync/atomic"
 	"time"
 
@@ -93,7 +94,7 @@ func (r *Reporter) handleReadiness(writer http.ResponseWriter, req *http.Request
 
 	stateBytes := []byte(state)
 	writer.Header().Set("content-type", "text/plain")
-	writer.Header().Set("content-length", fmt.Sprintf("%d", len(stateBytes)))
+	writer.Header().Set("content-length", strconv.Itoa(len(stateBytes)))
 	writer.Header().Set("cache-control", "no-cache, max-age=0")
 	writer.Header().Set("x-powered-by", "kuma-dp")
 	writer.WriteHeader(stateHTTPStatus)

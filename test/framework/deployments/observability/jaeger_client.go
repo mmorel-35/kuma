@@ -2,7 +2,7 @@ package observability
 
 import (
 	"encoding/json"
-	"fmt"
+
 	"net/http"
 	"sort"
 )
@@ -12,7 +12,7 @@ type jaegerServicesOutput struct {
 }
 
 func tracedServices(url string) ([]string, error) {
-	resp, err := http.Get(fmt.Sprintf("%s/api/services", url))
+	resp, err := http.Get(url + "/api/services")
 	if err != nil {
 		return nil, err
 	}

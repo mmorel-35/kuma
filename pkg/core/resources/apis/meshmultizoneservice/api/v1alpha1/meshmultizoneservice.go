@@ -3,6 +3,7 @@ package v1alpha1
 
 import (
 	"fmt"
+	"strconv"
 
 	hostnamegenerator_api "github.com/kumahq/kuma/pkg/core/resources/apis/hostnamegenerator/api/v1alpha1"
 	core_mesh "github.com/kumahq/kuma/pkg/core/resources/apis/mesh"
@@ -34,7 +35,7 @@ func (p *Port) GetName() string {
 	if p.Name != "" {
 		return p.Name
 	}
-	return fmt.Sprintf("%d", p.Port)
+	return strconv.FormatUint(uint64(p.Port), 10)
 }
 
 type Selector struct {

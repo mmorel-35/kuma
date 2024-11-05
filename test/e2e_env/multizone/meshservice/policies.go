@@ -124,7 +124,7 @@ spec:
 			resp, err := client.CollectEchoResponse(
 				multizone.KubeZone1,
 				"test-client",
-				fmt.Sprintf("%s/prefix/world", addressToMeshService("test-server")),
+				addressToMeshService("test-server")+"/prefix/world",
 				client.FromKubernetesPod(namespace, "test-client"),
 			)
 			g.Expect(err).ToNot(HaveOccurred())
@@ -166,7 +166,7 @@ spec:
 			resp, err := client.CollectEchoResponse(
 				multizone.KubeZone1,
 				"test-client",
-				fmt.Sprintf("%s/prefix/world", addressToMeshService("kumaioservice-targeted-test-server")),
+				addressToMeshService("kumaioservice-targeted-test-server")+"/prefix/world",
 				client.FromKubernetesPod(namespace, "test-client"),
 			)
 			g.Expect(err).ToNot(HaveOccurred())

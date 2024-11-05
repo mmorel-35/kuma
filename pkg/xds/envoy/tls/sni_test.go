@@ -1,7 +1,7 @@
 package tls_test
 
 import (
-	"fmt"
+	"strconv"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/google/uuid"
@@ -157,7 +157,7 @@ var _ = Describe("SNI", func() {
 		snis := map[string]struct{}{}
 		for i := 0; i < 100_000; i++ {
 			sni := tls.SNIForResource("backend", "demo", meshservice_api.MeshServiceType, 8080, map[string]string{
-				"version": fmt.Sprintf("%d", i),
+				"version": strconv.Itoa(i),
 			})
 			_, ok := snis[sni]
 			Expect(ok).To(BeFalse())

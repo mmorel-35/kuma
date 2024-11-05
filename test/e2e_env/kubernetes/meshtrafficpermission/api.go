@@ -75,6 +75,6 @@ spec:
 		mtps, err = kubernetes.Cluster.GetKumactlOptions().KumactlList("meshtrafficpermissions", meshName)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(mtps).To(HaveLen(1))
-		Expect(mtps[0]).To(Equal(fmt.Sprintf("mtp1.%s", Config.KumaNamespace)))
+		Expect(mtps[0]).To(Equal("mtp1." + Config.KumaNamespace))
 	})
 }

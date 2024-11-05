@@ -1,7 +1,6 @@
 package cni
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -26,10 +25,7 @@ metadata:
 
 	var cluster Cluster
 	var k8sCluster *K8sCluster
-	nodeName := fmt.Sprintf(
-		"second-%s",
-		strings.ToLower(random.UniqueId()),
-	)
+	nodeName := "second-" + strings.ToLower(random.UniqueId())
 
 	setup := func() {
 		k8sCluster = NewK8sCluster(NewTestingT(), Kuma1, Silent)
@@ -37,10 +33,7 @@ metadata:
 			WithTimeout(6 * time.Second).
 			WithRetries(60)
 
-		releaseName := fmt.Sprintf(
-			"kuma-%s",
-			strings.ToLower(random.UniqueId()),
-		)
+		releaseName := "kuma-" + strings.ToLower(random.UniqueId())
 
 		err := NewClusterSetup().
 			Install(Kuma(core.Zone,

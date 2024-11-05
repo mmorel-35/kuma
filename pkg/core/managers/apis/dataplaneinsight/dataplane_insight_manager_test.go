@@ -2,7 +2,8 @@ package dataplaneinsight_test
 
 import (
 	"context"
-	"fmt"
+
+	"strconv"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -30,7 +31,7 @@ var _ = Describe("DataplaneInsight Manager", func() {
 		input := core_mesh.NewDataplaneInsightResource()
 		for i := 0; i < 10; i++ {
 			input.Spec.Subscriptions = append(input.Spec.Subscriptions, &mesh_proto.DiscoverySubscription{
-				Id: fmt.Sprintf("%d", i),
+				Id: strconv.Itoa(i),
 			})
 		}
 
@@ -63,7 +64,7 @@ var _ = Describe("DataplaneInsight Manager", func() {
 		input := core_mesh.NewDataplaneInsightResource()
 		for i := 0; i < 10; i++ {
 			input.Spec.Subscriptions = append(input.Spec.Subscriptions, &mesh_proto.DiscoverySubscription{
-				Id: fmt.Sprintf("%d", i),
+				Id: strconv.Itoa(i),
 			})
 		}
 

@@ -2,7 +2,7 @@ package generate_test
 
 import (
 	"bytes"
-	"fmt"
+
 	"io"
 	"os"
 	"reflect"
@@ -53,10 +53,10 @@ var _ = Describe("kumactl generate tls-certificate", func() {
 
 		// and
 		Expect(stdout.String()).To(ContainSubstring(
-			fmt.Sprintf("Private key saved in %s", keyFile.Name())),
+			"Private key saved in " + keyFile.Name()),
 		)
 		Expect(stdout.String()).To(ContainSubstring(
-			fmt.Sprintf("Certificate saved in %s", certFile.Name())),
+			"Certificate saved in " + certFile.Name()),
 		)
 	}
 

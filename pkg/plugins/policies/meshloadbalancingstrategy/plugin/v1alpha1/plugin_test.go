@@ -2,7 +2,7 @@ package v1alpha1_test
 
 import (
 	"context"
-	"fmt"
+
 	"path/filepath"
 	"strings"
 
@@ -1486,13 +1486,13 @@ var _ = Describe("MeshLoadBalancingStrategy", func() {
 
 			// then
 			Expect(getResource(generatedResources, envoy_resource.ClusterType)).
-				To(matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.gateway.clusters.golden.yaml", given.name))))
+				To(matchers.MatchGoldenYAML(filepath.Join("testdata", given.name+".gateway.clusters.golden.yaml")))
 			Expect(getResource(generatedResources, envoy_resource.EndpointType)).
-				To(matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.gateway.endpoints.golden.yaml", given.name))))
+				To(matchers.MatchGoldenYAML(filepath.Join("testdata", given.name+".gateway.endpoints.golden.yaml")))
 			Expect(getResource(generatedResources, envoy_resource.ListenerType)).
-				To(matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.gateway.listeners.golden.yaml", given.name))))
+				To(matchers.MatchGoldenYAML(filepath.Join("testdata", given.name+".gateway.listeners.golden.yaml")))
 			Expect(getResource(generatedResources, envoy_resource.RouteType)).
-				To(matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.gateway.routes.golden.yaml", given.name))))
+				To(matchers.MatchGoldenYAML(filepath.Join("testdata", given.name+".gateway.routes.golden.yaml")))
 		},
 		Entry("basic outbound cluster", gatewayTestCase{
 			name:          "basic",

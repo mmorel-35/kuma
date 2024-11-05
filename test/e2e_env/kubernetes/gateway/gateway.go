@@ -330,7 +330,7 @@ spec:
 	}
 
 	basicRouting := func(name string, routeYAMLs []string) {
-		Context(fmt.Sprintf("Mesh service - %s", name), func() {
+		Context("Mesh service - "+name, func() {
 			BeforeAll(func() {
 				Expect(NewClusterSetup().
 					Install(YamlK8s(routeYAMLs...)).

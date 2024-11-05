@@ -131,7 +131,7 @@ spec:
 		Eventually(func(g Gomega) {
 			pod, err := PodNameOfApp(multizone.KubeZone1, "client-without-reachable", namespace)
 			g.Expect(err).ToNot(HaveOccurred())
-			stdout, err := multizone.KubeZone1.GetKumactlOptions().RunKumactlAndGetOutput("inspect", "dataplane", pod+"."+namespace, "--type=clusters", fmt.Sprintf("--mesh=%s", meshName))
+			stdout, err := multizone.KubeZone1.GetKumactlOptions().RunKumactlAndGetOutput("inspect", "dataplane", pod+"."+namespace, "--type=clusters", "--mesh="+meshName)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(stdout).To(ContainSubstring(fmt.Sprintf("local-test-server_%s_svc_80", namespace)))
 			g.Expect(stdout).ToNot(ContainSubstring("_msvc_"))
@@ -164,7 +164,7 @@ spec:
 
 			pod, err := PodNameOfApp(multizone.KubeZone1, "client-with-reachable-backends-only", namespace)
 			g.Expect(err).ToNot(HaveOccurred())
-			stdout, err := multizone.KubeZone1.GetKumactlOptions().RunKumactlAndGetOutput("inspect", "dataplane", pod+"."+namespace, "--type=clusters", fmt.Sprintf("--mesh=%s", meshName))
+			stdout, err := multizone.KubeZone1.GetKumactlOptions().RunKumactlAndGetOutput("inspect", "dataplane", pod+"."+namespace, "--type=clusters", "--mesh="+meshName)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(stdout).To(ContainSubstring(fmt.Sprintf("%s_local-test-server_%s_kuma-1_msvc_80", meshName, namespace)))
 		}, "10s", "500ms", MustPassRepeatedly(5)).Should(Succeed())

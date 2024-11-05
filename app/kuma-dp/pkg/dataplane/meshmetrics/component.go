@@ -3,7 +3,7 @@ package meshmetrics
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+
 	"io"
 	"net"
 	"net/http"
@@ -67,7 +67,7 @@ func NewMeshMetricConfigFetcher(socketPath string, ticker *time.Ticker, hijacker
 
 func (cf *ConfigFetcher) Start(stop <-chan struct{}) error {
 	logger.Info("starting Dynamic Mesh Metrics Configuration Scraper",
-		"socketPath", fmt.Sprintf("unix://%s", cf.socketPath),
+		"socketPath", "unix://"+cf.socketPath,
 	)
 
 	ctx, ctxCancel := context.WithCancel(context.Background())
@@ -213,7 +213,7 @@ func startExporter(ctx context.Context, backend *xds.OpenTelemetryBackend, produ
 	logger.Info("Starting OpenTelemetry exporter", "backend", backendName)
 	exporter, err := otlpmetricgrpc.New(
 		ctx,
-		otlpmetricgrpc.WithEndpoint(fmt.Sprintf("unix://%s", backend.Endpoint)),
+		otlpmetricgrpc.WithEndpoint("unix://"+backend.Endpoint),
 		otlpmetricgrpc.WithInsecure(),
 	)
 	if err != nil {

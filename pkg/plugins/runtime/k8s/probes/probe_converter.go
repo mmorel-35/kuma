@@ -43,7 +43,7 @@ func (p ProxiedApplicationProbe) httpProbeToVirtual(virtualPort uint32) (Proxied
 
 	probePath := p.Path()
 	if !strings.HasPrefix(p.Path(), "/") {
-		probePath = fmt.Sprintf("/%s", p.Path())
+		probePath = "/" + p.Path()
 	}
 
 	var headers []kube_core.HTTPHeader

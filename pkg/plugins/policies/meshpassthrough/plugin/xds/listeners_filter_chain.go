@@ -3,6 +3,7 @@ package xds
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	envoy_listener "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 
@@ -192,10 +193,10 @@ func ClusterName(route Route, protocol core_mesh.Protocol, port uint32) string {
 func FilterChainName(name string, protocol core_mesh.Protocol, port uint32) string {
 	displayPort := "*"
 	if port != 0 {
-		displayPort = fmt.Sprintf("%d", port)
+		displayPort = strconv.FormatUint(uint64(port), 10)
 	}
 	if protocol == core_mesh.ProtocolTCP || protocol == core_mesh.ProtocolTLS {
 		return fmt.Sprintf("meshpassthrough_%s_%s", name, displayPort)
 	}
-	return fmt.Sprintf("meshpassthrough_http_%s", displayPort)
+	return "meshpassthrough_http_" + displayPort
 }

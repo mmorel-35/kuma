@@ -58,7 +58,7 @@ conf:
 	requestRateLimited := func(container string, svc string, responseCode int) func(g Gomega) {
 		return func(g Gomega) {
 			response, err := client.CollectFailure(
-				universal.Cluster, container, fmt.Sprintf("%s.mesh", svc),
+				universal.Cluster, container, svc+".mesh",
 			)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(response.ResponseCode).To(Equal(responseCode))

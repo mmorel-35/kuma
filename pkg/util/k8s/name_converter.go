@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"hash"
 	"hash/fnv"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -33,7 +34,7 @@ func NewHasher() hash.Hash32 {
 
 // HashToString calculates a hash the same way Pod template hashes are computed
 func HashToString(h hash.Hash32) string {
-	return rand.SafeEncodeString(fmt.Sprint(h.Sum32()))
+	return rand.SafeEncodeString(strconv.FormatUint(uint64(h.Sum32()), 10))
 }
 
 // MaxHashStringLength is the max length of a string returned by HashToString

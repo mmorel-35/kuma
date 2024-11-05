@@ -2,7 +2,7 @@ package tokens_test
 
 import (
 	"context"
-	"fmt"
+
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -25,7 +25,7 @@ type zoneStaticTokenIssuer struct{}
 var _ zone.TokenIssuer = &zoneStaticTokenIssuer{}
 
 func (z *zoneStaticTokenIssuer) Generate(ctx context.Context, identity zone.Identity, validFor time.Duration) (zone.Token, error) {
-	return fmt.Sprintf("token-for-%s", identity.Zone), nil
+	return "token-for-" + identity.Zone, nil
 }
 
 var _ = Describe("Zone Egress Tokens Client", func() {

@@ -1,7 +1,6 @@
 package compatibility
 
 import (
-	"fmt"
 	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -39,14 +38,14 @@ func UniversalCompatibility() {
 
 	DescribeTable("connection between old and new DPP",
 		func(version string) {
-			serverName := fmt.Sprintf("test-server-%s", strings.ReplaceAll(version, ".", "-"))
+			serverName := "test-server-" + strings.ReplaceAll(version, ".", "-")
 			Expect(universal.Cluster.Install(TestServerUniversal(serverName, meshName,
 				WithServiceName(serverName),
 				WithArgs([]string{"echo", "--instance", serverName}),
 				WithDPVersion(version),
 			))).To(Succeed())
 
-			clientName := fmt.Sprintf("demo-client-%s", strings.ReplaceAll(version, ".", "-"))
+			clientName := "demo-client-" + strings.ReplaceAll(version, ".", "-")
 			Expect(universal.Cluster.Install(DemoClientUniversal(clientName, meshName,
 				WithTransparentProxy(true),
 				WithDPVersion(version),

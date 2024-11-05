@@ -15,7 +15,7 @@ import (
 )
 
 func demoClientName(mesh string) string {
-	return fmt.Sprintf("demo-client-%s", mesh)
+	return "demo-client-" + mesh
 }
 
 func successfullyProxyRequestToGateway(cluster Cluster, clientName, instance, gatewayAddr string, opt ...client.CollectResponsesOptsFn) func(Gomega) {

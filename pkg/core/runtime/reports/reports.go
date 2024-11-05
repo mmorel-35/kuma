@@ -78,7 +78,7 @@ func fetchNumPolicies(ctx context.Context, rt core_runtime.Runtime) (map[string]
 		typedList := descr.NewList()
 		k := "n_" + strings.ToLower(string(descr.Name))
 		if err := rt.ReadOnlyResourceManager().List(ctx, typedList); err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("could not fetch %s", k))
+			return nil, errors.Wrap(err, "could not fetch "+k)
 		}
 		policyCounts[k] = strconv.Itoa(len(typedList.GetItems()))
 	}

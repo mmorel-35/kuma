@@ -50,7 +50,7 @@ func (c configurer) kumaDPUser() string {
 
 	valueDefault := tproxy_config.DefaultConfig().KumaDPUser
 	valueCurrent := c.config.KumaDPUser
-	valueRuntime := fmt.Sprintf("%d", c.runtime.SidecarContainer.UID)
+	valueRuntime := strconv.FormatInt(c.runtime.SidecarContainer.UID, 10)
 
 	pathConfigMap := c.pathConfigMapf("kumaDPUser")
 	pathRuntime := c.pathRuntimef("sidecarContainer.uid")
@@ -289,7 +289,7 @@ func (c configurer) ipFamilyMode() (tproxy_config.IPFamilyMode, error) {
 		source string,
 		value tproxy_config.IPFamilyMode,
 	) (tproxy_config.IPFamilyMode, error) {
-		l.V(1).Info(fmt.Sprintf("using IP Family Mode from the %s", source))
+		l.V(1).Info("using IP Family Mode from the " + source)
 		return value, nil
 	}
 
@@ -428,7 +428,7 @@ func ConfigForKubernetes(
 		); err != nil {
 			return cfg, err
 		} else if v != 0 {
-			if err := cfg.Redirect.Inbound.ExcludePorts.Append(fmt.Sprintf("%d", v)); err != nil {
+			if err := cfg.Redirect.Inbound.ExcludePorts.Append(strconv.FormatUint(uint64(v), 10)); err != nil {
 				return cfg, err
 			}
 		}
@@ -560,7 +560,7 @@ func ConfigToAnnotations(
 	); err != nil {
 		return nil, errors.Wrapf(err, "unable to set %s", k8s_metadata.KumaVirtualProbesPortAnnotation)
 	} else {
-		result[k8s_metadata.KumaVirtualProbesPortAnnotation] = fmt.Sprintf("%d", v)
+		result[k8s_metadata.KumaVirtualProbesPortAnnotation] = strconv.FormatUint(uint64(v), 10)
 	}
 
 	if v, err := k8s_probes.GetApplicationProbeProxyPort(
@@ -569,7 +569,7 @@ func ConfigToAnnotations(
 	); err != nil {
 		return nil, errors.Wrapf(err, "unable to set %s", k8s_metadata.KumaApplicationProbeProxyPortAnnotation)
 	} else {
-		result[k8s_metadata.KumaApplicationProbeProxyPortAnnotation] = fmt.Sprintf("%d", v)
+		result[k8s_metadata.KumaApplicationProbeProxyPortAnnotation] = strconv.FormatUint(uint64(v), 10)
 	}
 
 	if v, _, err := k8s_metadata.Annotations(result).GetUint32WithDefault(
@@ -578,7 +578,7 @@ func ConfigToAnnotations(
 	); err != nil {
 		return nil, err
 	} else {
-		result[k8s_metadata.KumaEnvoyAdminPort] = fmt.Sprintf("%d", v)
+		result[k8s_metadata.KumaEnvoyAdminPort] = strconv.FormatUint(uint64(v), 10)
 	}
 
 	return result, nil
@@ -612,7 +612,7 @@ func convertUint32SliceToPorts(values []uint32) (tproxy_config.Ports, error) {
 	portStrings := make([]string, len(values))
 
 	for i, port := range values {
-		portStrings[i] = fmt.Sprintf("%d", port)
+		portStrings[i] = strconv.FormatUint(uint64(port), 10)
 	}
 
 	if err := result.Set(strings.Join(portStrings, ",")); err != nil {

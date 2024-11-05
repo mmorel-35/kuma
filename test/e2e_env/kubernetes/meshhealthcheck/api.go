@@ -75,6 +75,6 @@ spec:
 		mtps, err = kubernetes.Cluster.GetKumactlOptions().KumactlList("meshhealthchecks", meshName)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(mtps).To(HaveLen(1))
-		Expect(mtps[0]).To(Equal(fmt.Sprintf("mhc1.%s", Config.KumaNamespace)))
+		Expect(mtps[0]).To(Equal("mhc1." + Config.KumaNamespace))
 	})
 }

@@ -65,7 +65,7 @@ var rootCmd = &cobra.Command{
 				return err
 			}
 		}
-		path := fmt.Sprintf("generate/policy/%s", cfg.lowercase())
+		path := "generate/policy/" + cfg.lowercase()
 		if err := exec.Command("make", path, "POLICIES_DIR="+cfg.basePath).Run(); err != nil {
 			return err
 		}

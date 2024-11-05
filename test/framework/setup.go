@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -588,7 +589,7 @@ func WaitNumPods(namespace string, num int, app string) InstallFunc {
 		ck8s := c.(*K8sCluster)
 		k8s.WaitUntilNumPodsCreated(c.GetTesting(), c.GetKubectlOptions(namespace),
 			metav1.ListOptions{
-				LabelSelector: fmt.Sprintf("app=%s", app),
+				LabelSelector: "app=" + app,
 			}, num, ck8s.defaultRetries, ck8s.defaultTimeout)
 		return nil
 	}
@@ -839,7 +840,7 @@ func TestServerExternalServiceUniversal(name string, port int, tls bool, opt ...
 	return func(cluster Cluster) error {
 		var opts appDeploymentOptions
 		opts.apply(opt...)
-		args := []string{"test-server", "echo", "--instance", name, "--port", fmt.Sprintf("%d", port)}
+		args := []string{"test-server", "echo", "--instance", name, "--port", strconv.Itoa(port)}
 		if tls {
 			path, err := DumpTempCerts("localhost", opts.dockerContainerName)
 			Logf("using temp dir: %s", path)
@@ -847,7 +848,7 @@ func TestServerExternalServiceUniversal(name string, port int, tls bool, opt ...
 				return err
 			}
 			args = append(args, "--crt", "/certs/cert.pem", "--key", "/certs/key.pem", "--tls")
-			opts.dockerVolumes = append(opts.dockerVolumes, fmt.Sprintf("%s:/certs", path))
+			opts.dockerVolumes = append(opts.dockerVolumes, path+":/certs")
 		}
 		opt = append(opt,
 			WithAppname(name),
@@ -912,7 +913,7 @@ func TestServerUniversal(name string, mesh string, opt ...AppDeploymentOption) I
 
 		serviceAddress := ""
 		if opts.serviceAddress != "" {
-			serviceAddress = fmt.Sprintf(`    serviceAddress: %s`, opts.serviceAddress)
+			serviceAddress = "    serviceAddress: " + opts.serviceAddress
 		}
 
 		if len(args) < 2 || args[1] != "grpc" { // grpc client does not have port
@@ -1049,14 +1050,14 @@ func DumpTempCerts(names ...string) (string, error) {
 	}
 	if err := os.WriteFile(
 		filepath.Join(path, "cert.pem"),
-		[]byte(fmt.Sprintf("---\n%s", cert)),
+		[]byte("---\n"+cert),
 		os.ModePerm, // #nosec G306
 	); err != nil {
 		return "", err
 	}
 	if err := os.WriteFile(
 		filepath.Join(path, "key.pem"),
-		[]byte(fmt.Sprintf("---\n%s", key)),
+		[]byte("---\n"+key),
 		os.ModePerm, // #nosec G306
 	); err != nil {
 		return "", err

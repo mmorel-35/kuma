@@ -108,7 +108,7 @@ var _ = Describe("kumactl get [resource] NAME", func() {
 			resourceTable := fmt.Sprintf("get-%s.golden.txt", resource)
 
 			// when
-			resourceName := fmt.Sprintf("%s-1", resource)
+			resourceName := resource + "-1"
 			rootCmd.SetArgs([]string{"get", resource, resourceName, "-otable"})
 			outbuf.Reset()
 			err := rootCmd.Execute()
@@ -131,7 +131,7 @@ var _ = Describe("kumactl get [resource] NAME", func() {
 			resourceJSON := fmt.Sprintf("get-%s.golden.json", resource)
 
 			// when
-			resourceName := fmt.Sprintf("%s-1", resource)
+			resourceName := resource + "-1"
 			rootCmd.SetArgs([]string{"get", resource, resourceName, "-ojson"})
 			outbuf.Reset()
 			err := rootCmd.Execute()
@@ -151,7 +151,7 @@ var _ = Describe("kumactl get [resource] NAME", func() {
 			Expect(rootCmd.Execute()).To(Succeed())
 
 			// when
-			resourceName := fmt.Sprintf("%s-1", resource)
+			resourceName := resource + "-1"
 			rootCmd.SetArgs([]string{"get", resource, resourceName, "-oyaml"})
 			outbuf.Reset()
 			err := rootCmd.Execute()

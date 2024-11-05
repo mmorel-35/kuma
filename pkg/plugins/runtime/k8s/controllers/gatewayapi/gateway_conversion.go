@@ -116,7 +116,7 @@ func ValidateListeners(crossMesh bool, listeners []gatewayapi.Listener) ([]gatew
 		if !validProtocol(crossMesh, l.Protocol) {
 			message := fmt.Sprintf("unsupported protocol %s", l.Protocol)
 			if crossMesh {
-				message = fmt.Sprintf("%s with cross-mesh", message)
+				message = message + " with cross-mesh"
 			}
 			appendDetachedCondition(
 				l.Name,
@@ -295,7 +295,7 @@ func (r *GatewayReconciler) handleCertRefs(ctx context.Context, mesh string, gat
 			if kube_apierrs.IsNotFound(err) {
 				return nil, &certRefCondition{
 					reason:  string(gatewayapi_v1.ListenerReasonInvalidCertificateRef),
-					message: fmt.Sprintf("invalid reference to %s", name),
+					message: "invalid reference to " + name,
 				}, nil
 			}
 

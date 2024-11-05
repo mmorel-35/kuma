@@ -2,7 +2,7 @@ package v1alpha1_test
 
 import (
 	"context"
-	"fmt"
+
 	"path/filepath"
 	"strings"
 
@@ -649,7 +649,7 @@ var _ = Describe("MeshTrace", func() {
 			name := nameSplit[len(nameSplit)-1]
 			// then
 			Expect(getResourceYaml(generatedResources.ListOf(envoy_resource.ListenerType))).
-				To(matchers.MatchGoldenYAML(filepath.Join("testdata", fmt.Sprintf("%s.listeners.golden.yaml", name))))
+				To(matchers.MatchGoldenYAML(filepath.Join("testdata", name+".listeners.golden.yaml")))
 		},
 		Entry("simple-gateway", gatewayTestCase{
 			rules: core_rules.SingleItemRules{

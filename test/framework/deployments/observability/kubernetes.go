@@ -23,7 +23,7 @@ func (t *k8SDeployment) ZipkinCollectorURL() string {
 }
 
 func (t *k8SDeployment) TracedServices() ([]string, error) {
-	return tracedServices(fmt.Sprintf("http://%s", t.jaegerApiTunnel.Endpoint()))
+	return tracedServices("http://" + t.jaegerApiTunnel.Endpoint())
 }
 
 func (t *k8SDeployment) Name() string {

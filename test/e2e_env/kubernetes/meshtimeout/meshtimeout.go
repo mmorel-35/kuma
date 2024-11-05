@@ -21,8 +21,8 @@ import (
 
 func MeshTimeout() {
 	DescribeTableSubtree("with meshServices mode", func(mode mesh_proto.Mesh_MeshServices_Mode) {
-		mesh := fmt.Sprintf("meshtimeout-ms-%s", strings.ToLower(mode.String()))
-		namespace := fmt.Sprintf("%s-namespace", mesh)
+		mesh := "meshtimeout-ms-" + strings.ToLower(mode.String())
+		namespace := mesh + "-namespace"
 		testServerURL := fmt.Sprintf("test-server.%s.svc:80", namespace)
 
 		BeforeAll(func() {

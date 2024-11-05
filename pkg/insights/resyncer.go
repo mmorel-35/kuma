@@ -38,7 +38,7 @@ const (
 
 func ServiceInsightKey(mesh string) model.ResourceKey {
 	return model.ResourceKey{
-		Name: fmt.Sprintf("all-services-%s", mesh),
+		Name: "all-services-" + mesh,
 		Mesh: mesh,
 	}
 }

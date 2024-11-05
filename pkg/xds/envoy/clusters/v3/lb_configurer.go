@@ -1,8 +1,6 @@
 package clusters
 
 import (
-	"fmt"
-
 	envoy_cluster "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	"github.com/pkg/errors"
 
@@ -50,7 +48,7 @@ func (e *LbConfigurer) Configure(c *envoy_cluster.Cluster) error {
 		lbConfig := e.Lb.GetRingHash()
 		hashfn, ok := envoy_cluster.Cluster_RingHashLbConfig_HashFunction_value[lbConfig.HashFunction]
 		if !ok {
-			return errors.New(fmt.Sprintf("Invalid ring hash function %s", lbConfig.HashFunction))
+			return errors.New("Invalid ring hash function " + lbConfig.HashFunction)
 		}
 
 		c.LbConfig = &envoy_cluster.Cluster_RingHashLbConfig_{

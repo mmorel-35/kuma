@@ -237,7 +237,7 @@ func validateResourceValue(path validators.PathBuilder, value *string, res proto
 	var verr validators.ValidationError
 	if value != nil {
 		if err := mesh.ValidateAnyResourceYAML(*value, res); err != nil {
-			verr.AddViolationAt(path, fmt.Sprintf("native Envoy resource is not valid: %s", err.Error()))
+			verr.AddViolationAt(path, "native Envoy resource is not valid: "+err.Error())
 		}
 	} else {
 		verr.AddViolationAt(path, validators.MustBeDefined)
@@ -252,7 +252,7 @@ func validatePatch(path validators.PathBuilder, value *string, jsonPatches []com
 		if len(jsonPatches) > 0 {
 			verr.AddViolationAt(path, validators.MustHaveOnlyOne(path.String(), "value", "jsonPatches"))
 		} else if err := mesh.ValidateAnyResourceYAMLPatch(*value, res); err != nil {
-			verr.AddViolationAt(path.Field("value"), fmt.Sprintf("native Envoy resource is not valid: %s", err.Error()))
+			verr.AddViolationAt(path.Field("value"), "native Envoy resource is not valid: "+err.Error())
 		}
 	} else {
 		if len(jsonPatches) > 0 {
@@ -270,5 +270,5 @@ func availableOperationsMsg(operations ...ModOperation) string {
 	for _, op := range operations {
 		ops = append(ops, fmt.Sprintf("%q", op))
 	}
-	return fmt.Sprintf("invalid operation. Available operations: %s", strings.Join(ops, ", "))
+	return "invalid operation. Available operations: " + strings.Join(ops, ", ")
 }

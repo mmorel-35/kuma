@@ -1,7 +1,6 @@
 package xds_test
 
 import (
-	"fmt"
 	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -27,7 +26,7 @@ var _ = Describe("Match order", func() {
 			yaml, err := yaml.Marshal(ordered)
 			// then
 			Expect(err).ToNot(HaveOccurred())
-			Expect(yaml).To(matchers.MatchGoldenYAML(fmt.Sprintf("testdata/%s", given.orderedGolden)))
+			Expect(yaml).To(matchers.MatchGoldenYAML("testdata/" + given.orderedGolden))
 		},
 		Entry("many different protocols", validTestCase{
 			conf: api.Conf{

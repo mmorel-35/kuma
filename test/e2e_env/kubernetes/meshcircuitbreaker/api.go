@@ -24,7 +24,7 @@ func API() {
 		Expect(DeleteMeshPolicyOrError(
 			kubernetes.Cluster,
 			v1alpha1.MeshCircuitBreakerResourceTypeDescriptor,
-			fmt.Sprintf("mesh-circuit-breaker-all-%s", meshName),
+			"mesh-circuit-breaker-all-"+meshName,
 		)).To(Succeed())
 	})
 
@@ -101,6 +101,6 @@ spec:
 		mcb, err = kubernetes.Cluster.GetKumactlOptions().KumactlList("meshcircuitbreakers", meshName)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(mcb).To(HaveLen(1))
-		Expect(mcb[0]).To(Equal(fmt.Sprintf("mcb-api-1.%s", Config.KumaNamespace)))
+		Expect(mcb[0]).To(Equal("mcb-api-1." + Config.KumaNamespace))
 	})
 }

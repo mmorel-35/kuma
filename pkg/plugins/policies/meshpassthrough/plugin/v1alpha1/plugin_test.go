@@ -1,8 +1,6 @@
 package v1alpha1_test
 
 import (
-	"fmt"
-
 	envoy_resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -84,9 +82,9 @@ var _ = Describe("MeshPassthrough", func() {
 
 			// then
 			Expect(getResource(resourceSet, envoy_resource.ListenerType)).
-				To(matchers.MatchGoldenYAML(fmt.Sprintf("testdata/%s", given.listenersGolden)))
+				To(matchers.MatchGoldenYAML("testdata/" + given.listenersGolden))
 			Expect(getResource(resourceSet, envoy_resource.ClusterType)).
-				To(matchers.MatchGoldenYAML(fmt.Sprintf("testdata/%s", given.clustersGolden)))
+				To(matchers.MatchGoldenYAML("testdata/" + given.clustersGolden))
 		},
 		Entry("basic listener", testCase{
 			resources: []*core_xds.Resource{

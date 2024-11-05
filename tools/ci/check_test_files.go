@@ -43,10 +43,10 @@ func main() {
 			panic(err)
 		}
 		if testFiles && !suiteFile {
-			res = append(res, fmt.Sprintf("%s has test files but no suite file, this will not run the attached tests", dir))
+			res = append(res, dir+" has test files but no suite file, this will not run the attached tests")
 		}
 		if suiteFile && !testFiles {
-			res = append(res, fmt.Sprintf("%s has a suite file but no test file, this will make tests fail", dir))
+			res = append(res, dir+" has a suite file but no test file, this will make tests fail")
 		}
 	}
 	for _, r := range res {

@@ -252,7 +252,7 @@ func AllowedValuesHint(values ...string) string {
 	if len(values) == 0 {
 		options = "(none)"
 	}
-	return fmt.Sprintf("Allowed values: %s", options)
+	return "Allowed values: " + options
 }
 
 func ProtocolValidator(protocols ...string) TagsValidatorFunc {

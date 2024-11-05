@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 
@@ -193,7 +192,7 @@ func validateQueryParams(matches []QueryParamsMatch) validators.ValidationError 
 	for i, match := range matches {
 		if _, ok := matchedNames[match.Name]; ok {
 			path := validators.Root().Index(i).Field("name")
-			errs.AddViolationAt(path, fmt.Sprintf("multiple entries for name %s", match.Name))
+			errs.AddViolationAt(path, "multiple entries for name "+match.Name)
 		}
 		matchedNames[match.Name] = struct{}{}
 	}

@@ -138,10 +138,10 @@ func (v *PostgresContainer) Config() (pg_config.PostgresStoreConfig, error) {
 			return err
 		}
 		defer db.Close()
-		cfg.DbName = fmt.Sprintf("kuma_%s", strings.ReplaceAll(core.NewUUID(), "-", ""))
+		cfg.DbName = "kuma_" + strings.ReplaceAll(core.NewUUID(), "-", "")
 		GinkgoLogr.Info(fmt.Sprintf("Connecting and creating database to container id: %s, "+
 			"port 5432 mapped to host port: %d; db name %s", v.container.GetContainerID(), cfg.Port, cfg.DbName))
-		_, err = db.Exec(fmt.Sprintf("CREATE DATABASE %s", cfg.DbName))
+		_, err = db.Exec("CREATE DATABASE " + cfg.DbName)
 		return err
 	}, "10s", "100ms").Should(Succeed())
 
@@ -167,7 +167,7 @@ func (v *PostgresContainer) PrintDebugInfo(expectedDbName string, expectedDbPort
 	}
 
 	if state, _ := container.State(context.TODO()); state != nil {
-		logEntries = append(logEntries, fmt.Sprintf("container state: %s", state.Status))
+		logEntries = append(logEntries, "container state: "+state.Status)
 	}
 
 	if logReader, _ := container.Logs(context.Background()); logReader != nil {

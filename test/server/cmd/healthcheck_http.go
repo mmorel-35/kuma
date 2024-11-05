@@ -20,10 +20,10 @@ func newHealthCheckHTTP() *cobra.Command {
 		Short: "Run Test Server for HTTP Health Check test",
 		Long:  `Run Test Server for HTTP Health Check test.`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			http.HandleFunc(fmt.Sprintf("/%s", args.healthMethod), func(writer http.ResponseWriter, request *http.Request) {
+			http.HandleFunc("/"+args.healthMethod, func(writer http.ResponseWriter, request *http.Request) {
 				writer.WriteHeader(http.StatusOK)
 			})
-			http.HandleFunc(fmt.Sprintf("/%s", args.contentMethod), func(writer http.ResponseWriter, request *http.Request) {
+			http.HandleFunc("/"+args.contentMethod, func(writer http.ResponseWriter, request *http.Request) {
 				if _, err := writer.Write([]byte(args.content)); err != nil {
 					http.Error(writer, err.Error(), http.StatusInternalServerError)
 				}

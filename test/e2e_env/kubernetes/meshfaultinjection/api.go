@@ -92,6 +92,6 @@ spec:
 		mrls, err = kubernetes.Cluster.GetKumactlOptions().KumactlList("meshfaultinjections", meshName)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(mrls).To(HaveLen(1))
-		Expect(mrls[0]).To(Equal(fmt.Sprintf("mesh-fault-injection.%s", Config.KumaNamespace)))
+		Expect(mrls[0]).To(Equal("mesh-fault-injection." + Config.KumaNamespace))
 	})
 }

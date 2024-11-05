@@ -86,7 +86,7 @@ func debugUniversalExport(
 
 	filePath := filepath.Join(
 		debugPath,
-		fmt.Sprintf("%s-export.yaml", cluster.Name()),
+		cluster.Name()+"-export.yaml",
 	)
 
 	Logf("saving export for cluster %q and mesh %q to file %q", cluster.Name(), mesh, filePath)
@@ -300,10 +300,10 @@ func inspectDataplane(kumactlOpts *kumactl.KumactlOptions, debugPath string, clu
 		return
 	}
 	if err != nil {
-		dpInspectError = fmt.Sprintf("kumactl get dataplanes failed with error: %s", err.Error())
+		dpInspectError = "kumactl get dataplanes failed with error: " + err.Error()
 	} else {
 		if jsonErr := json.Unmarshal([]byte(dpListJson), &dpResp); jsonErr != nil {
-			dpInspectError = fmt.Sprintf("json Unmarshal dataplane list failed with error: %s", jsonErr.Error())
+			dpInspectError = "json Unmarshal dataplane list failed with error: " + jsonErr.Error()
 		}
 	}
 

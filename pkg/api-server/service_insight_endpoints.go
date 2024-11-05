@@ -26,7 +26,7 @@ type serviceInsightEndpoints struct {
 
 func (s *serviceInsightEndpoints) addFindEndpoint(ws *restful.WebService, pathPrefix string) {
 	ws.Route(ws.GET(pathPrefix+"/{service}").To(s.findResource).
-		Doc(fmt.Sprintf("Get a %s", s.descriptor.WsPath)).
+		Doc("Get a "+s.descriptor.WsPath).
 		Param(ws.PathParameter("service", fmt.Sprintf("Name of a %s", s.descriptor.Name)).DataType("string")).
 		Returns(200, "OK", nil).
 		Returns(404, "Not found", nil))

@@ -27,14 +27,14 @@ type BuildInfo struct {
 
 func (b BuildInfo) FormatDetailedProductInfo() string {
 	base := []string{
-		fmt.Sprintf("Product:       %s", b.Product),
-		fmt.Sprintf("Version:       %s", b.Version),
-		fmt.Sprintf("Git Tag:       %s", b.GitTag),
-		fmt.Sprintf("Git Commit:    %s", b.GitCommit),
-		fmt.Sprintf("Build Date:    %s", b.BuildDate),
+		"Product:       " + b.Product,
+		"Version:       " + b.Version,
+		"Git Tag:       " + b.GitTag,
+		"Git Commit:    " + b.GitCommit,
+		"Build Date:    " + b.BuildDate,
 	}
 	if b.BasedOnKuma != "" {
-		base = append(base, fmt.Sprintf("Based on Kuma: %s", b.BasedOnKuma))
+		base = append(base, "Based on Kuma: "+b.BasedOnKuma)
 	}
 	return strings.Join(
 		base,

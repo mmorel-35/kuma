@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"fmt"
 	"net"
 	"strconv"
 
@@ -17,7 +16,7 @@ func CrossMeshGatewayOnUniversal() {
 	const crossMeshHostname = "gateway.mesh"
 
 	echoServerName := func(mesh string) string {
-		return fmt.Sprintf("echo-server-%s", mesh)
+		return "echo-server-" + mesh
 	}
 
 	const crossMeshGatewayName = "cross-mesh-gateway"

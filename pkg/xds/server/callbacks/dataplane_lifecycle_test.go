@@ -327,7 +327,7 @@ var _ = Describe("Dataplane Lifecycle", func() {
 
 				streamID := int64(streamID + num)
 				name := fmt.Sprintf("backend-%d", num)
-				nodeID := fmt.Sprintf("default.%s", name)
+				nodeID := "default." + name
 
 				// given
 				node := &envoy_core.Node{

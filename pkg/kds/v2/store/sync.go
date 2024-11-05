@@ -2,7 +2,7 @@ package store
 
 import (
 	"context"
-	"fmt"
+
 	"maps"
 	"strings"
 	"time"
@@ -372,7 +372,7 @@ func GlobalSyncCallback(
 				// can filter them and the zone won't sync them again.
 				// When we are further from this migration we can remove this
 				// check.
-				hasOldStylePrefix := strings.HasPrefix(r.GetMeta().GetName(), fmt.Sprintf("%s.", upstream.ControlPlaneId))
+				hasOldStylePrefix := strings.HasPrefix(r.GetMeta().GetName(), upstream.ControlPlaneId+".")
 				hasZoneLabel := r.GetMeta().GetLabels()[mesh_proto.ZoneTag] == upstream.ControlPlaneId
 				return hasOldStylePrefix || hasZoneLabel
 			}), Zone(upstream.ControlPlaneId))

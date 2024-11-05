@@ -163,7 +163,7 @@ func Root() PathBuilder {
 func (p PathBuilder) Field(name string) PathBuilder {
 	element := name
 	if len(p) > 0 {
-		element = fmt.Sprintf(".%s", element)
+		element = "." + element
 	}
 	return append(p, element)
 }

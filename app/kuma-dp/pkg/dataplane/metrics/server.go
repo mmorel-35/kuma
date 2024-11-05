@@ -3,7 +3,7 @@ package metrics
 import (
 	"bytes"
 	"context"
-	"fmt"
+
 	"io"
 	"math"
 	"mime"
@@ -160,7 +160,7 @@ func (s *Hijacker) Start(stop <-chan struct{}) error {
 	}()
 
 	logger.Info("starting Metrics Hijacker Server",
-		"socketPath", fmt.Sprintf("unix://%s", s.socketPath),
+		"socketPath", "unix://"+s.socketPath,
 	)
 
 	server := &http.Server{

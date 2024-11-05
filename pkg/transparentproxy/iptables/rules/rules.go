@@ -2,6 +2,7 @@ package rules
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/kumahq/kuma/pkg/transparentproxy/config"
@@ -119,7 +120,7 @@ func (r *Rule) BuildForRestore(cfg config.InitializedConfigIPvX) string {
 	cmd := []string{flag, r.chain}
 
 	if r.position != 0 {
-		cmd = append(cmd, fmt.Sprintf("%d", r.position))
+		cmd = append(cmd, strconv.FormatUint(uint64(r.position), 10))
 	}
 
 	var params parameters.Parameters

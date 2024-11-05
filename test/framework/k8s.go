@@ -37,7 +37,7 @@ func PodOfApp(cluster Cluster, name string, namespace string) (v1.Pod, error) {
 		cluster.GetTesting(),
 		cluster.GetKubectlOptions(namespace),
 		metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("app=%s", name),
+			LabelSelector: "app=" + name,
 		},
 	)
 	if err != nil {
@@ -54,7 +54,7 @@ func PodIPOfApp(cluster Cluster, name string, namespace string) (string, error) 
 		cluster.GetTesting(),
 		cluster.GetKubectlOptions(namespace),
 		metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("app=%s", name),
+			LabelSelector: "app=" + name,
 		},
 	)
 	if err != nil {

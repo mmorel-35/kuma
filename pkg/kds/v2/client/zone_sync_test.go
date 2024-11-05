@@ -2,7 +2,7 @@ package client_test
 
 import (
 	"context"
-	"fmt"
+
 	"sync"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -55,7 +55,7 @@ var _ = Describe("Zone Delta Sync", func() {
 				{
 					Tags: map[string]string{
 						mesh_proto.ServiceTag: "backend",
-						mesh_proto.ZoneTag:    fmt.Sprintf("not-%s", zone),
+						mesh_proto.ZoneTag:    "not-" + zone,
 					},
 				},
 			},

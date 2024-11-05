@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -41,7 +42,7 @@ func newWaitCmd() *cobra.Command {
 						return nil
 					}
 				case <-timeout:
-					return fmt.Errorf("timeout occurred while waiting for data plane proxy to be ready")
+					return errors.New("timeout occurred while waiting for data plane proxy to be ready")
 				}
 			}
 		},

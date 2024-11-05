@@ -3,7 +3,7 @@ package probes
 import (
 	"crypto/tls"
 	"errors"
-	"fmt"
+
 	"io"
 	"net"
 	"net/http"
@@ -108,7 +108,7 @@ func buildUpstreamReq(downstreamReq *http.Request, upstreamScheme kube_core.URIS
 	}
 	if _, ok := downstreamReq.Header["User-Agent"]; !ok {
 		// explicitly set User-Agent so it's not set to default Go value. K8s use kube-probe.
-		upstreamReq.Header.Set("User-Agent", fmt.Sprintf("kuma-probe/%s", version.Build.Version))
+		upstreamReq.Header.Set("User-Agent", "kuma-probe/"+version.Build.Version)
 	}
 	return upstreamReq, nil
 }

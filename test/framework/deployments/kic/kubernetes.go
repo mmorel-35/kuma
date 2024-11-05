@@ -1,7 +1,6 @@
 package kic
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gruntwork-io/terratest/modules/helm"
@@ -46,11 +45,11 @@ func (t *k8sDeployment) Deploy(cluster framework.Cluster) error {
 		return err
 	}
 
-	for _, app := range []string{fmt.Sprintf("%s-controller", t.name), fmt.Sprintf("%s-gateway", t.name)} {
+	for _, app := range []string{t.name + "-controller", t.name + "-gateway"} {
 		err := k8s.WaitUntilNumPodsCreatedE(cluster.GetTesting(),
 			cluster.GetKubectlOptions(t.ingressNamespace),
 			metav1.ListOptions{
-				LabelSelector: fmt.Sprintf("app=%s", app),
+				LabelSelector: "app=" + app,
 			},
 			1,
 			framework.DefaultRetries,
@@ -62,7 +61,7 @@ func (t *k8sDeployment) Deploy(cluster framework.Cluster) error {
 		pods := k8s.ListPods(cluster.GetTesting(),
 			cluster.GetKubectlOptions(t.ingressNamespace),
 			metav1.ListOptions{
-				LabelSelector: fmt.Sprintf("app=%s", app),
+				LabelSelector: "app=" + app,
 			},
 		)
 		if len(pods) != 1 {

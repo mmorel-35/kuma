@@ -1,7 +1,6 @@
 package errors
 
 import (
-	"fmt"
 	"reflect"
 )
 
@@ -41,7 +40,7 @@ func (e *BadRequest) Error() string {
 	if e.msg == "" {
 		return "bad request"
 	}
-	return fmt.Sprintf("bad request: %s", e.msg)
+	return "bad request: " + e.msg
 }
 
 func (e *BadRequest) Is(err error) bool {
@@ -60,7 +59,7 @@ func (e *NotFound) Error() string {
 	if e.msg == "" {
 		return "not found"
 	}
-	return fmt.Sprintf("not found: %s", e.msg)
+	return "not found: " + e.msg
 }
 
 func (e *NotFound) Is(err error) bool {

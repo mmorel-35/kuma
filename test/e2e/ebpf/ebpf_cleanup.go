@@ -24,10 +24,7 @@ func CleanupEbpfConfigFromNode() {
 	}
 
 	var cluster Cluster
-	releaseName := fmt.Sprintf(
-		"kuma-%s",
-		strings.ToLower(random.UniqueId()),
-	)
+	releaseName := "kuma-" + strings.ToLower(random.UniqueId())
 
 	BeforeAll(func() {
 		cluster = NewK8sCluster(NewTestingT(), Kuma1, Silent).

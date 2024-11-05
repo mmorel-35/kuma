@@ -186,7 +186,7 @@ $ kumactl export --profile federation --format universal > policies.yaml
 			return nil
 		},
 	}
-	cmd.Flags().StringVarP(&ctx.args.profile, "profile", "p", profileFederation, fmt.Sprintf(`Profile. Available values: %s`, strings.Join(allProfiles, ",")))
+	cmd.Flags().StringVarP(&ctx.args.profile, "profile", "p", profileFederation, "Profile. Available values: "+strings.Join(allProfiles, ","))
 	cmd.Flags().StringVarP(&ctx.args.format, "format", "f", formatUniversal, fmt.Sprintf(`Policy format output. Available values: %q, %q`, formatUniversal, formatKubernetes))
 	cmd.Flags().BoolVarP(&ctx.args.includeAdmin, "include-admin", "a", false, "Include admin resource types (like secrets), this flag is ignored on migration profiles like federation as these entities are required")
 	return cmd
@@ -250,7 +250,7 @@ func resourcesTypesToDump(cmd *cobra.Command, ectx *exportContext) ([]model.Reso
 		resDescList = append(resDescList, resDesc)
 	}
 	if len(incompatibleTypes) > 0 {
-		msg := fmt.Sprintf("The following types won't be exported because they are unknown to kumactl: %s", strings.Join(incompatibleTypes, ","))
+		msg := "The following types won't be exported because they are unknown to kumactl: " + strings.Join(incompatibleTypes, ",")
 		cmd.Printf("# %s\n", msg)
 		cmd.PrintErrf("WARNING: %s. Are you using a compatible version of kumactl?\n", msg)
 	}

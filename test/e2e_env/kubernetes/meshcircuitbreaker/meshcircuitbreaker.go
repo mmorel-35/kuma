@@ -56,13 +56,13 @@ spec:
 		Expect(DeleteMeshPolicyOrError(
 			kubernetes.Cluster,
 			meshretry_api.MeshRetryResourceTypeDescriptor,
-			fmt.Sprintf("mesh-retry-all-%s", mesh),
+			"mesh-retry-all-"+mesh,
 		)).To(Succeed())
 
 		Expect(DeleteMeshPolicyOrError(
 			kubernetes.Cluster,
 			v1alpha1.MeshCircuitBreakerResourceTypeDescriptor,
-			fmt.Sprintf("mesh-circuit-breaker-all-%s", mesh),
+			"mesh-circuit-breaker-all-"+mesh,
 		)).To(Succeed())
 	})
 

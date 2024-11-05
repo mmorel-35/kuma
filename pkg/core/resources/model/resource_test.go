@@ -43,7 +43,7 @@ var _ = Describe("IsReferenced", func() {
 			"k8s": func(mesh, name string) core_model.ResourceMeta {
 				return &test_model.ResourceMeta{
 					Mesh: mesh,
-					Name: fmt.Sprintf("%s.foo", name),
+					Name: name + ".foo",
 					Labels: map[string]string{
 						mesh_proto.ResourceOriginLabel: string(mesh_proto.ZoneResourceOrigin),
 						mesh_proto.ZoneTag:             "zone-1",
@@ -67,7 +67,7 @@ var _ = Describe("IsReferenced", func() {
 			"k8s": func(mesh, name string) core_model.ResourceMeta {
 				return &test_model.ResourceMeta{
 					Mesh: mesh,
-					Name: fmt.Sprintf("%s.foo", name),
+					Name: name + ".foo",
 					Labels: map[string]string{
 						mesh_proto.ResourceOriginLabel: string(mesh_proto.GlobalResourceOrigin),
 						mesh_proto.KubeNamespaceTag:    "kuma-system",

@@ -2,7 +2,7 @@ package gatewayapi
 
 import (
 	"context"
-	"fmt"
+
 	"reflect"
 
 	"github.com/go-logr/logr"
@@ -118,7 +118,7 @@ func getParametersRef(
 	}
 
 	if parametersRef.Group != gatewayapi.Group(mesh_k8s.GroupVersion.Group) || parametersRef.Kind != "MeshGatewayConfig" {
-		condition.Message = fmt.Sprintf("parametersRef must point to a MeshGatewayConfig.%s", mesh_k8s.GroupVersion.Group)
+		condition.Message = "parametersRef must point to a MeshGatewayConfig." + mesh_k8s.GroupVersion.Group
 		return nil, &condition, nil
 	}
 

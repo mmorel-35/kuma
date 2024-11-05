@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
+
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -39,7 +39,7 @@ type zoneStaticTokenIssuer struct{}
 var _ zone.TokenIssuer = &zoneStaticTokenIssuer{}
 
 func (z *zoneStaticTokenIssuer) Generate(ctx context.Context, identity zone.Identity, validFor time.Duration) (zone.Token, error) {
-	return fmt.Sprintf("token-for-%s", identity.Zone), nil
+	return "token-for-" + identity.Zone, nil
 }
 
 var _ = Describe("Dataplane Token Webservice", func() {
@@ -62,7 +62,7 @@ var _ = Describe("Dataplane Token Webservice", func() {
 
 		// wait for the server
 		Eventually(func() error {
-			_, err := http.DefaultClient.Get(fmt.Sprintf("%s/tokens/dataplane", srv.URL))
+			_, err := http.DefaultClient.Get(srv.URL + "/tokens/dataplane")
 			return err
 		}).ShouldNot(HaveOccurred())
 	})
@@ -77,7 +77,7 @@ var _ = Describe("Dataplane Token Webservice", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		// when
-		req, err := http.NewRequest("POST", fmt.Sprintf("%s/tokens/dataplane", url), bytes.NewReader(reqBytes))
+		req, err := http.NewRequest("POST", url+"/tokens/dataplane", bytes.NewReader(reqBytes))
 		Expect(err).ToNot(HaveOccurred())
 		req.Header.Add("content-type", "application/json")
 		resp, err := http.DefaultClient.Do(req)
@@ -97,7 +97,7 @@ var _ = Describe("Dataplane Token Webservice", func() {
 	DescribeTable("should return bad request on invalid json",
 		func(json string) {
 			// given
-			req, err := http.NewRequest("POST", fmt.Sprintf("%s/tokens/dataplane", url), strings.NewReader(json))
+			req, err := http.NewRequest("POST", url+"/tokens/dataplane", strings.NewReader(json))
 			Expect(err).ToNot(HaveOccurred())
 			req.Header.Add("content-type", "application/json")
 

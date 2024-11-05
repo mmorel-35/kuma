@@ -3,6 +3,7 @@ package net_test
 import (
 	"fmt"
 	"net"
+	"strconv"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -109,7 +110,7 @@ var _ = Describe("PickTCPPort()", func() {
 		testSet := func(n uint32) []TableEntry {
 			cases := make([]TableEntry, 0, n)
 			for i := uint32(2); i <= n; i++ {
-				cases = append(cases, Entry(fmt.Sprintf("%d", i), testCase{n: i}))
+				cases = append(cases, Entry(strconv.FormatUint(uint64(i), 10), testCase{n: i}))
 			}
 			return cases
 		}

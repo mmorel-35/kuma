@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"strings"
 
 	envoy_core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
@@ -149,7 +148,7 @@ func (s *stream) NACK(resourceType core_model.ResourceType, err error) error {
 			Id: s.clientId,
 		},
 		ErrorDetail: &status.Status{
-			Message: fmt.Sprintf("%s", err),
+			Message: err.Error(),
 		},
 	})
 }

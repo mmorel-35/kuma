@@ -257,7 +257,7 @@ spec:
 				Specify("when the prefix is the entire path", func() {
 					Eventually(func(g Gomega) {
 						response, err := client.CollectEchoResponse(
-							kubernetes.Cluster, "demo-client", fmt.Sprintf("http://mtls-edge-gateway.gateway-mtls:8080/%s", prefix),
+							kubernetes.Cluster, "demo-client", "http://mtls-edge-gateway.gateway-mtls:8080/"+prefix,
 							client.WithHeader("host", "example.kuma.io"),
 							client.FromKubernetesPod(clientNamespace, "demo-client"),
 						)

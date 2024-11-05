@@ -1,7 +1,7 @@
 package probes
 
 import (
-	"fmt"
+	"strconv"
 
 	corev1 "k8s.io/api/core/v1"
 )
@@ -17,7 +17,7 @@ const (
 func TimeoutHeader(timeoutSeconds int32) corev1.HTTPHeader {
 	return corev1.HTTPHeader{
 		Name:  HeaderNameTimeout,
-		Value: fmt.Sprintf("%d", timeoutSeconds),
+		Value: strconv.Itoa(int(timeoutSeconds)),
 	}
 }
 

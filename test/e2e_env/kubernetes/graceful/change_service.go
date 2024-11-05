@@ -1,7 +1,6 @@
 package graceful
 
 import (
-	"fmt"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -109,7 +108,7 @@ func ChangeService() {
 		Expect(DeleteMeshPolicyOrError(
 			kubernetes.Cluster,
 			v1alpha1.MeshRetryResourceTypeDescriptor,
-			fmt.Sprintf("mesh-retry-all-%s", mesh),
+			"mesh-retry-all-"+mesh,
 		)).To(Succeed())
 	})
 

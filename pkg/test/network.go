@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"net"
 )
 
@@ -11,7 +10,7 @@ func GetFreePort() (int, error) {
 }
 
 func FindFreePort(ip string) (uint32, error) {
-	ln, err := net.Listen("tcp", fmt.Sprintf("%s:0", ip))
+	ln, err := net.Listen("tcp", ip+":0")
 	if err != nil {
 		return 0, err
 	}

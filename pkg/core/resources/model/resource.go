@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -835,7 +836,7 @@ func ResolveBackendRef(meta ResourceMeta, br common_api.BackendRef, resolver Lab
 	}
 
 	if br.Port != nil {
-		rr.Resource.SectionName = fmt.Sprintf("%d", *br.Port)
+		rr.Resource.SectionName = strconv.FormatUint(uint64(*br.Port), 10)
 	}
 
 	return &ResolvedBackendRef{Ref: &rr}
@@ -844,16 +845,16 @@ func ResolveBackendRef(meta ResourceMeta, br common_api.BackendRef, resolver Lab
 func (r ResourceIdentifier) String() string {
 	var pairs []string
 	if r.Mesh != "" {
-		pairs = append(pairs, fmt.Sprintf("mesh/%s", r.Mesh))
+		pairs = append(pairs, "mesh/"+r.Mesh)
 	}
 	if r.Zone != "" {
-		pairs = append(pairs, fmt.Sprintf("zone/%s", r.Zone))
+		pairs = append(pairs, "zone/"+r.Zone)
 	}
 	if r.Namespace != "" {
-		pairs = append(pairs, fmt.Sprintf("namespace/%s", r.Namespace))
+		pairs = append(pairs, "namespace/"+r.Namespace)
 	}
 	if r.Name != "" {
-		pairs = append(pairs, fmt.Sprintf("name/%s", r.Name))
+		pairs = append(pairs, "name/"+r.Name)
 	}
 	return strings.Join(pairs, ":")
 }
@@ -951,7 +952,7 @@ func (ri TypedResourceIdentifier) String() string {
 	}
 	pairs = append(pairs, ri.ResourceIdentifier.String())
 	if ri.SectionName != "" {
-		pairs = append(pairs, fmt.Sprintf("section/%s", ri.SectionName))
+		pairs = append(pairs, "section/"+ri.SectionName)
 	}
 	return strings.Join(pairs, ":")
 }

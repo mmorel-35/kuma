@@ -57,14 +57,14 @@ spec:
 
 	It("should be able to communicate with API Server", func() {
 		serviceAccount := "/var/run/secrets/kubernetes.io/serviceaccount"
-		caCert := fmt.Sprintf("%s/ca.crt", serviceAccount)
+		caCert := serviceAccount + "/ca.crt"
 
 		// read service account token
 		var token string
 		Eventually(func(g Gomega) {
 			stdout, _, err := kubernetes.Cluster.Exec(
 				namespace, clientPodName, "demo-client",
-				"cat", fmt.Sprintf("%s/token", serviceAccount),
+				"cat", serviceAccount+"/token",
 			)
 			g.Expect(err).ToNot(HaveOccurred())
 			token = stdout
@@ -76,7 +76,7 @@ spec:
 				kubernetes.Cluster, "demo-client", "https://kubernetes.default.svc/api",
 				client.FromKubernetesPod(namespace, "demo-client"),
 				client.WithCACert(caCert),
-				client.WithHeader("Authorization", fmt.Sprintf("Bearer %s", token)),
+				client.WithHeader("Authorization", "Bearer "+token),
 			)
 			g.Expect(err).ToNot(HaveOccurred())
 			// we expect k8s resource 'meta/v1, Kind=APIVersions'
@@ -93,7 +93,7 @@ spec:
 				kubernetes.Cluster, "demo-client", "https://kubernetes.default.svc/api",
 				client.FromKubernetesPod(namespace, "demo-client"),
 				client.WithCACert(caCert),
-				client.WithHeader("Authorization", fmt.Sprintf("Bearer %s", token)),
+				client.WithHeader("Authorization", "Bearer "+token),
 			)
 			g.Expect(err).ToNot(HaveOccurred())
 			// we expect k8s resource 'meta/v1, Kind=APIVersions'

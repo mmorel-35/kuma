@@ -92,7 +92,7 @@ func typeToLegacyOverviewPath(resourceType model.ResourceType) string {
 
 func (r *resourceEndpoints) addFindEndpoint(ws *restful.WebService, pathPrefix string) {
 	ws.Route(ws.GET(pathPrefix+"/{name}").To(r.findResource(false)).
-		Doc(fmt.Sprintf("Get a %s", r.descriptor.WsPath)).
+		Doc("Get a "+r.descriptor.WsPath).
 		Param(ws.PathParameter("name", fmt.Sprintf("Name of a %s", r.descriptor.Name)).DataType("string")).
 		Returns(200, "OK", nil).
 		Returns(404, "Not found", nil))
@@ -224,7 +224,7 @@ func (r *resourceEndpoints) addListEndpoint(ws *restful.WebService, pathPrefix s
 	if r.descriptor.HasInsights() {
 		route := r.listResources(true)
 		ws.Route(ws.GET(pathPrefix+"/_overview").To(route).
-			Doc(fmt.Sprintf("Get a %s", r.descriptor.WsPath)).
+			Doc("Get a "+r.descriptor.WsPath).
 			Param(ws.QueryParameter("size", "size of page").DataType("int")).
 			Param(ws.QueryParameter("offset", "offset of page to list").DataType("string")).
 			Param(ws.PathParameter("name", "a pattern to select only resources that contain these characters").DataType("string")).
@@ -233,7 +233,7 @@ func (r *resourceEndpoints) addListEndpoint(ws *restful.WebService, pathPrefix s
 		// Backward compatibility with previous path for overviews
 		if legacyPath := typeToLegacyOverviewPath(r.descriptor.Name); legacyPath != "" {
 			ws.Route(ws.GET(strings.Replace(pathPrefix, r.descriptor.WsPath, legacyPath, 1)).To(route).
-				Doc(fmt.Sprintf("Get a %s", r.descriptor.WsPath)).
+				Doc("Get a "+r.descriptor.WsPath).
 				Param(ws.QueryParameter("name", "a pattern to select only resources that contain these characters").DataType("string")).
 				Returns(200, "OK", nil).
 				Returns(404, "Not found", nil))
@@ -327,8 +327,8 @@ func (r *resourceEndpoints) addCreateOrUpdateEndpoint(ws *restful.WebService, pa
 			Returns(http.StatusMethodNotAllowed, "Not allowed in read-only mode.", restful.ServiceError{}))
 	} else {
 		ws.Route(ws.PUT(pathPrefix+"/{name}").To(r.createOrUpdateResource).
-			Doc(fmt.Sprintf("Updates a %s", r.descriptor.WsPath)).
-			Param(ws.PathParameter("name", fmt.Sprintf("Name of the %s", r.descriptor.WsPath)).DataType("string")).
+			Doc("Updates a "+r.descriptor.WsPath).
+			Param(ws.PathParameter("name", "Name of the "+r.descriptor.WsPath).DataType("string")).
 			Returns(200, "OK", nil).
 			Returns(201, "Created", nil))
 	}
@@ -576,7 +576,7 @@ func (r *resourceEndpoints) validateLabels(resource rest.Resource) validators.Va
 				err.AddViolationAt(validators.Root().Key(mesh_proto.ZoneTag), fmt.Sprintf("%s label should have %s value", mesh_proto.ZoneTag, r.zoneName))
 			}
 			if meshLabelValue, ok := resource.GetMeta().GetLabels()[mesh_proto.MeshTag]; ok && meshLabelValue != resource.GetMeta().GetMesh() {
-				err.AddViolationAt(validators.Root().Key(mesh_proto.MeshTag), fmt.Sprintf("%s label must not differ from mesh set on resource", mesh_proto.MeshTag))
+				err.AddViolationAt(validators.Root().Key(mesh_proto.MeshTag), mesh_proto.MeshTag+" label must not differ from mesh set on resource")
 			}
 		}
 	}

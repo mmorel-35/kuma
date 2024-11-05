@@ -2,6 +2,7 @@ package v1alpha1
 
 import (
 	"fmt"
+	"strconv"
 
 	mesh_proto "github.com/kumahq/kuma/api/mesh/v1alpha1"
 	core_vip "github.com/kumahq/kuma/pkg/core/resources/apis/core/vip"
@@ -36,7 +37,7 @@ func (m *MeshServiceResource) FindPortByName(name string) (Port, bool) {
 		if p.Name == name {
 			return p, true
 		}
-		if fmt.Sprintf("%d", p.Port) == name {
+		if strconv.FormatUint(uint64(p.Port), 10) == name {
 			return p, true
 		}
 	}
@@ -132,5 +133,5 @@ func (p *Port) GetName() string {
 	if p.Name != "" {
 		return p.Name
 	}
-	return fmt.Sprintf("%d", p.Port)
+	return strconv.FormatUint(uint64(p.Port), 10)
 }

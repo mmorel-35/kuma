@@ -62,7 +62,7 @@ var _ = Describe("Endpoints", func() {
 			Expect(res).To(HaveHTTPStatus(http.StatusOK))
 			b, err := io.ReadAll(res.Body)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(string(b)).To(matchers.MatchGoldenJSON("testdata", "base_endpoints", fmt.Sprintf("%s.golden.json", strings.ReplaceAll(path, "/", ""))))
+			Expect(string(b)).To(matchers.MatchGoldenJSON("testdata", "base_endpoints", strings.ReplaceAll(path, "/", "")+".golden.json"))
 		},
 		Entry(nil, "/_resources"),
 		Entry(nil, "/policies"),

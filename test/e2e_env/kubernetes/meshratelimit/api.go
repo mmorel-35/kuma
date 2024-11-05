@@ -91,6 +91,6 @@ spec:
 		mrls, err = kubernetes.Cluster.GetKumactlOptions().KumactlList("meshratelimits", meshName)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(mrls).To(HaveLen(1))
-		Expect(mrls[0]).To(Equal(fmt.Sprintf("mesh-rate-limit.%s", Config.KumaNamespace)))
+		Expect(mrls[0]).To(Equal("mesh-rate-limit." + Config.KumaNamespace))
 	})
 }

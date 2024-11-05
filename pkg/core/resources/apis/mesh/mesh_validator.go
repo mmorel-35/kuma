@@ -129,7 +129,7 @@ func validateLoggingTcp(cfgStr *structpb.Struct) validators.ValidationError {
 	var verr validators.ValidationError
 	cfg := mesh_proto.TcpLoggingBackendConfig{}
 	if err := proto.ToTyped(cfgStr, &cfg); err != nil {
-		verr.AddViolation("", fmt.Sprintf("could not parse config: %s", err.Error()))
+		verr.AddViolation("", "could not parse config: "+err.Error())
 		return verr
 	}
 	if cfg.Address == "" {
@@ -147,7 +147,7 @@ func validateLoggingFile(cfgStr *structpb.Struct) validators.ValidationError {
 	var verr validators.ValidationError
 	cfg := mesh_proto.FileLoggingBackendConfig{}
 	if err := proto.ToTyped(cfgStr, &cfg); err != nil {
-		verr.AddViolation("", fmt.Sprintf("could not parse config: %s", err.Error()))
+		verr.AddViolation("", "could not parse config: "+err.Error())
 	} else if cfg.Path == "" {
 		verr.AddViolation("path", "cannot be empty")
 	}
@@ -196,7 +196,7 @@ func validateDatadog(cfgStr *structpb.Struct) validators.ValidationError {
 	var verr validators.ValidationError
 	cfg := mesh_proto.DatadogTracingBackendConfig{}
 	if err := proto.ToTyped(cfgStr, &cfg); err != nil {
-		verr.AddViolation("", fmt.Sprintf("could not parse config: %s", err.Error()))
+		verr.AddViolation("", "could not parse config: "+err.Error())
 		return verr
 	}
 
@@ -212,11 +212,11 @@ func validateZipkin(cfgStr *structpb.Struct) validators.ValidationError {
 	var verr validators.ValidationError
 	cfg := mesh_proto.ZipkinTracingBackendConfig{}
 	if err := proto.ToTyped(cfgStr, &cfg); err != nil {
-		verr.AddViolation("", fmt.Sprintf("could not parse config: %s", err.Error()))
+		verr.AddViolation("", "could not parse config: "+err.Error())
 		return verr
 	}
 	if cfg.ApiVersion != "" && cfg.ApiVersion != "httpJsonV1" && cfg.ApiVersion != "httpJson" && cfg.ApiVersion != "httpProto" {
-		verr.AddViolation("apiVersion", fmt.Sprintf(`has invalid value. %s`, AllowedValuesHint("httpJsonV1", "httpJson", "httpProto")))
+		verr.AddViolation("apiVersion", "has invalid value. "+AllowedValuesHint("httpJsonV1", "httpJson", "httpProto"))
 	}
 	if cfg.Url == "" {
 		verr.AddViolation("url", "cannot be empty")
@@ -258,7 +258,7 @@ func validatePrometheusConfig(cfgStr *structpb.Struct) validators.ValidationErro
 	var verr validators.ValidationError
 	cfg := mesh_proto.PrometheusMetricsBackendConfig{}
 	if err := proto.ToTyped(cfgStr, &cfg); err != nil {
-		verr.AddViolation("", fmt.Sprintf("could not parse config: %s", err.Error()))
+		verr.AddViolation("", "could not parse config: "+err.Error())
 		return verr
 	}
 	if cfg.SkipMTLS != nil && cfg.Tls != nil && !hasEqualConfiguration(&cfg) {
@@ -266,7 +266,7 @@ func validatePrometheusConfig(cfgStr *structpb.Struct) validators.ValidationErro
 		return verr
 	}
 	if _, err := regexp.Compile(cfg.GetEnvoy().GetFilterRegex()); err != nil {
-		verr.AddViolationAt(validators.RootedAt("envoy").Field("filterRegex"), fmt.Sprintf("provided regexp isn't correct: %s", err.Error()))
+		verr.AddViolationAt(validators.RootedAt("envoy").Field("filterRegex"), "provided regexp isn't correct: "+err.Error())
 		return verr
 	}
 	usedName := make(map[string]bool)

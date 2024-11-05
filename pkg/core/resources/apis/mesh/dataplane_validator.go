@@ -231,7 +231,7 @@ func validateOutbound(outbound *mesh_proto.Dataplane_Networking_Outbound) valida
 	switch {
 	case outbound.BackendRef != nil:
 		if _, allowed := allowedKinds[outbound.BackendRef.Kind]; !allowed {
-			result.AddViolation("backendRef.kind", fmt.Sprintf("invalid value. Available values are: %s", strings.Join(maps.SortedKeys(allowedKinds), ",")))
+			result.AddViolation("backendRef.kind", "invalid value. Available values are: "+strings.Join(maps.SortedKeys(allowedKinds), ","))
 		}
 		if outbound.BackendRef.Name == "" && len(outbound.BackendRef.Labels) == 0 {
 			result.AddViolation("backendRef", "either 'name' or 'labels' should be specified")
@@ -266,7 +266,7 @@ func validateTransparentProxying(tp *mesh_proto.Dataplane_Networking_Transparent
 			switch backendRef.Kind {
 			case string(common_api.MeshMultiZoneService), string(common_api.MeshService), string(common_api.MeshExternalService):
 			default:
-				result.AddViolationAt(path.Index(i).Field("kind"), fmt.Sprintf("invalid value. Available values are: %s", strings.Join(maps.SortedKeys(allowedKinds), ",")))
+				result.AddViolationAt(path.Index(i).Field("kind"), "invalid value. Available values are: "+strings.Join(maps.SortedKeys(allowedKinds), ","))
 			}
 			if backendRef.Name != "" {
 				result.AddErrorAt(path.Index(i).Field("name"), validateIdentifier(backendRef.Name, identifierRegexp, identifierErrMsg))

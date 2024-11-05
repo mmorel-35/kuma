@@ -45,7 +45,7 @@ data:
 			Install(YamlK8s(configMap(Config.KumaNamespace))).
 			Install(Kuma(core.Zone,
 				WithInstallationMode(HelmInstallationMode),
-				WithHelmReleaseName(fmt.Sprintf("kuma-%s", strings.ToLower(random.UniqueId()))),
+				WithHelmReleaseName("kuma-"+strings.ToLower(random.UniqueId())),
 				WithHelmOpt("controlPlane.envVars.KUMA_BOOTSTRAP_SERVER_PARAMS_COREFILE_TEMPLATE_PATH",
 					dnsConfigDir+"/"+configMapName),
 				WithHelmOpt("controlPlane.extraConfigMaps[0].name", configMapName),
@@ -60,7 +60,7 @@ data:
 				democlient.WithName(appName),
 				democlient.WithNamespace(appNamespace),
 				democlient.WithPodAnnotations(map[string]string{
-					"kuma.io/sidecar-env-vars": fmt.Sprintf("KUMA_DNS_CONFIG_DIR=%s", dnsConfigDir),
+					"kuma.io/sidecar-env-vars": "KUMA_DNS_CONFIG_DIR=" + dnsConfigDir,
 				}),
 			)).
 			Setup(k8sCluster),

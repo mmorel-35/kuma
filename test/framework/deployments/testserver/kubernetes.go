@@ -1,7 +1,6 @@
 package testserver
 
 import (
-	"fmt"
 	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -283,7 +282,7 @@ func meta(namespace string, name string) metav1.ObjectMeta {
 }
 
 func (k *k8SDeployment) tlsSecretName() string {
-	return fmt.Sprintf("%s-tls", k.Name())
+	return k.Name() + "-tls"
 }
 
 func (k *k8SDeployment) Deploy(cluster framework.Cluster) error {

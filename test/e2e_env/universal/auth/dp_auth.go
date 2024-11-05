@@ -92,11 +92,7 @@ func DpAuth() {
 		_, _, err = jwt.NewParser().ParseUnverified(token, claims)
 		Expect(err).ToNot(HaveOccurred())
 
-		yaml := fmt.Sprintf(`
-type: Secret
-mesh: dp-auth
-name: dataplane-token-revocations-dp-auth
-data: %s`, base64.StdEncoding.EncodeToString([]byte(claims.ID)))
+		yaml := "\ntype: Secret\nmesh: dp-auth\nname: dataplane-token-revocations-dp-auth\ndata: " + base64.StdEncoding.EncodeToString([]byte(claims.ID))
 		Expect(universal.Cluster.Install(YamlUniversal(yaml))).To(Succeed())
 
 		// then DPP is disconnected

@@ -28,7 +28,7 @@ func SNIFromTags(tags envoy_tags.Tags) string {
 func TagsFromSNI(sni string) (envoy_tags.Tags, error) {
 	parts := strings.Split(sni, "{")
 	if len(parts) > 2 {
-		return nil, errors.New(fmt.Sprintf("cannot parse tags from sni: %s", sni))
+		return nil, errors.New("cannot parse tags from sni: " + sni)
 	}
 	if len(parts) == 1 {
 		return envoy_tags.Tags{mesh_proto.ServiceTag: parts[0]}, nil

@@ -2,7 +2,8 @@ package context
 
 import (
 	"encoding/base64"
-	"fmt"
+
+	"strconv"
 	"time"
 
 	common_api "github.com/kumahq/kuma/api/common/v1alpha1"
@@ -193,23 +194,23 @@ func (mc *MeshContext) getSectionName(kind core_model.ResourceType, key core_mod
 	case meshservice_api.MeshServiceType:
 		ms, found := mc.MeshServiceByIdentifier[key]
 		if !found {
-			return fmt.Sprintf("%d", port)
+			return strconv.FormatUint(uint64(port), 10)
 		}
 		if sectionName, portFound := ms.FindSectionNameByPort(port); portFound {
 			return sectionName
 		}
-		return fmt.Sprintf("%d", port)
+		return strconv.FormatUint(uint64(port), 10)
 	case meshmzservice_api.MeshMultiZoneServiceType:
 		mmzs, found := mc.MeshMultiZoneServiceByIdentifier[key]
 		if !found {
-			return fmt.Sprintf("%d", port)
+			return strconv.FormatUint(uint64(port), 10)
 		}
 		if sectionName, portFound := mmzs.FindSectionNameByPort(port); portFound {
 			return sectionName
 		}
-		return fmt.Sprintf("%d", port)
+		return strconv.FormatUint(uint64(port), 10)
 	default:
-		return fmt.Sprintf("%d", port)
+		return strconv.FormatUint(uint64(port), 10)
 	}
 }
 

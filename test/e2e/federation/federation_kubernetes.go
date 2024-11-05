@@ -1,7 +1,6 @@
 package federation
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -29,7 +28,7 @@ func FederateKubeZoneCPToKubeGlobal() {
 			WithTimeout(6 * time.Second).
 			WithRetries(60)
 
-		releaseName = fmt.Sprintf("kuma-%s", strings.ToLower(random.UniqueId()))
+		releaseName = "kuma-" + strings.ToLower(random.UniqueId())
 
 		err := NewClusterSetup().
 			Install(Kuma(core.Global,

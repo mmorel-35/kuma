@@ -121,7 +121,7 @@ mtls:
 
 		// Disable retries so that we see every failed request
 		kumactl := universal.Cluster.GetKumactlOptions()
-		Expect(kumactl.KumactlDelete("meshretry", fmt.Sprintf("mesh-retry-all-%s", meshName), meshName)).To(Succeed())
+		Expect(kumactl.KumactlDelete("meshretry", "mesh-retry-all-"+meshName, meshName)).To(Succeed())
 
 		// We must start client before server to test this properly. The client
 		// should get XDS refreshes first to trigger the race condition fixed by

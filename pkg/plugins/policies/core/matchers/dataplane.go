@@ -88,12 +88,12 @@ func MatchedPolicies(
 
 	fr, err := core_rules.BuildFromRules(matchedPoliciesByInbound)
 	if err != nil {
-		warnings = append(warnings, fmt.Sprintf("couldn't create From rules: %s", err.Error()))
+		warnings = append(warnings, "couldn't create From rules: "+err.Error())
 	}
 
 	tr, err := core_rules.BuildToRules(dpPolicies, resources)
 	if err != nil {
-		warnings = append(warnings, fmt.Sprintf("couldn't create To rules: %s", err.Error()))
+		warnings = append(warnings, "couldn't create To rules: "+err.Error())
 	}
 
 	gr, err := core_rules.BuildGatewayRules(
@@ -102,12 +102,12 @@ func MatchedPolicies(
 		resources,
 	)
 	if err != nil {
-		warnings = append(warnings, fmt.Sprintf("couldn't create Gateway rules: %s", err.Error()))
+		warnings = append(warnings, "couldn't create Gateway rules: "+err.Error())
 	}
 
 	sr, err := core_rules.BuildSingleItemRules(dpPolicies)
 	if err != nil {
-		warnings = append(warnings, fmt.Sprintf("couldn't create top level rules: %s", err.Error()))
+		warnings = append(warnings, "couldn't create top level rules: "+err.Error())
 	}
 
 	return core_xds.TypedMatchingPolicies{

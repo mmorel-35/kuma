@@ -3,10 +3,11 @@ package validate
 import (
 	"context"
 	"crypto/rand"
-	"fmt"
+
 	"math/big"
 	"net"
 	"net/netip"
+	"strconv"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -31,7 +32,7 @@ type Validator struct {
 func (v *Validator) getServerAddress() string {
 	return net.JoinHostPort(
 		v.ServerListenIP.String(),
-		fmt.Sprintf("%d", v.ServerListenPort),
+		strconv.FormatUint(uint64(v.ServerListenPort), 10),
 	)
 }
 
@@ -194,12 +195,12 @@ func runLocalClient(serverIP netip.Addr, serverPort uint16) error {
 		randPort, _ := rand.Int(rand.Reader, big.NewInt(10000))
 		serverAddress = net.JoinHostPort(
 			serverIP.String(),
-			fmt.Sprintf("%d", 20000+randPort.Int64()),
+			strconv.FormatInt(20000+randPort.Int64(), 10),
 		)
 	default:
 		serverAddress = net.JoinHostPort(
 			serverIP.String(),
-			fmt.Sprintf("%d", serverPort),
+			strconv.FormatUint(uint64(serverPort), 10),
 		)
 	}
 

@@ -2,6 +2,7 @@ package v1alpha1
 
 import (
 	"fmt"
+	"strconv"
 
 	core_vip "github.com/kumahq/kuma/pkg/core/resources/apis/core/vip"
 	meshservice_api "github.com/kumahq/kuma/pkg/core/resources/apis/meshservice/api/v1alpha1"
@@ -47,7 +48,7 @@ func (m *MeshMultiZoneServiceResource) FindPortByName(name string) (Port, bool) 
 		if p.Name == name {
 			return p, true
 		}
-		if fmt.Sprintf("%d", p.Port) == name {
+		if strconv.FormatUint(uint64(p.Port), 10) == name {
 			return p, true
 		}
 	}

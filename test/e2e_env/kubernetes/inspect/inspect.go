@@ -33,12 +33,12 @@ func Inspect() {
 		Expect(DeleteMeshPolicyOrError(
 			kubernetes.Cluster,
 			v1alpha1.MeshTimeoutResourceTypeDescriptor,
-			fmt.Sprintf("mesh-timeout-all-%s", meshName),
+			"mesh-timeout-all-"+meshName,
 		)).To(Succeed())
 		Expect(DeleteMeshPolicyOrError(
 			kubernetes.Cluster,
 			v1alpha1.MeshTimeoutResourceTypeDescriptor,
-			fmt.Sprintf("mesh-gateways-timeout-all-%s", meshName),
+			"mesh-gateways-timeout-all-"+meshName,
 		)).To(Succeed())
 	})
 
@@ -97,7 +97,7 @@ func Inspect() {
 				g.Expect(result.Items[0].Name).To(HavePrefix("demo-client-"))
 			}, "30s", "1s").Should(Succeed())
 		},
-		Entry("of dataplanes", "timeouts", fmt.Sprintf("timeout-all-%s", meshName)),
+		Entry("of dataplanes", "timeouts", "timeout-all-"+meshName),
 	)
 
 	It("should execute inspect rules of dataplane", func() {
@@ -148,7 +148,7 @@ spec:
 				if rule.Type == "MeshTimeout" {
 					g.Expect(rule.ToRules).ToNot(BeNil())
 					g.Expect(*rule.ToRules).ToNot(BeEmpty())
-					g.Expect((*rule.ToRules)[0].Origin[0].Name).To(Equal(fmt.Sprintf("mt1.%s", Config.KumaNamespace)))
+					g.Expect((*rule.ToRules)[0].Origin[0].Name).To(Equal("mt1." + Config.KumaNamespace))
 				}
 			}
 		}, "30s", "1s").Should(Succeed())

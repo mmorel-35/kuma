@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"hash/fnv"
 
@@ -86,7 +87,7 @@ func ReconcileLabelledObject(
 
 	// We need a mesh when creating objects
 	if len(owned) > 0 && ownerMesh == "" {
-		return fmt.Errorf("could not reconcile object, owner mesh must not be empty")
+		return errors.New("could not reconcile object, owner mesh must not be empty")
 	}
 
 	for ownedName, ownedSpec := range owned {

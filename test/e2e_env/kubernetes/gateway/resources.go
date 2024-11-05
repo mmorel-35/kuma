@@ -21,7 +21,7 @@ func Resources() {
 	waitingClientNamespace := "gateway-resources-client-wait"
 	curlingClientNamespace := "gateway-resources-client-curl"
 	gatewayHost := fmt.Sprintf("%s.%s", gatewayName, namespace)
-	target := fmt.Sprintf("http://%s", net.JoinHostPort(gatewayHost, "8080"))
+	target := "http://" + net.JoinHostPort(gatewayHost, "8080")
 
 	meshGatewayWithoutLimit := fmt.Sprintf(`
 apiVersion: kuma.io/v1alpha1

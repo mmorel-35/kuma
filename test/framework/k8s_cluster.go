@@ -3,6 +3,7 @@ package framework
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -315,7 +316,7 @@ func (c *K8sCluster) installCRDs() error {
 	re := regexp.MustCompile(regexPattern)
 	matches := re.FindAllStringSubmatch(crds, -1)
 	if matches == nil {
-		return fmt.Errorf("no matches found")
+		return errors.New("no matches found")
 	}
 
 	for _, match := range matches {
@@ -370,7 +371,7 @@ func (c *K8sCluster) yamlForKumaViaKubectl(mode string) (string, error) {
 	if c.opts.zoneEgress {
 		argsMap["--egress-enabled"] = ""
 		if Config.Debug {
-			args = append(args, "--set", fmt.Sprintf("%segress.logLevel=debug", Config.HelmSubChartPrefix))
+			args = append(args, "--set", Config.HelmSubChartPrefix+"egress.logLevel=debug")
 		}
 	}
 
@@ -402,7 +403,7 @@ func (c *K8sCluster) yamlForKumaViaKubectl(mode string) (string, error) {
 	}
 
 	if Config.Debug {
-		args = append(args, "--set", fmt.Sprintf("%scontrolPlane.logLevel=debug", Config.HelmSubChartPrefix))
+		args = append(args, "--set", Config.HelmSubChartPrefix+"controlPlane.logLevel=debug")
 	}
 
 	for k, v := range c.opts.env {
@@ -464,7 +465,7 @@ func (c *K8sCluster) genValues(mode string) map[string]string {
 	}
 
 	for key, value := range c.opts.env {
-		values[fmt.Sprintf("controlPlane.envVars.%s", key)] = value
+		values["controlPlane.envVars."+key] = value
 	}
 
 	switch mode {
@@ -518,10 +519,7 @@ func (c *K8sCluster) processViaHelm(mode string, fn helmFn) error {
 
 	releaseName := c.opts.helmReleaseName
 	if releaseName == "" {
-		releaseName = fmt.Sprintf(
-			"kuma-%s",
-			strings.ToLower(random.UniqueId()),
-		)
+		releaseName = "kuma-" + strings.ToLower(random.UniqueId())
 	}
 
 	// create the namespace if it does not exist
@@ -764,7 +762,7 @@ func (c *K8sCluster) UpgradeKuma(mode string, opt ...KumaDeploymentOption) error
 
 // StartZoneIngress scales the replicas of a zone ingress to 1 and wait for it to complete.
 func (c *K8sCluster) StartZoneIngress() error {
-	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", "--replicas=1", fmt.Sprintf("deployment/%s", Config.ZoneIngressApp)); err != nil {
+	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", "--replicas=1", "deployment/"+Config.ZoneIngressApp); err != nil {
 		return err
 	}
 	if err := c.WaitApp(Config.ZoneIngressApp, Config.KumaNamespace, 1); err != nil {
@@ -778,7 +776,7 @@ func (c *K8sCluster) StartZoneIngress() error {
 
 // StopZoneIngress scales the replicas of a zone ingress to 0 and wait for it to complete. Useful for testing behavior when traffic goes through ingress but there is no instance.
 func (c *K8sCluster) StopZoneIngress() error {
-	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", "--replicas=0", fmt.Sprintf("deployment/%s", Config.ZoneIngressApp)); err != nil {
+	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", "--replicas=0", "deployment/"+Config.ZoneIngressApp); err != nil {
 		return err
 	}
 	c.ClosePortForward(Config.ZoneIngressApp)
@@ -803,7 +801,7 @@ func (c *K8sCluster) StopZoneIngress() error {
 
 // StartZoneEngress scales the replicas of a zone engress to 1 and wait for it to complete.
 func (c *K8sCluster) StartZoneEgress() error {
-	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", "--replicas=1", fmt.Sprintf("deployment/%s", Config.ZoneEgressApp)); err != nil {
+	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", "--replicas=1", "deployment/"+Config.ZoneEgressApp); err != nil {
 		return err
 	}
 	if err := c.WaitApp(Config.ZoneEgressApp, Config.KumaNamespace, 1); err != nil {
@@ -817,7 +815,7 @@ func (c *K8sCluster) StartZoneEgress() error {
 
 // StopZoneEgress scales the replicas of a zone egress to 0 and wait for it to complete. Useful for testing behavior when traffic goes through egress but there is no instance.
 func (c *K8sCluster) StopZoneEgress() error {
-	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", "--replicas=0", fmt.Sprintf("deployment/%s", Config.ZoneEgressApp)); err != nil {
+	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", "--replicas=0", "deployment/"+Config.ZoneEgressApp); err != nil {
 		return err
 	}
 	c.ClosePortForward(Config.ZoneEgressApp)
@@ -842,7 +840,7 @@ func (c *K8sCluster) StopZoneEgress() error {
 
 // StopControlPlane scales the replicas of a control plane to 0 and wait for it to complete. Useful for testing restarts in combination with RestartControlPlane.
 func (c *K8sCluster) StopControlPlane() error {
-	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", "--replicas=0", fmt.Sprintf("deployment/%s", Config.KumaServiceName)); err != nil {
+	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", "--replicas=0", "deployment/"+Config.KumaServiceName); err != nil {
 		return err
 	}
 	_, err := retry.DoWithRetryE(c.t,
@@ -869,7 +867,7 @@ func (c *K8sCluster) RestartControlPlane() error {
 	if c.controlplane.replicas == 0 {
 		return errors.New("replica count is 0, can't restart the control-plane")
 	}
-	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", fmt.Sprintf("--replicas=%d", c.controlplane.replicas), fmt.Sprintf("deployment/%s", Config.KumaServiceName)); err != nil {
+	if err := k8s.RunKubectlE(c.GetTesting(), c.GetKubectlOptions(Config.KumaNamespace), "scale", fmt.Sprintf("--replicas=%d", c.controlplane.replicas), "deployment/"+Config.KumaServiceName); err != nil {
 		return err
 	}
 	if err := c.WaitApp(Config.KumaServiceName, Config.KumaNamespace, c.controlplane.replicas); err != nil {

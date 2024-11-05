@@ -1,8 +1,6 @@
 package xds
 
 import (
-	"fmt"
-
 	envoy_listener "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	rbac_config "github.com/envoyproxy/go-control-plane/envoy/config/rbac/v3"
 	http_rbac "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/rbac/v3"
@@ -64,7 +62,7 @@ func (c *RBACConfigurer) addRBACFilterToFilterChain(
 	typedConfig, err := util_proto.MarshalAnyDeterministic(&network_rbac.RBAC{
 		// we include dot to change "inbound:127.0.0.1:21011rbac.allowed" metric
 		// to "inbound:127.0.0.1:21011.rbac.allowed"
-		StatPrefix:  fmt.Sprintf("%s.", util_xds.SanitizeMetric(c.StatsName)),
+		StatPrefix:  util_xds.SanitizeMetric(c.StatsName) + ".",
 		Rules:       rules,
 		ShadowRules: shadowRules,
 	})

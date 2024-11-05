@@ -4,7 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
+
 	"net/url"
 
 	envoy_core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
@@ -145,7 +145,7 @@ func (s *Stream) NACK(typ string, err error) error {
 		ResourceNames: []string{},
 		TypeUrl:       typ,
 		ErrorDetail: &status.Status{
-			Message: fmt.Sprintf("%s", err),
+			Message: err.Error(),
 		},
 	})
 }

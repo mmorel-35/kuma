@@ -1,7 +1,6 @@
 package compatibility
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -49,10 +48,7 @@ func CpCompatibilityMultizoneKubernetes() {
 			Expect(globalCluster.DismissCluster()).To(Succeed())
 		})
 
-		globalReleaseName = fmt.Sprintf(
-			"kuma-%s",
-			strings.ToLower(random.UniqueId()),
-		)
+		globalReleaseName = "kuma-" + strings.ToLower(random.UniqueId())
 
 		// Zone CP
 		zoneCluster = NewK8sCluster(NewTestingT(), Kuma2, Silent).
@@ -64,10 +60,7 @@ func CpCompatibilityMultizoneKubernetes() {
 			Expect(zoneCluster.DismissCluster()).To(Succeed())
 		})
 
-		zoneReleaseName = fmt.Sprintf(
-			"kuma-%s",
-			strings.ToLower(random.UniqueId()),
-		)
+		zoneReleaseName = "kuma-" + strings.ToLower(random.UniqueId())
 	})
 
 	DescribeTable("Cross version check", func(globalConf, zoneConf []KumaDeploymentOption) {

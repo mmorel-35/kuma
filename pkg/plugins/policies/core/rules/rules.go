@@ -4,6 +4,7 @@ import (
 	"encoding"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -647,7 +648,7 @@ func sortComponents(components [][]graph.Node) {
 func toStringList(nodes []graph.Node) []string {
 	rv := make([]string, 0, len(nodes))
 	for _, id := range nodes {
-		rv = append(rv, fmt.Sprintf("%d", id.ID()))
+		rv = append(rv, strconv.FormatInt(id.ID(), 10))
 	}
 	return rv
 }
