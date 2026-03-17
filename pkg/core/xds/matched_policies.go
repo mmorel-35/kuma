@@ -1,6 +1,7 @@
 package xds
 
 import (
+	"slices"
 	"sort"
 
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
@@ -56,8 +57,6 @@ func (m *MatchedPolicies) OrderedDynamicPolicies() []core_model.ResourceType {
 	for k := range m.Dynamic {
 		all = append(all, k)
 	}
-	sort.Slice(all, func(i, j int) bool {
-		return all[i] < all[j]
-	})
+	slices.Sort(all)
 	return all
 }

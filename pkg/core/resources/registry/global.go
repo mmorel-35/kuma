@@ -1,5 +1,7 @@
 package registry
 
+import "slices"
+
 import "github.com/kumahq/kuma/v2/pkg/core/resources/model"
 
 var global = NewTypeRegistry()
@@ -21,10 +23,8 @@ func RegisterTypeValidator(res model.ResourceTypeDescriptor, validator Additiona
 }
 
 func RegisterTypeIfAbsent(res model.ResourceTypeDescriptor) {
-	for _, typ := range global.ObjectTypes() {
-		if typ == res.Name {
-			return
-		}
+	if slices.Contains(global.ObjectTypes(), res.Name) {
+		return
 	}
 	RegisterType(res)
 }
