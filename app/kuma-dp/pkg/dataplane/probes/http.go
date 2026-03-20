@@ -1,6 +1,7 @@
 package probes
 
 import (
+	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -91,7 +92,7 @@ func buildUpstreamReq(downstreamReq *http.Request, upstreamScheme kube_core.URIS
 		Host:     net.JoinHostPort(podAddr, strconv.Itoa(port)),
 	}
 
-	upstreamReq, err := http.NewRequest(http.MethodGet, upstreamURL.String(), http.NoBody)
+	upstreamReq, err := http.NewRequestWithContext(context.Background(), http.MethodGet, upstreamURL.String(), http.NoBody)
 	if err != nil {
 		return nil, err
 	}
