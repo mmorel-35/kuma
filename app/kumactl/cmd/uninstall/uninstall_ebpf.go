@@ -289,7 +289,7 @@ func (r *CleanupJob) Watch(ctx context.Context, watcher watch.Interface) {
 }
 
 func (r *CleanupJob) Cleanup(ctx context.Context, selector metav1.ListOptions) error {
-	_, _ = fmt.Fprintf(r.stdout, "cleaning up Jobs")
+	_, _ = fmt.Fprint(r.stdout, "cleaning up Jobs")
 	policy := metav1.DeletePropagationBackground
 	deleteImmediately := metav1.DeleteOptions{
 		GracePeriodSeconds: new(int64),

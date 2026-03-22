@@ -106,7 +106,7 @@ func fetchNumOfServices(ctx context.Context, rt core_runtime.Runtime) (int, int,
 func (b *reportsBuffer) marshall() (string, error) {
 	var builder strings.Builder
 
-	_, err := fmt.Fprintf(&builder, "<14>")
+	_, err := fmt.Fprint(&builder, "<14>")
 	if err != nil {
 		return "", err
 	}

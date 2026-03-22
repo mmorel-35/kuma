@@ -184,9 +184,9 @@ func (c *UniversalCluster) DeployKuma(mode core.CpMode, opt ...KumaDeploymentOpt
 		_, _ = fmt.Fprintf(cmd, "export %s=%s\n", k, utils.ShellEscape(v))
 	}
 	if c.opts.runPostgresMigration {
-		_, _ = fmt.Fprintf(cmd, "/usr/bin/kuma-cp migrate up\n")
+		_, _ = fmt.Fprint(cmd, "/usr/bin/kuma-cp migrate up\n")
 	}
-	_, _ = fmt.Fprintf(cmd, "cat /kuma/kuma-cp.conf\n")
+	_, _ = fmt.Fprint(cmd, "cat /kuma/kuma-cp.conf\n")
 
 	runCp := "kuma-cp run --config-file /kuma/kuma-cp.conf"
 	if Config.Debug {

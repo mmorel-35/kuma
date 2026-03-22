@@ -50,17 +50,17 @@ var rootCmd = &cobra.Command{
 				return fmt.Errorf("path %s already exists use -force to overwrite it", cfg.policyPath())
 			}
 		} else {
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Deleting old policy code\n")
+			_, _ = fmt.Fprint(cmd.OutOrStdout(), "Deleting old policy code\n")
 			if err := os.RemoveAll(cfg.policyPath()); err != nil {
 				return err
 			}
 		}
-		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Generating proto file\n")
+		_, _ = fmt.Fprint(cmd.OutOrStdout(), "Generating proto file\n")
 		if err := generateType(cfg); err != nil {
 			return err
 		}
 		if cfg.isPolicy {
-			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Generating plugin file\n")
+			_, _ = fmt.Fprint(cmd.OutOrStdout(), "Generating plugin file\n")
 			if err := generatePlugin(cfg); err != nil {
 				return err
 			}

@@ -111,7 +111,7 @@ func DumpReport(report ginkgo.Report) {
 				_, _ = fmt.Fprintf(f, "---Failure--\n%v\n", entry.Failure.Message)
 				_, _ = fmt.Fprintf(f, "---StackTrace---\n%s\n", entry.Failure.Location.FullStackTrace)
 			}
-			_, _ = fmt.Fprintf(f, "SpecEvents:\n")
+			_, _ = fmt.Fprint(f, "SpecEvents:\n")
 			for _, e := range entry.SpecEvents {
 				_, _ = fmt.Fprintf(f, "\t%s\n", e.GomegaString())
 			}
