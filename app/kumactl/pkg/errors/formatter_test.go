@@ -1,6 +1,8 @@
 package errors_test
 
 import (
+	"fmt"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -50,10 +52,10 @@ var _ = Describe("Formatter test", func() {
 * mesh: cannot be empty`,
 		}),
 		Entry("kuma api error even when it is wrapped", testCase{
-			err: errors.Wrap(&types.Error{
+			err: fmt.Errorf("failed: %w", &types.Error{
 				Title:   "Could not get the resource",
 				Details: "Internal Server Error",
-			}, "failed"),
+			}),
 			msg: `Could not get the resource (Internal Server Error)`,
 		}),
 		Entry("unknown error", testCase{

@@ -6,7 +6,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
 	. "github.com/kumahq/kuma/v2/test/framework"
@@ -39,7 +38,10 @@ func GatewayHybrid() {
 					testserver.WithMesh(meshName),
 				)).
 				Setup(multizone.KubeZone1)
-			return errors.Wrap(err, multizone.KubeZone1.Name())
+			if err != nil {
+				return fmt.Errorf("%s: %w", multizone.KubeZone1.Name(), err)
+			}
+			return nil
 		})
 
 		group.Go(func() error {
@@ -53,7 +55,10 @@ func GatewayHybrid() {
 					TestServerUniversal("gateway-client", meshName, WithoutDataplane()),
 				)).
 				Setup(multizone.UniZone1)
-			return errors.Wrap(err, multizone.UniZone1.Name())
+			if err != nil {
+				return fmt.Errorf("%s: %w", multizone.UniZone1.Name(), err)
+			}
+			return nil
 		})
 
 		Expect(group.Wait()).To(Succeed())

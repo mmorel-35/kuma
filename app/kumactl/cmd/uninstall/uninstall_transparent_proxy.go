@@ -39,11 +39,11 @@ func newUninstallTransparentProxy() *cobra.Command {
 
 			initializedConfig, err := cfg.Initialize(cmd.Context())
 			if err != nil {
-				return errors.Wrap(err, "failed to initialize config")
+				return fmt.Errorf("failed to initialize config: %w", err)
 			}
 
 			if err := transparentproxy.Cleanup(cmd.Context(), initializedConfig); err != nil {
-				return errors.Wrap(err, "transparent proxy cleanup failed")
+				return fmt.Errorf("transparent proxy cleanup failed: %w", err)
 			}
 
 			if cfg.Ebpf.Enabled {
@@ -53,13 +53,13 @@ func newUninstallTransparentProxy() *cobra.Command {
 			if _, err := os.Stat(resolvConfBackup); !os.IsNotExist(err) {
 				content, err := os.ReadFile(resolvConfBackup)
 				if err != nil {
-					return errors.Wrap(err, "unable to open "+resolvConfBackup)
+					return fmt.Errorf("unable to open %s: %w", resolvConfBackup, err)
 				}
 
 				if !cfg.DryRun {
 					err = os.WriteFile(resolvConf, content, 0o600) //nolint:gosec // G703: path is fixed system config location
 					if err != nil {
-						return errors.Wrap(err, "unable to write "+resolvConf)
+						return fmt.Errorf("unable to write %s: %w", resolvConf, err)
 					}
 				}
 

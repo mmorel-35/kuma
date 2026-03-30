@@ -1,9 +1,8 @@
 package global
 
 import (
+	"fmt"
 	"time"
-
-	"github.com/pkg/errors"
 
 	config_core "github.com/kumahq/kuma/v2/pkg/config/core"
 	"github.com/kumahq/kuma/v2/pkg/core"
@@ -61,7 +60,7 @@ func Setup(rt runtime.Runtime) error {
 			rt.Extensions(),
 		)
 		if err != nil {
-			return errors.Wrap(err, "couldn't create ZoneWatch")
+			return fmt.Errorf("couldn't create ZoneWatch: %w", err)
 		}
 		if err := rt.Add(component.NewResilientComponent(zwLog, zw, rt.Config().General.ResilientComponentBaseBackoff.Duration, rt.Config().General.ResilientComponentMaxBackoff.Duration)); err != nil {
 			return err

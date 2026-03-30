@@ -628,7 +628,7 @@ func universalZoneProxyRelatedResource(
 		case AppEgress:
 			return uniCluster.CreateZoneEgress(app, dpName, publicAddress, dpYAML, token, false)
 		default:
-			return errors.Errorf("unsupported appType: %s", appType)
+			return fmt.Errorf("unsupported appType: %s", appType)
 		}
 	}
 }
@@ -1012,7 +1012,10 @@ func (cs *ClusterSetup) Setup(cluster Cluster) error {
 
 func (cs *ClusterSetup) SetupInGroup(cluster Cluster, group *errgroup.Group) {
 	group.Go(func() error {
-		return errors.Wrap(Combine(cs.installFuncs...)(cluster), cluster.Name())
+		if err := Combine(cs.installFuncs...)(cluster); err != nil {
+			return fmt.Errorf("%s: %w", cluster.Name(), err)
+		}
+		return nil
 	})
 }
 

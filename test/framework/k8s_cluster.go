@@ -186,7 +186,7 @@ func (c *K8sCluster) PortForward(
 	}
 
 	if tnl.Endpoint() == "" {
-		return portforward.Tunnel{}, errors.Errorf(
+		return portforward.Tunnel{}, fmt.Errorf(
 			"empty endpoint after port-forward to %s/%s in %q (local %d -> remote %d); verify the target and port-forward",
 			resourceType,
 			resourceName,
@@ -394,7 +394,7 @@ func (c *K8sCluster) GetPodLogs(pod v1.Pod, podLogOpts v1.PodLogOptions) (string
 
 	_, err = io.Copy(buf, podLogs)
 	if err != nil {
-		return "", errors.Wrap(err, "error in copy information from podLogs to buf")
+		return "", fmt.Errorf("error in copy information from podLogs to buf: %w", err)
 	}
 
 	str := buf.String()
@@ -434,7 +434,7 @@ func (c *K8sCluster) installCRDs() error {
 	re := regexp.MustCompile(regexPattern)
 	matches := re.FindAllStringSubmatch(crds, -1)
 	if matches == nil {
-		return fmt.Errorf("no matches found")
+		return errors.New("no matches found")
 	}
 
 	for _, match := range matches {
@@ -708,7 +708,7 @@ func (c *K8sCluster) DeployKuma(mode core.CpMode, opt ...KumaDeploymentOption) e
 		}
 		err = c.deployKumaViaHelm(mode)
 	default:
-		err = errors.Errorf("invalid installation mode: %s", c.opts.installationMode)
+		err = fmt.Errorf("invalid installation mode: %s", c.opts.installationMode)
 	}
 	if err != nil {
 		return err
@@ -716,7 +716,7 @@ func (c *K8sCluster) DeployKuma(mode core.CpMode, opt ...KumaDeploymentOption) e
 
 	// First wait for kuma cp to start, then wait for the other components (they all need the CP anyway)
 	if err := c.WaitApp(Config.KumaServiceName, Config.KumaNamespace, replicas); err != nil {
-		return errors.Wrap(err, "Kuma control-plane failed to start")
+		return fmt.Errorf("Kuma control-plane failed to start: %w", err)
 	}
 
 	var wg sync.WaitGroup
@@ -1296,7 +1296,7 @@ func (c *K8sCluster) GetLBIngressIP(serviceName, namespace string) (string, erro
 	}
 	ingress := service.Status.LoadBalancer.Ingress
 	if len(ingress) == 0 {
-		return "", errors.Errorf("ingress information not found on the load balancer service '%s'", serviceName)
+		return "", fmt.Errorf("ingress information not found on the load balancer service '%s'", serviceName)
 	}
 	return ingress[0].IP, nil
 }
@@ -1386,7 +1386,7 @@ func (c *K8sCluster) DeleteDeployment(name string) error {
 	deployment, ok := c.deployments[name]
 	c.mutex.RUnlock()
 	if !ok {
-		return errors.Errorf("deployment %s not found", name)
+		return fmt.Errorf("deployment %s not found", name)
 	}
 	if err := deployment.Delete(c); err != nil {
 		return err
@@ -1418,7 +1418,7 @@ func (c *K8sCluster) WaitApp(name, namespace string, replicas int) error {
 		},
 	)
 	if len(pods) < replicas {
-		return errors.Errorf("%s pods: %d. expected %d", name, len(pods), replicas)
+		return fmt.Errorf("%s pods: %d. expected %d", name, len(pods), replicas)
 	}
 
 	for i := range replicas {
@@ -1557,7 +1557,7 @@ func (c *K8sCluster) GetOrCreateAdminTunnel(args portforward.Spec) (envoy_admin.
 	args = args.WithDefaults(portforward.EnvoyAdminDefaultSpec)
 
 	if err := args.ValidateFullSpec(); err != nil {
-		return nil, errors.Wrap(err, "invalid port-forward spec")
+		return nil, fmt.Errorf("invalid port-forward spec: %w", err)
 	}
 
 	if tnl := c.adminTunnels[args]; tnl != nil {

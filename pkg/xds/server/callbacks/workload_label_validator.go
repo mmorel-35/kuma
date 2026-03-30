@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pkg/errors"
-
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
 	"github.com/kumahq/kuma/v2/pkg/core"
 	meshidentity_api "github.com/kumahq/kuma/v2/pkg/core/resources/apis/meshidentity/api/v1alpha1"
@@ -59,7 +57,7 @@ func (v *WorkloadLabelValidator) OnProxyConnected(
 	// but the ReadOnlyResourceManager provides cached results, so performance impact is minimal.
 	meshIdentities := &meshidentity_api.MeshIdentityResourceList{}
 	if err := v.rm.List(ctx, meshIdentities, store.ListByMesh(mesh)); err != nil {
-		return errors.Wrap(err, "failed to list MeshIdentities")
+		return fmt.Errorf("failed to list MeshIdentities: %w", err)
 	}
 
 	matched, found := meshidentity_api.BestMatched(labels, meshIdentities.Items)

@@ -3,10 +3,10 @@ package gatewayapi
 import (
 	"cmp"
 	"context"
+	"fmt"
 	"reflect"
 	"slices"
 
-	"github.com/pkg/errors"
 	kube_apierrs "k8s.io/apimachinery/pkg/api/errors"
 	kube_apimeta "k8s.io/apimachinery/pkg/api/meta"
 	kube_meta "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -38,7 +38,7 @@ func (r *GatewayReconciler) updateStatus(
 		if kube_apierrs.IsNotFound(err) {
 			return nil
 		}
-		return errors.Wrap(err, "unable to patch status subresource")
+		return fmt.Errorf("unable to patch status subresource: %w", err)
 	}
 
 	return nil
@@ -94,7 +94,7 @@ func attachedRoutesForListeners(
 	if err := client.List(ctx, &routes, kube_client.MatchingFields{
 		gatewayOfRouteIndexField: kube_client.ObjectKeyFromObject(gateway).String(),
 	}); err != nil {
-		return nil, errors.Wrap(err, "unexpected error listing HTTPRoutes")
+		return nil, fmt.Errorf("unexpected error listing HTTPRoutes: %w", err)
 	}
 
 	result := AttachedRoutesForListeners{}

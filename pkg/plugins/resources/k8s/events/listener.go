@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -132,7 +131,7 @@ func (k *listener) NeedLeaderElection() bool {
 func (k *listener) addTypeInformationToObject(obj runtime.Object) error {
 	gvks, _, err := k.mgr.GetScheme().ObjectKinds(obj)
 	if err != nil {
-		return errors.Wrap(err, "missing apiVersion or kind and cannot assign it")
+		return fmt.Errorf("missing apiVersion or kind and cannot assign it: %w", err)
 	}
 
 	for _, gvk := range gvks {
@@ -156,7 +155,7 @@ func (k *listener) createListerWatcher(gvk schema.GroupVersionKind) (cache.Liste
 	}
 	httpClient, err := rest.HTTPClientFor(k.mgr.GetConfig())
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create HTTP client from Manager config")
+		return nil, fmt.Errorf("failed to create HTTP client from Manager config: %w", err)
 	}
 	client, err := apiutil.RESTClientForGVK(gvk, false, false, k.mgr.GetConfig(), serializer.NewCodecFactory(k.mgr.GetScheme()), httpClient)
 	if err != nil {

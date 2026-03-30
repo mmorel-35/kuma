@@ -73,7 +73,7 @@ func (r *MeshServiceReconciler) Reconcile(ctx context.Context, req kube_ctrl.Req
 			// MeshService will be deleted automatically.
 			return kube_ctrl.Result{}, nil
 		}
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to get Namespace for Service")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to get Namespace for Service: %w", err)
 	}
 	injectedLabel, _, err := metadata.Annotations(namespace.Labels).GetEnabled(metadata.KumaSidecarInjectionAnnotation)
 	if err != nil {
@@ -132,11 +132,11 @@ func (r *MeshServiceReconciler) Reconcile(ctx context.Context, req kube_ctrl.Req
 					metadata.KumaServiceName: svc.Name,
 				}),
 			); err != nil {
-				return kube_ctrl.Result{}, errors.Wrap(err, "unable to list MeshServices for headless Service")
+				return kube_ctrl.Result{}, fmt.Errorf("unable to list MeshServices for headless Service: %w", err)
 			}
 			for _, ms := range meshServices.Items {
 				if err := r.Delete(ctx, &ms); err != nil && !kube_apierrs.IsNotFound(err) {
-					return kube_ctrl.Result{}, errors.Wrap(err, "unable to delete MeshService for headless Service")
+					return kube_ctrl.Result{}, fmt.Errorf("unable to delete MeshService for headless Service: %w", err)
 				}
 			}
 		}
@@ -212,7 +212,7 @@ func (r *MeshServiceReconciler) Reconcile(ctx context.Context, req kube_ctrl.Req
 			metadata.KumaServiceName: svc.Name,
 		}),
 	); err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to list MeshServices for headless Service")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to list MeshServices for headless Service: %w", err)
 	}
 	for _, svc := range meshServices.Items {
 		if len(svc.GetOwnerReferences()) == 0 {
@@ -234,7 +234,7 @@ func (r *MeshServiceReconciler) Reconcile(ctx context.Context, req kube_ctrl.Req
 			kube_discovery.LabelServiceName: svc.Name,
 		}),
 	); err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to list EndpointSlices for headless Service")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to list EndpointSlices for headless Service: %w", err)
 	}
 
 	servicePodEndpoints := map[kube_types.NamespacedName]kube_discovery.Endpoint{}
@@ -269,7 +269,7 @@ func (r *MeshServiceReconciler) Reconcile(ctx context.Context, req kube_ctrl.Req
 			},
 		}
 		if err := r.Delete(ctx, &ms); err != nil && !kube_apierrs.IsNotFound(err) {
-			return kube_ctrl.Result{}, errors.Wrap(err, "unable to delete MeshService tracking headless Service endpoint")
+			return kube_ctrl.Result{}, fmt.Errorf("unable to delete MeshService tracking headless Service endpoint: %w", err)
 		}
 	}
 
@@ -295,7 +295,7 @@ func (r *MeshServiceReconciler) Reconcile(ctx context.Context, req kube_ctrl.Req
 			kube_types.NamespacedName{Namespace: current.Namespace, Name: canonicalName},
 		)
 		if err != nil {
-			return kube_ctrl.Result{}, errors.Wrap(err, "unable to create/update MeshService for headless Service")
+			return kube_ctrl.Result{}, fmt.Errorf("unable to create/update MeshService for headless Service: %w", err)
 		}
 		switch op {
 		case kube_controllerutil.OperationResultCreated:
@@ -325,7 +325,7 @@ func (r *MeshServiceReconciler) isServiceForGateway(ctx context.Context, log log
 			kube_discovery.LabelServiceName: svc.Name,
 		}),
 	); err != nil {
-		return false, errors.Wrap(err, "unable to list EndpointSlices for Service")
+		return false, fmt.Errorf("unable to list EndpointSlices for Service: %w", err)
 	}
 
 	for _, slice := range endpointSlices.Items {
@@ -346,7 +346,7 @@ func (r *MeshServiceReconciler) isServiceForGateway(ctx context.Context, log log
 				if kube_apierrs.IsNotFound(err) {
 					continue
 				}
-				return false, errors.Wrap(err, "unable to get Pod for endpoint")
+				return false, fmt.Errorf("unable to get Pod for endpoint: %w", err)
 			}
 
 			if _, ok := pod.GetAnnotations()[metadata.KumaGatewayAnnotation]; ok {
@@ -367,7 +367,7 @@ func (r *MeshServiceReconciler) setFromClusterIPSvc(_ context.Context, ms *meshs
 			r.Eventf(
 				svc, nil, kube_core.EventTypeWarning, FailedToGenerateMeshServiceReason, "FailedToGenerate", "MeshService already exists and isn't owned by Service",
 			)
-			return errors.Errorf("MeshService already exists and isn't owned by Service")
+			return fmt.Errorf("MeshService already exists and isn't owned by Service")
 		}
 	}
 	ms.Labels[metadata.HeadlessService] = "false"
@@ -400,7 +400,7 @@ func (r *MeshServiceReconciler) setFromClusterIPSvc(_ context.Context, ms *meshs
 	}
 
 	if err := kube_controllerutil.SetOwnerReference(svc, ms, r.Scheme); err != nil {
-		return errors.Wrap(err, "could not set owner reference")
+		return fmt.Errorf("could not set owner reference: %w", err)
 	}
 	return nil
 }
@@ -412,7 +412,7 @@ func (r *MeshServiceReconciler) setFromPodAndHeadlessSvc(endpoint kube_discovery
 				r.Eventf(
 					svc, nil, kube_core.EventTypeWarning, FailedToGenerateMeshServiceReason, "FailedToGenerate", "MeshService already exists and isn't owned by Pod",
 				)
-				return errors.Errorf("MeshService already exists and isn't owned by Pod")
+				return fmt.Errorf("MeshService already exists and isn't owned by Pod")
 			}
 		}
 		if ms.Labels == nil {
@@ -426,7 +426,7 @@ func (r *MeshServiceReconciler) setFromPodAndHeadlessSvc(endpoint kube_discovery
 		}
 		if err := r.Get(ctx, kube_types.NamespacedName{Name: endpoint.TargetRef.Name, Namespace: namespace}, &pod); err != nil {
 			if !kube_apierrs.IsNotFound(err) {
-				return errors.Wrap(err, "couldn't lookup Pod for endpoint")
+				return fmt.Errorf("couldn't lookup Pod for endpoint: %w", err)
 			}
 		} else {
 			if v, ok := pod.Labels[kube_apps.StatefulSetPodNameLabel]; ok {
@@ -457,7 +457,7 @@ func (r *MeshServiceReconciler) setFromPodAndHeadlessSvc(endpoint kube_discovery
 			},
 		}
 		if err := kube_controllerutil.SetOwnerReference(&owner, ms, r.Scheme); err != nil {
-			return errors.Wrap(err, "could not set owner reference")
+			return fmt.Errorf("could not set owner reference: %w", err)
 		}
 		return nil
 	}
@@ -537,7 +537,7 @@ func (r *MeshServiceReconciler) deleteIfExist(ctx context.Context, key kube_type
 		},
 	}
 	if err := r.Delete(ctx, ms); err != nil && !kube_apierrs.IsNotFound(err) {
-		return errors.Wrap(err, "could not delete MeshService")
+		return fmt.Errorf("could not delete MeshService: %w", err)
 	}
 	return nil
 }

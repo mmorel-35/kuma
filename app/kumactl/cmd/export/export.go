@@ -100,7 +100,7 @@ $ kumactl export --profile federation --format universal > policies.yaml
 
 			meshes := &core_mesh.MeshResourceList{}
 			if err := rs.List(cmd.Context(), meshes); err != nil {
-				return errors.Wrap(err, "could not list meshes")
+				return fmt.Errorf("could not list meshes: %w", err)
 			}
 
 			// Mesh resources

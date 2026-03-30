@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
@@ -51,7 +52,7 @@ func (r *MeshZoneAddressReconciler) Reconcile(ctx context.Context, req kube_ctrl
 		if kube_apierrs.IsNotFound(err) {
 			return kube_ctrl.Result{}, nil
 		}
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to get Namespace for Service")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to get Namespace for Service: %w", err)
 	}
 
 	svc := &kube_core.Service{}
@@ -104,7 +105,7 @@ func (r *MeshZoneAddressReconciler) Reconcile(ctx context.Context, req kube_ctrl
 			if owners := mza.GetOwnerReferences(); len(owners) == 0 || owners[0].UID != svc.GetUID() {
 				r.Eventf(svc, nil, kube_core.EventTypeWarning, NoPublicAddressForZoneProxyReason, "Conflict",
 					"MeshZoneAddress %s already exists and is not owned by this Service", req.Name)
-				return errors.Errorf("MeshZoneAddress already exists and is not owned by Service")
+				return fmt.Errorf("MeshZoneAddress already exists and is not owned by Service")
 			}
 		}
 		if mza.Labels == nil {
@@ -124,7 +125,7 @@ func (r *MeshZoneAddressReconciler) Reconcile(ctx context.Context, req kube_ctrl
 		return kube_controllerutil.SetOwnerReference(svc, mza, r.Scheme)
 	})
 	if err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to create or update MeshZoneAddress")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to create or update MeshZoneAddress: %w", err)
 	}
 
 	switch result {
@@ -190,7 +191,7 @@ func (r *MeshZoneAddressReconciler) coordinatesFromNodePort(
 	}
 	nodes := &kube_core.NodeList{}
 	if err := r.List(ctx, nodes); err != nil {
-		return "", 0, errors.Wrap(err, "unable to list Nodes")
+		return "", 0, fmt.Errorf("unable to list Nodes: %w", err)
 	}
 	if len(nodes.Items) == 0 {
 		return "", 0, errors.New("no nodes found")
@@ -211,7 +212,7 @@ func (r *MeshZoneAddressReconciler) hasReadyEndpoints(ctx context.Context, svc *
 		kube_client.InNamespace(svc.Namespace),
 		kube_client.MatchingLabels{kube_discovery.LabelServiceName: svc.Name},
 	); err != nil {
-		return false, errors.Wrap(err, "unable to list EndpointSlices")
+		return false, fmt.Errorf("unable to list EndpointSlices: %w", err)
 	}
 	for i := range slices.Items {
 		for j := range slices.Items[i].Endpoints {
@@ -232,7 +233,7 @@ func (r *MeshZoneAddressReconciler) deleteIfExists(ctx context.Context, key kube
 		},
 	}
 	if err := r.Delete(ctx, mza); err != nil && !kube_apierrs.IsNotFound(err) {
-		return errors.Wrap(err, "unable to delete MeshZoneAddress")
+		return fmt.Errorf("unable to delete MeshZoneAddress: %w", err)
 	}
 	return nil
 }
@@ -249,7 +250,7 @@ func (r *MeshZoneAddressReconciler) SetupWithManager(mgr kube_ctrl.Manager) erro
 			return nil
 		},
 	); err != nil {
-		return errors.Wrap(err, "failed to index Service by zone-proxy-type label")
+		return fmt.Errorf("failed to index Service by zone-proxy-type label: %w", err)
 	}
 	return kube_ctrl.NewControllerManagedBy(mgr).
 		Named("kuma-mesh-zone-address-controller").

@@ -11,7 +11,6 @@ import (
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/ginkgo/v2/types"
 	. "github.com/onsi/gomega"
-	"github.com/pkg/errors"
 	"go.uber.org/multierr"
 	kube_meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -104,7 +103,7 @@ func debugExport(cluster Cluster, kumactlOpts *kumactl.KumactlOptions) error {
 
 	out, err := kumactlOpts.RunKumactlAndGetOutput("export", "--profile", "all")
 	if err != nil {
-		wrappedErr := errors.Wrap(err, "failed to run 'kumactl export --profile all'")
+		wrappedErr := fmt.Errorf("failed to run 'kumactl export --profile all': %w", err)
 		errs = multierr.Combine(err, wrappedErr)
 		return errs
 	}

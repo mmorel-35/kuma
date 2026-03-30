@@ -1,6 +1,7 @@
 package clusters
 
 import (
+	"fmt"
 	"slices"
 
 	envoy_api "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
@@ -79,7 +80,7 @@ func (b *ClusterBuilder) Build() (envoy.NamedResource, error) {
 func (b *ClusterBuilder) MustBuild() envoy.NamedResource {
 	cluster, err := b.Build()
 	if err != nil {
-		panic(errors.Wrap(err, "failed to build Envoy Cluster").Error())
+		panic(fmt.Errorf("failed to build Envoy Cluster: %w", err).Error())
 	}
 
 	return cluster

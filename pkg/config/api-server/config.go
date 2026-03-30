@@ -1,6 +1,7 @@
 package api_server
 
 import (
+	"fmt"
 	"net/url"
 
 	"github.com/pkg/errors"
@@ -149,7 +150,7 @@ type ApiServerAuthn struct {
 func (a ApiServerAuthn) Validate() error {
 	if a.Type == "tokens" {
 		if err := a.Tokens.Validate(); err != nil {
-			return errors.Wrap(err, ".Tokens is not valid")
+			return fmt.Errorf(".Tokens is not valid: %w", err)
 		}
 	}
 	return nil
@@ -166,7 +167,7 @@ type ApiServerAuthnTokens struct {
 
 func (a ApiServerAuthnTokens) Validate() error {
 	if err := a.Validator.Validate(); err != nil {
-		return errors.Wrap(err, ".Validator is not valid")
+		return fmt.Errorf(".Validator is not valid: %w", err)
 	}
 	return nil
 }
@@ -194,13 +195,13 @@ func (t TokensValidator) Validate() error {
 func (a *ApiServerConfig) Validate() error {
 	var errs error
 	if err := a.HTTP.Validate(); err != nil {
-		errs = multierr.Append(err, errors.Wrap(err, ".HTTP not valid"))
+		errs = multierr.Append(err, fmt.Errorf(".HTTP not valid: %w", err))
 	}
 	if err := a.HTTPS.Validate(); err != nil {
-		errs = multierr.Append(err, errors.Wrap(err, ".HTTPS not valid"))
+		errs = multierr.Append(err, fmt.Errorf(".HTTPS not valid: %w", err))
 	}
 	if err := a.GUI.Validate(); err != nil {
-		errs = multierr.Append(err, errors.Wrap(err, ".GUI not valid"))
+		errs = multierr.Append(err, fmt.Errorf(".GUI not valid: %w", err))
 	}
 	if a.RootUrl != "" {
 		if _, err := url.Parse(a.RootUrl); err != nil {
@@ -214,7 +215,7 @@ func (a *ApiServerConfig) Validate() error {
 		}
 	}
 	if err := a.Authn.Validate(); err != nil {
-		errs = multierr.Append(err, errors.Wrap(err, ".Authn is not valid"))
+		errs = multierr.Append(err, fmt.Errorf(".Authn is not valid: %w", err))
 	}
 	return errs
 }

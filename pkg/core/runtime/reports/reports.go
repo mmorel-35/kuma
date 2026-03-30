@@ -12,8 +12,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
-
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
 	kuma_cp "github.com/kumahq/kuma/v2/pkg/config/app/kuma-cp"
 	config_core "github.com/kumahq/kuma/v2/pkg/config/core"
@@ -49,7 +47,7 @@ type reportsBuffer struct {
 func fetchDataplanes(ctx context.Context, rt core_runtime.Runtime) (*mesh.DataplaneResourceList, error) {
 	dataplanes := mesh.DataplaneResourceList{}
 	if err := rt.ReadOnlyResourceManager().List(ctx, &dataplanes); err != nil {
-		return nil, errors.Wrap(err, "could not fetch dataplanes")
+		return nil, fmt.Errorf("could not fetch dataplanes: %w", err)
 	}
 
 	return &dataplanes, nil
@@ -58,7 +56,7 @@ func fetchDataplanes(ctx context.Context, rt core_runtime.Runtime) (*mesh.Datapl
 func fetchMeshes(ctx context.Context, rt core_runtime.Runtime) (*mesh.MeshResourceList, error) {
 	meshes := mesh.MeshResourceList{}
 	if err := rt.ReadOnlyResourceManager().List(ctx, &meshes); err != nil {
-		return nil, errors.Wrap(err, "could not fetch meshes")
+		return nil, fmt.Errorf("could not fetch meshes: %w", err)
 	}
 
 	return &meshes, nil
@@ -67,7 +65,7 @@ func fetchMeshes(ctx context.Context, rt core_runtime.Runtime) (*mesh.MeshResour
 func fetchZones(ctx context.Context, rt core_runtime.Runtime) (*system.ZoneResourceList, error) {
 	zones := system.ZoneResourceList{}
 	if err := rt.ReadOnlyResourceManager().List(ctx, &zones); err != nil {
-		return nil, errors.Wrap(err, "could not fetch zones")
+		return nil, fmt.Errorf("could not fetch zones: %w", err)
 	}
 	return &zones, nil
 }
@@ -79,7 +77,7 @@ func fetchNumPolicies(ctx context.Context, rt core_runtime.Runtime) (map[string]
 		typedList := descr.NewList()
 		k := "n_" + strings.ToLower(string(descr.Name))
 		if err := rt.ReadOnlyResourceManager().List(ctx, typedList); err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("could not fetch %s", k))
+			return nil, fmt.Errorf("could not fetch %s: %w", k, err)
 		}
 		policyCounts[k] = strconv.Itoa(len(typedList.GetItems()))
 	}
@@ -89,7 +87,7 @@ func fetchNumPolicies(ctx context.Context, rt core_runtime.Runtime) (map[string]
 func fetchNumOfServices(ctx context.Context, rt core_runtime.Runtime) (int, int, error) {
 	insights := mesh.ServiceInsightResourceList{}
 	if err := rt.ReadOnlyResourceManager().List(ctx, &insights); err != nil {
-		return 0, 0, errors.Wrap(err, "could not fetch service insights")
+		return 0, 0, fmt.Errorf("could not fetch service insights: %w", err)
 	}
 	internalServices := 0
 	for _, insight := range insights.Items {
@@ -98,7 +96,7 @@ func fetchNumOfServices(ctx context.Context, rt core_runtime.Runtime) (int, int,
 
 	externalServicesList := mesh.ExternalServiceResourceList{}
 	if err := rt.ReadOnlyResourceManager().List(ctx, &externalServicesList); err != nil {
-		return 0, 0, errors.Wrap(err, "could not fetch external services")
+		return 0, 0, fmt.Errorf("could not fetch external services: %w", err)
 	}
 	return internalServices, len(externalServicesList.Items), nil
 }

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
 
 	config_store "github.com/kumahq/kuma/v2/pkg/config/core/resources/store"
 	core_mesh "github.com/kumahq/kuma/v2/pkg/core/resources/apis/mesh"
@@ -85,7 +85,7 @@ func RegisterXDS(rt core_runtime.Runtime) error {
 	}
 
 	if err := v3.RegisterXDS(statsCallbacks, rt.XDS().Metrics, envoyCpCtx, rt); err != nil {
-		return errors.Wrap(err, "could not register V3 XDS")
+		return fmt.Errorf("could not register V3 XDS: %w", err)
 	}
 	return nil
 }

@@ -1,9 +1,8 @@
 package v1alpha1
 
 import (
+	"fmt"
 	"text/template"
-
-	"github.com/pkg/errors"
 
 	"github.com/kumahq/kuma/v2/pkg/core/validators"
 )
@@ -44,7 +43,7 @@ func validateTemplate(tmpl string) validators.ValidationError {
 		Funcs(map[string]any{"label": func(key string) (string, error) { return "", nil }}).
 		Parse(tmpl)
 	if err != nil {
-		verr.AddViolationAt(validators.Root(), errors.Wrap(err, "couldn't parse template").Error())
+		verr.AddViolationAt(validators.Root(), fmt.Errorf("couldn't parse template: %w", err).Error())
 	}
 	return verr
 }

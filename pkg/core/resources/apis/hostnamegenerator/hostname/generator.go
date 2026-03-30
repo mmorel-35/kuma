@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	kube_meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -125,7 +124,7 @@ func sortResources(resources []model.Resource) {
 func (g *Generator) generateHostnames(ctx context.Context) error {
 	generators := &hostnamegenerator_api.HostnameGeneratorResourceList{}
 	if err := g.resManager.List(ctx, generators); err != nil {
-		return errors.Wrap(err, "could not list HostnameGenerators")
+		return fmt.Errorf("could not list HostnameGenerators: %w", err)
 	}
 	type serviceKey struct {
 		name string
@@ -275,7 +274,7 @@ func EvaluateTemplate(localZone string, generatorTemplate string, meta model.Res
 			"label": func(key string) (string, error) {
 				val, ok := meta.GetLabels()[key]
 				if !ok {
-					return "", errors.Errorf("label %s not found", key)
+					return "", fmt.Errorf("label %s not found", key)
 				}
 				return val, nil
 			},

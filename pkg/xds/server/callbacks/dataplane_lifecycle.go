@@ -2,11 +2,11 @@ package callbacks
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 
 	"github.com/kumahq/kuma/v2/api/generic"
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
@@ -116,14 +116,14 @@ func (d *DataplaneLifecycle) register(
 
 	if info.deleted {
 		// we took info object that was deleted from proxyInfo map by other goroutine, return err so DPP retry registration
-		return errors.Errorf("attempt to concurently register deleted DPP resource, needs retry")
+		return fmt.Errorf("attempt to concurently register deleted DPP resource, needs retry")
 	}
 
 	log.Info("register proxy")
 
 	err := manager.Upsert(ctx, d.resManager, core_model.MetaToResourceKey(md.Resource.GetMeta()), proxyResource(md.GetProxyType()), func(existing core_model.Resource) error {
 		if err := d.validateUpsert(ctx, md.Resource); err != nil {
-			return errors.Wrap(err, "you are trying to override existing proxy to which you don't have an access.")
+			return fmt.Errorf("you are trying to override existing proxy to which you don't have an access.: %w", err)
 		}
 		return existing.SetSpec(md.Resource.GetSpec())
 	}, manager.UpsertWithLabels(md.Resource.GetMeta().GetLabels()))
@@ -133,7 +133,7 @@ func (d *DataplaneLifecycle) register(
 			info.deleted = true
 			d.proxyInfos.Delete(proxyKey)
 		}
-		return errors.Wrap(err, "could not register proxy passed in kuma-dp run")
+		return fmt.Errorf("could not register proxy passed in kuma-dp run: %w", err)
 	}
 
 	// We should wait for Cache ExpirationTime to let MeshContext sync the latest data
@@ -227,7 +227,7 @@ func (d *DataplaneLifecycle) validateUpsert(ctx context.Context, existing core_m
 
 func (d *DataplaneLifecycle) validateProxyKey(proxyKey core_model.ResourceKey, proxyResource core_model.Resource) error {
 	if core_model.MetaToResourceKey(proxyResource.GetMeta()) != proxyKey {
-		return errors.Errorf("proxyId %s does not match proxy resource %s", proxyKey, proxyResource.GetMeta())
+		return fmt.Errorf("proxyId %s does not match proxy resource %s", proxyKey, proxyResource.GetMeta())
 	}
 	return nil
 }
@@ -247,7 +247,7 @@ func (d *DataplaneLifecycle) proxyConnectedToAnotherCP(
 		log.Info("insight is missing. Safe to deregister the proxy")
 		return false, nil
 	case err != nil:
-		return false, errors.Wrap(err, "could not get insight to determine if we can delete proxy object")
+		return false, fmt.Errorf("could not get insight to determine if we can delete proxy object: %w", err)
 	}
 
 	subs := insight.GetSpec().(generic.Insight).AllSubscriptions()

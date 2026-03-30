@@ -2,6 +2,7 @@ package mux
 
 import (
 	"context"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -117,7 +118,7 @@ func (g *KDSSyncServiceServer) GlobalToZoneSync(stream mesh_proto.KDSSyncService
 	logger = logger.WithValues("clientID", zone, "type", "globalToZone")
 	for _, filter := range g.filters {
 		if err := filter.InterceptServerStream(stream); err != nil {
-			return errors.Wrap(err, "closing KDS stream following a callback error")
+			return fmt.Errorf("closing KDS stream following a callback error: %w", err)
 		}
 	}
 
@@ -133,7 +134,7 @@ func (g *KDSSyncServiceServer) GlobalToZoneSync(stream mesh_proto.KDSSyncService
 				processingErrorsCh <- nil
 				return
 			}
-			processingErrorsCh <- errors.Wrap(err, "Global CP could not create a zone")
+			processingErrorsCh <- fmt.Errorf("Global CP could not create a zone: %w", err)
 			return
 		}
 		errorStream := NewErrorRecorderStream(stream)
@@ -170,7 +171,7 @@ func (g *KDSSyncServiceServer) GlobalToZoneSync(stream mesh_proto.KDSSyncService
 		return status.Error(codes.Unavailable, "stream unavailable")
 	case err := <-processingErrorsCh:
 		if status.Code(err) == codes.Unimplemented {
-			return errors.Wrap(err, "GlobalToZoneSync rpc stream failed, because Global CP does not implement this rpc. Upgrade Global CP.")
+			return fmt.Errorf("GlobalToZoneSync rpc stream failed, because Global CP does not implement this rpc. Upgrade Global CP.: %w", err)
 		}
 		logger.Error(err, "GlobalToZoneSync rpc stream failed prematurely, will restart in background")
 		return status.Error(codes.Internal, "stream failed")
@@ -186,7 +187,7 @@ func (g *KDSSyncServiceServer) ZoneToGlobalSync(stream mesh_proto.KDSSyncService
 	logger = logger.WithValues("clientID", zone, "type", "zoneToGlobal")
 	for _, filter := range g.filters {
 		if err := filter.InterceptServerStream(stream); err != nil {
-			return errors.Wrap(err, "closing KDS stream following a callback error")
+			return fmt.Errorf("closing KDS stream following a callback error: %w", err)
 		}
 	}
 	connectTime := time.Now()
@@ -200,7 +201,7 @@ func (g *KDSSyncServiceServer) ZoneToGlobalSync(stream mesh_proto.KDSSyncService
 				processingErrorsCh <- nil
 				return
 			}
-			processingErrorsCh <- errors.Wrap(err, "Global CP could not create a zone")
+			processingErrorsCh <- fmt.Errorf("Global CP could not create a zone: %w", err)
 			return
 		}
 		kdsStream := kds_client_v2.NewDeltaKDSStream(stream, zone, g.instanceID, "", len(g.typesSentByZone))
@@ -218,7 +219,7 @@ func (g *KDSSyncServiceServer) ZoneToGlobalSync(stream mesh_proto.KDSSyncService
 			g.responseBackoff,
 		)
 		if err := sink.Receive(); err != nil && (status.Code(err) != codes.Canceled && !errors.Is(err, context.Canceled)) {
-			processingErrorsCh <- errors.Wrap(err, "KDSSyncClient finished with an error")
+			processingErrorsCh <- fmt.Errorf("KDSSyncClient finished with an error: %w", err)
 			return
 		}
 
@@ -247,7 +248,7 @@ func (g *KDSSyncServiceServer) ZoneToGlobalSync(stream mesh_proto.KDSSyncService
 		return status.Error(codes.Unavailable, "stream unavailable")
 	case err := <-processingErrorsCh:
 		if status.Code(err) == codes.Unimplemented {
-			return errors.Wrap(err, "ZoneToGlobalSync rpc stream failed, because Global CP does not implement this rpc. Upgrade Global CP.")
+			return fmt.Errorf("ZoneToGlobalSync rpc stream failed, because Global CP does not implement this rpc. Upgrade Global CP.: %w", err)
 		}
 		logger.Error(err, "ZoneToGlobalSync rpc stream failed prematurely, will restart in background")
 		return status.Error(codes.Internal, "stream failed")

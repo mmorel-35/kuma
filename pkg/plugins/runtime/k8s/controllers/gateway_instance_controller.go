@@ -9,7 +9,6 @@ import (
 	"strconv"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	kube_apps "k8s.io/api/apps/v1"
 	kube_core "k8s.io/api/core/v1"
 	kube_apierrs "k8s.io/apimachinery/pkg/api/errors"
@@ -66,7 +65,7 @@ func (r *GatewayInstanceReconciler) Reconcile(ctx context.Context, req kube_ctrl
 
 	ns := kube_core.Namespace{}
 	if err := r.Get(ctx, kube_types.NamespacedName{Name: gatewayInstance.Namespace}, &ns); err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to get Namespace of MeshGatewayInstance")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to get Namespace of MeshGatewayInstance: %w", err)
 	}
 
 	mesh := k8s_util.MeshOfByLabelOrAnnotation(r.Log, gatewayInstance, &ns)
@@ -74,14 +73,14 @@ func (r *GatewayInstanceReconciler) Reconcile(ctx context.Context, req kube_ctrl
 	orig := gatewayInstance.DeepCopy()
 	svc, gateway, err := r.createOrUpdateService(ctx, mesh, gatewayInstance)
 	if err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to reconcile Service for Gateway")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to reconcile Service for Gateway: %w", err)
 	}
 
 	var deployment *kube_apps.Deployment
 	if svc != nil {
 		deployment, err = r.createOrUpdateDeployment(ctx, mesh, gatewayInstance)
 		if err != nil {
-			return kube_ctrl.Result{}, errors.Wrap(err, "unable to reconcile Deployment for Gateway")
+			return kube_ctrl.Result{}, fmt.Errorf("unable to reconcile Deployment for Gateway: %w", err)
 		}
 	}
 
@@ -91,7 +90,7 @@ func (r *GatewayInstanceReconciler) Reconcile(ctx context.Context, req kube_ctrl
 		if kube_apierrs.IsNotFound(err) {
 			return kube_ctrl.Result{}, nil
 		}
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to patch MeshGatewayInstance status")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to patch MeshGatewayInstance status: %w", err)
 	}
 
 	return kube_ctrl.Result{}, nil
@@ -233,7 +232,7 @@ func (r *GatewayInstanceReconciler) createOrUpdateDeployment(
 
 			container, err := r.ProxyFactory.NewContainer(gatewayInstance, mesh)
 			if err != nil {
-				return nil, errors.Wrap(err, "unable to create gateway container")
+				return nil, fmt.Errorf("unable to create gateway container: %w", err)
 			}
 
 			if res := gatewayInstance.Spec.Resources; res != nil {
@@ -295,7 +294,7 @@ func (r *GatewayInstanceReconciler) createOrUpdateDeployment(
 
 			jsonTags, err := json.Marshal(r.gatewayInstanceTags(gatewayInstance))
 			if err != nil {
-				return nil, errors.Wrap(err, "unable to marshal tags to JSON")
+				return nil, fmt.Errorf("unable to marshal tags to JSON: %w", err)
 			}
 
 			podAnnotations := map[string]string{

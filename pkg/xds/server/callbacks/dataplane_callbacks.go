@@ -2,6 +2,7 @@ package callbacks
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -125,7 +126,7 @@ func (d *xdsCallbacks) onStreamRequest(streamID core_xds.StreamID, request util_
 
 	proxyId, err := core_xds.ParseProxyIdFromString(request.NodeId())
 	if err != nil {
-		return errors.Wrap(err, "invalid node ID")
+		return fmt.Errorf("invalid node ID: %w", err)
 	}
 	dpKey := proxyId.ToResourceKey()
 	metadata := core_xds.DataplaneMetadataFromXdsMetadata(request.Metadata())

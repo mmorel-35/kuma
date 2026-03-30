@@ -86,7 +86,7 @@ func (b *builtinCaManager) create(ctx context.Context, mesh core_model.Resource,
 	meshName := mesh.GetMeta().GetName()
 	cfg := &config.BuiltinCertificateAuthorityConfig{}
 	if err := util_proto.ToTyped(backend.Conf, cfg); err != nil {
-		return errors.Wrap(err, "could not convert backend config to BuiltinCertificateAuthorityConfig")
+		return fmt.Errorf("could not convert backend config to BuiltinCertificateAuthorityConfig: %w", err)
 	}
 
 	var opts []certOptsFn

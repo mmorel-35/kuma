@@ -3,6 +3,7 @@ package dnsserver
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"os/exec"
 	"regexp"
@@ -67,7 +68,7 @@ func (s *DNSServer) GetVersion() (string, error) {
 
 	match := regexp.MustCompile(`CoreDNS-(.*)`).FindSubmatch(output)
 	if len(match) < 2 {
-		return "", errors.Errorf("unexpected version output format: %s", output)
+		return "", fmt.Errorf("unexpected version output format: %s", output)
 	}
 
 	return string(match[1]), nil
@@ -140,7 +141,7 @@ func (s *DNSServer) generateCoreFile(dnsConfig kuma_dp.DNS) (string, error) {
 		} else {
 			embedded, err := config.ReadFile("Corefile")
 			if err != nil {
-				return "", errors.Wrap(err, "couldn't open embedded Corefile")
+				return "", fmt.Errorf("couldn't open embedded Corefile: %w", err)
 			}
 			corefileTemplate = embedded
 		}

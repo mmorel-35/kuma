@@ -1,7 +1,8 @@
 package runtime
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	"go.uber.org/multierr"
 
 	"github.com/kumahq/kuma/v2/pkg/config/core"
@@ -39,11 +40,11 @@ func (c *RuntimeConfig) Validate(env core.EnvironmentType) error {
 	switch env {
 	case core.KubernetesEnvironment:
 		if err := c.Kubernetes.Validate(); err != nil {
-			return errors.Wrap(err, "Kubernetes validation failed")
+			return fmt.Errorf("Kubernetes validation failed: %w", err)
 		}
 	case core.UniversalEnvironment:
 	default:
-		return errors.Errorf("unknown environment type %q", env)
+		return fmt.Errorf("unknown environment type %q", env)
 	}
 	return nil
 }

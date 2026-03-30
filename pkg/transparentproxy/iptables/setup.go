@@ -21,7 +21,7 @@ func Setup(ctx context.Context, cfg config.InitializedConfig) (string, error) {
 	cfg.Logger.Info("cleaning up any existing transparent proxy iptables rules")
 
 	if err := Cleanup(ctx, cfg); err != nil {
-		return "", errors.Wrap(err, "cleanup failed during setup")
+		return "", fmt.Errorf("cleanup failed during setup: %w", err)
 	}
 
 	return builder.RestoreIPTables(ctx, cfg)
@@ -34,11 +34,11 @@ func Setup(ctx context.Context, cfg config.InitializedConfig) (string, error) {
 // cleanup process fails, an error is returned.
 func Cleanup(ctx context.Context, cfg config.InitializedConfig) error {
 	if err := cleanupIPvX(ctx, cfg.IPv4); err != nil {
-		return errors.Wrap(err, "failed to cleanup IPv4 rules")
+		return fmt.Errorf("failed to cleanup IPv4 rules: %w", err)
 	}
 
 	if err := cleanupIPvX(ctx, cfg.IPv6); err != nil {
-		return errors.Wrap(err, "failed to cleanup IPv6 rules")
+		return fmt.Errorf("failed to cleanup IPv6 rules: %w", err)
 	}
 
 	return nil
@@ -62,7 +62,7 @@ func cleanupIPvX(ctx context.Context, cfg config.InitializedConfigIPvX) error {
 	// Execute iptables-save to retrieve current rules.
 	stdout, _, err := cfg.Executables.IptablesSave.Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "failed to execute iptables-save command")
+		return fmt.Errorf("failed to execute iptables-save command: %w", err)
 	}
 
 	output := stdout.String()
@@ -93,10 +93,7 @@ func cleanupIPvX(ctx context.Context, cfg config.InitializedConfigIPvX) error {
 
 	// Verify if the new rules after cleanup are correct
 	if _, err := cfg.Executables.RestoreTest(ctx, newRules); err != nil {
-		return errors.Wrap(
-			err,
-			"verification of new rules after cleanup failed",
-		)
+		return fmt.Errorf("verification of new rules after cleanup failed: %w", err)
 	}
 
 	if cfg.DryRun {
@@ -107,10 +104,7 @@ func cleanupIPvX(ctx context.Context, cfg config.InitializedConfigIPvX) error {
 
 	// Restore the new rules with flushing
 	if _, err := cfg.Executables.RestoreWithFlush(ctx, newRules, true); err != nil {
-		return errors.Wrap(
-			err,
-			"failed to restore rules with flush after cleanup",
-		)
+		return fmt.Errorf("failed to restore rules with flush after cleanup: %w", err)
 	}
 
 	cfg.Logger.Info("cleanup of existing transparent proxy rules completed successfully")

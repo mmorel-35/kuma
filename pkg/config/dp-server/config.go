@@ -1,6 +1,7 @@
 package dp_server
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -65,7 +66,7 @@ func (a *DpServerConfig) Validate() error {
 		errs = multierr.Append(errs, errors.New(".Port cannot be negative"))
 	}
 	if err := a.Authn.Validate(); err != nil {
-		errs = multierr.Append(errs, errors.Wrap(err, ".Auth is invalid"))
+		errs = multierr.Append(errs, fmt.Errorf(".Auth is invalid: %w", err))
 	}
 	if _, err := config_types.TLSVersion(a.TlsMinVersion); err != nil {
 		errs = multierr.Append(errs, errors.New(".TlsMinVersion"+err.Error()))
@@ -94,10 +95,10 @@ type DpServerAuthnConfig struct {
 
 func (d DpServerAuthnConfig) Validate() error {
 	if err := d.DpProxy.Validate(); err != nil {
-		return errors.Wrap(err, ".DpProxy is not valid")
+		return fmt.Errorf(".DpProxy is not valid: %w", err)
 	}
 	if err := d.ZoneProxy.Validate(); err != nil {
-		return errors.Wrap(err, ".ZoneProxy is not valid")
+		return fmt.Errorf(".ZoneProxy is not valid: %w", err)
 	}
 	return nil
 }
@@ -111,7 +112,7 @@ type ZoneTokenAuthnConfig struct {
 
 func (c ZoneTokenAuthnConfig) Validate() error {
 	if err := c.Validator.Validate(); err != nil {
-		return errors.Wrap(err, ".Validator is not valida")
+		return fmt.Errorf(".Validator is not valida: %w", err)
 	}
 	return nil
 }
@@ -127,7 +128,7 @@ type ZoneProxyAuthnConfig struct {
 func (c ZoneProxyAuthnConfig) Validate() error {
 	if c.Type == DpServerAuthZoneToken {
 		if err := c.ZoneToken.Validate(); err != nil {
-			return errors.Wrap(err, ".ZoneToken is not valid")
+			return fmt.Errorf(".ZoneToken is not valid: %w", err)
 		}
 	}
 	return nil
@@ -160,7 +161,7 @@ type DpProxyAuthnConfig struct {
 func (d DpProxyAuthnConfig) Validate() error {
 	if d.Type == DpServerAuthDpToken {
 		if err := d.DpToken.Validate(); err != nil {
-			return errors.Wrap(err, ".DpToken is not valid")
+			return fmt.Errorf(".DpToken is not valid: %w", err)
 		}
 	}
 	return nil
@@ -175,7 +176,7 @@ type DpTokenAuthnConfig struct {
 
 func (d DpTokenAuthnConfig) Validate() error {
 	if err := d.Validator.Validate(); err != nil {
-		return errors.Wrap(err, ".Validator is not valid")
+		return fmt.Errorf(".Validator is not valid: %w", err)
 	}
 	return nil
 }
@@ -271,7 +272,7 @@ func (h *HdsConfig) Validate() error {
 		return errors.New("Interval must be greater than 0s")
 	}
 	if err := h.CheckDefaults.Validate(); err != nil {
-		return errors.Wrap(err, "Check is invalid")
+		return fmt.Errorf("Check is invalid: %w", err)
 	}
 	return nil
 }

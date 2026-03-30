@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/pkg/errors"
 
@@ -42,7 +43,7 @@ func NewPolicyInspectEntry(k PolicyInspectEntryKind) PolicyInspectEntry {
 func (w *PolicyInspectEntry) UnmarshalJSON(data []byte) error {
 	i := KindTag{}
 	if err := json.Unmarshal(data, &i); err != nil {
-		return errors.Wrap(err, `unable to find "kind"`)
+		return fmt.Errorf(`unable to find "kind": %w`, err)
 	}
 	var entry PolicyInspectEntryKind
 	switch i.Kind {
@@ -53,7 +54,7 @@ func (w *PolicyInspectEntry) UnmarshalJSON(data []byte) error {
 	case GatewayDataplane:
 		entry = &PolicyInspectGatewayEntry{}
 	default:
-		return errors.Errorf("invalid PolicyInspectEntry kind %q", i.Kind)
+		return fmt.Errorf("invalid PolicyInspectEntry kind %q", i.Kind)
 	}
 	if err := json.Unmarshal(data, entry); err != nil {
 		return errors.Wrapf(err, "unable to parse PolicyInspectEntry of kind %q", i.Kind)
@@ -178,7 +179,7 @@ func (e DataplaneInspectResponse) MarshalJSON() ([]byte, error) {
 func (w *DataplaneInspectResponse) UnmarshalJSON(data []byte) error {
 	i := KindTag{}
 	if err := json.Unmarshal(data, &i); err != nil {
-		return errors.Wrap(err, `unable to find "kind"`)
+		return fmt.Errorf(`unable to find "kind": %w`, err)
 	}
 	var entry DataplaneInspectResponseKind
 	switch i.Kind {
@@ -187,7 +188,7 @@ func (w *DataplaneInspectResponse) UnmarshalJSON(data []byte) error {
 	case GatewayDataplane:
 		entry = &GatewayDataplaneInspectResult{}
 	default:
-		return errors.Errorf("invalid DataplaneInspectResponse kind %q", i.Kind)
+		return fmt.Errorf("invalid DataplaneInspectResponse kind %q", i.Kind)
 	}
 	if err := json.Unmarshal(data, entry); err != nil {
 		return errors.Wrapf(err, "unable to parse DataplaneInspectResponse of kind %q", i.Kind)

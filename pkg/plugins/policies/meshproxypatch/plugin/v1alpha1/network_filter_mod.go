@@ -1,11 +1,11 @@
 package v1alpha1
 
 import (
+	"fmt"
 	"slices"
 
 	envoy_listener "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	envoy_resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
@@ -43,10 +43,10 @@ func (n *networkFilterModificator) apply(resources *core_xds.ResourceSet) error 
 					n.remove(chain)
 				case api.ModOpPatch:
 					if err := n.patch(chain, filter); err != nil {
-						return errors.Wrap(err, "could not patch the resource")
+						return fmt.Errorf("could not patch the resource: %w", err)
 					}
 				default:
-					return errors.Errorf("invalid operation: %s", n.Operation)
+					return fmt.Errorf("invalid operation: %s", n.Operation)
 				}
 			}
 		}

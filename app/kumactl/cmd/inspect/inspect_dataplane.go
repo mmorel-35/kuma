@@ -88,7 +88,7 @@ func newInspectDataplaneCmd(pctx *cmd.RootContext) *cobra.Command {
 
 			client, err := pctx.CurrentInspectEnvoyProxyClient(mesh.DataplaneResourceTypeDescriptor)
 			if err != nil {
-				return errors.Wrap(err, "failed to create a dataplane inspect client")
+				return fmt.Errorf("failed to create a dataplane inspect client: %w", err)
 			}
 
 			resourceKey := core_model.ResourceKey{Name: name, Mesh: pctx.CurrentMesh()}
@@ -96,7 +96,7 @@ func newInspectDataplaneCmd(pctx *cmd.RootContext) *cobra.Command {
 			case InspectionTypePolicies:
 				client, err := pctx.CurrentDataplaneInspectClient()
 				if err != nil {
-					return errors.Wrap(err, "failed to create a dataplane inspect client")
+					return fmt.Errorf("failed to create a dataplane inspect client: %w", err)
 				}
 
 				entryList, err := client.InspectPolicies(context.Background(), pctx.CurrentMesh(), name)

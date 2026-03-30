@@ -7,7 +7,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/pkg/errors"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -80,7 +79,7 @@ func (s *server) Start(stop <-chan struct{}) error {
 	if s.config.TlsCertFile != "" && s.config.TlsEnabled {
 		cert, err := tls.LoadX509KeyPair(s.config.TlsCertFile, s.config.TlsKeyFile)
 		if err != nil {
-			return errors.Wrap(err, "failed to load TLS certificate")
+			return fmt.Errorf("failed to load TLS certificate: %w", err)
 		}
 		tlsCfg := &tls.Config{Certificates: []tls.Certificate{cert}, MinVersion: tls.VersionTLS12}
 		if tlsCfg.MinVersion, err = config_types.TLSVersion(s.config.TlsMinVersion); err != nil {

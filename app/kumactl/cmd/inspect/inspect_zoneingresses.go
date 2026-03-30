@@ -1,9 +1,9 @@
 package inspect
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
@@ -24,7 +24,7 @@ func newInspectZoneIngressesCmd(pctx *cmd.RootContext) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			client, err := pctx.CurrentZoneIngressOverviewClient()
 			if err != nil {
-				return errors.Wrap(err, "failed to create a zone ingress client")
+				return fmt.Errorf("failed to create a zone ingress client: %w", err)
 			}
 			overviews, err := client.List(cmd.Context())
 			if err != nil {

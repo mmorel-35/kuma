@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -150,7 +151,7 @@ func createSecretClient(appCtx context.Context, scheme *kube_runtime.Scheme, sys
 		return []string{string(secret.Type)}
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "could not add index of Secret cache by field 'type'")
+		return nil, fmt.Errorf("could not add index of Secret cache by field 'type': %w", err)
 	}
 
 	// According to ControllerManager code, cache needs to start before all the Runnables (our Components)
@@ -228,7 +229,7 @@ func (cm *kubeComponentManager) Start(done <-chan struct{}) error {
 			cm.GetLogger().Info("leader election lost, stopping")
 			return nil
 		}
-		return errors.Wrap(err, "error running Kubernetes Manager")
+		return fmt.Errorf("error running Kubernetes Manager: %w", err)
 	}
 	return nil
 }

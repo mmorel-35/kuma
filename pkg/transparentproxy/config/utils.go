@@ -24,7 +24,7 @@ func parsePort(s string) (Port, error) {
 	u, err := parseUint16(s)
 
 	if err != nil || u == 0 {
-		return 0, errors.Errorf("value '%s' is not a valid port (uint16 in the range [1, 65535])", s)
+		return 0, fmt.Errorf("value '%s' is not a valid port (uint16 in the range [1, 65535])", s)
 	}
 
 	return Port(u), nil
@@ -38,7 +38,7 @@ func parsePort(s string) (Port, error) {
 func getLoopbackInterfaceName() (string, error) {
 	interfaces, err := net.Interfaces()
 	if err != nil {
-		return "", errors.Wrap(err, "failed to retrieve network interfaces")
+		return "", fmt.Errorf("failed to retrieve network interfaces: %w", err)
 	}
 
 	for _, iface := range interfaces {
@@ -66,7 +66,7 @@ func parseExcludePortsForUIDs(exclusionRules []string) ([]Exclusion, error) {
 	for _, elem := range exclusionRules {
 		parts := strings.Split(elem, ":")
 		if len(parts) == 0 || len(parts) > 3 {
-			return nil, errors.Errorf("invalid format for excluding ports by UIDs: '%s'. Expected format: <protocol:>?<ports:>?<uids>", elem)
+			return nil, fmt.Errorf("invalid format for excluding ports by UIDs: '%s'. Expected format: <protocol:>?<ports:>?<uids>", elem)
 		}
 
 		var portValuesOrRange, protocolOpts, uidValuesOrRange string
@@ -95,15 +95,15 @@ func parseExcludePortsForUIDs(exclusionRules []string) ([]Exclusion, error) {
 		}
 
 		if err := validateUintValueOrRange(portValuesOrRange); err != nil {
-			return nil, errors.Wrap(err, "invalid port range")
+			return nil, fmt.Errorf("invalid port range: %w", err)
 		}
 
 		if strings.Contains(uidValuesOrRange, ",") {
-			return nil, errors.Errorf("invalid UID entry: '%s'. It should either be a single item or a range", uidValuesOrRange)
+			return nil, fmt.Errorf("invalid UID entry: '%s'. It should either be a single item or a range", uidValuesOrRange)
 		}
 
 		if err := validateUintValueOrRange(uidValuesOrRange); err != nil {
-			return nil, errors.Wrap(err, "invalid UID range")
+			return nil, fmt.Errorf("invalid UID range: %w", err)
 		}
 
 		var protocols []consts.ProtocolL4
@@ -116,7 +116,7 @@ func parseExcludePortsForUIDs(exclusionRules []string) ([]Exclusion, error) {
 					continue
 				}
 
-				return nil, errors.Errorf("invalid or unsupported protocol: '%s'", s)
+				return nil, fmt.Errorf("invalid or unsupported protocol: '%s'", s)
 			}
 		}
 
@@ -151,7 +151,7 @@ func parseExcludePortsForIPs(exclusionRules []string, ipv6 bool) ([]Exclusion, e
 		for _, address := range parseCommaSeparatedStrings(rule) {
 			err, isExpectedIPVersion := validateIP(address, ipv6)
 			if err != nil {
-				return nil, errors.Wrap(err, "invalid exclusion rule")
+				return nil, fmt.Errorf("invalid exclusion rule: %w", err)
 			}
 
 			if isExpectedIPVersion {
@@ -189,7 +189,7 @@ func validateIP(address string, ipv6 bool) (error, bool) {
 	}
 
 	if ip == nil {
-		return errors.Errorf(
+		return fmt.Errorf(
 			"invalid IP address: '%s'. Expected format: <ip> or <ip>/<cidr> (e.g., 10.0.0.1, 172.16.0.0/16, fe80::1, fe80::/10)",
 			address,
 		), false
@@ -205,7 +205,7 @@ func validateIP(address string, ipv6 bool) (error, bool) {
 func parseUint16(port string) (uint16, error) {
 	parsedPort, err := strconv.ParseUint(port, 10, 16)
 	if err != nil {
-		return 0, errors.Errorf("invalid uint16 value: '%s'", port)
+		return 0, fmt.Errorf("invalid uint16 value: '%s'", port)
 	}
 
 	return uint16(parsedPort), nil
@@ -247,7 +247,7 @@ func HasLocalIPv6() (bool, error) {
 func configureIPv6OutboundAddress() error {
 	link, err := netlink.LinkByName("lo")
 	if err != nil {
-		return errors.Wrap(err, "failed to find loopback interface ('lo')")
+		return fmt.Errorf("failed to find loopback interface ('lo'): %w", err)
 	}
 
 	// Equivalent to "::6/128"
@@ -453,7 +453,7 @@ func handleRunError(err error, stderr *bytes.Buffer) error {
 		stderrLines := strings.Split(stderrTrimmed, "\n")
 		stderrFormated := strings.Join(stderrLines, ", ")
 
-		return errors.Errorf("%s: %s", err, stderrFormated)
+		return fmt.Errorf("%s: %s", err, stderrFormated)
 	}
 
 	return err

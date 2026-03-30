@@ -2,11 +2,11 @@ package status
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 
 	core_mesh "github.com/kumahq/kuma/v2/pkg/core/resources/apis/mesh"
@@ -82,7 +82,7 @@ func (s *StatusUpdater) Start(stop <-chan struct{}) error {
 func (s *StatusUpdater) updateStatus(ctx context.Context) error {
 	workloadList := &workload_api.WorkloadResourceList{}
 	if err := s.roResManager.List(ctx, workloadList); err != nil {
-		return errors.Wrap(err, "could not list Workloads")
+		return fmt.Errorf("could not list Workloads: %w", err)
 	}
 	if len(workloadList.Items) == 0 {
 		return nil
@@ -90,13 +90,13 @@ func (s *StatusUpdater) updateStatus(ctx context.Context) error {
 
 	dpInsightsList := core_mesh.DataplaneInsightResourceList{}
 	if err := s.roResManager.List(ctx, &dpInsightsList); err != nil {
-		return errors.Wrap(err, "could not list DataplaneInsights")
+		return fmt.Errorf("could not list DataplaneInsights: %w", err)
 	}
 	insightsByKey := core_model.IndexByKey(dpInsightsList.Items)
 
 	allDpList := core_mesh.DataplaneResourceList{}
 	if err := s.roResManager.List(ctx, &allDpList); err != nil {
-		return errors.Wrap(err, "could not list Dataplanes")
+		return fmt.Errorf("could not list Dataplanes: %w", err)
 	}
 
 	dpsByMeshAndWorkload := indexDataplanesByMeshAndWorkload(allDpList.Items)

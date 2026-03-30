@@ -2,10 +2,10 @@ package tls
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	"github.com/sethvargo/go-retry"
 
 	"github.com/kumahq/kuma/v2/pkg/core/resources/manager"
@@ -51,15 +51,15 @@ func (e *DefaultsComponent) ensureInterCpCaExist(ctx context.Context) error {
 		return nil
 	}
 	if !store.IsNotFound(err) {
-		return errors.Wrap(err, "error while loading inter-cp CA")
+		return fmt.Errorf("error while loading inter-cp CA: %w", err)
 	}
 	e.Log.V(1).Info("trying to create Inter CP CA")
 	pair, err := GenerateCA()
 	if err != nil {
-		return errors.Wrap(err, "could not generate inter-cp CA")
+		return fmt.Errorf("could not generate inter-cp CA: %w", err)
 	}
 	if err := CreateCA(ctx, *pair, e.ResManager); err != nil {
-		return errors.Wrap(err, "could not create inter-cp CA")
+		return fmt.Errorf("could not create inter-cp CA: %w", err)
 	}
 	e.Log.Info("Inter CP CA created")
 	return nil

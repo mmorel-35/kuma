@@ -1,6 +1,7 @@
 package xds
 
 import (
+	"fmt"
 	net_url "net/url"
 	"strings"
 	"time"
@@ -11,7 +12,6 @@ import (
 	envoy_hcm "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	tracingv3 "github.com/envoyproxy/go-control-plane/envoy/type/tracing/v3"
 	envoy_type "github.com/envoyproxy/go-control-plane/envoy/type/v3"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -252,7 +252,7 @@ func (c *Configurer) zipkinConfig(clusterName string) (*envoy_trace.Tracing_Http
 	zipkin := pointer.Deref(c.Conf.Backends)[0].Zipkin
 	url, err := net_url.ParseRequestURI(zipkin.Url)
 	if err != nil {
-		return nil, errors.Wrap(err, "invalid URL of Zipkin")
+		return nil, fmt.Errorf("invalid URL of Zipkin: %w", err)
 	}
 
 	ssc := wrapperspb.Bool(zipkin.SharedSpanContext)

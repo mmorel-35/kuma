@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
@@ -82,7 +83,7 @@ func (r *NamespaceReconciler) hasNetworkAttachmentDefinition(ctx context.Context
 		if kube_apierrs.IsNotFound(err) {
 			return false, nil
 		}
-		return false, errors.Wrap(err, "could not get network-attachment-definitions.k8s.cni.cncf.io")
+		return false, fmt.Errorf("could not get network-attachment-definitions.k8s.cni.cncf.io: %w", err)
 	}
 
 	return true, nil
@@ -116,7 +117,7 @@ func (r *NamespaceReconciler) deleteNetworkAttachmentDefinition(ctx context.Cont
 	case kube_apierrs.IsNotFound(err): // it means that namespace never had Kuma injected
 		return nil
 	default:
-		return errors.Wrap(err, "could not fetch NetworkAttachmentDefinition")
+		return fmt.Errorf("could not fetch NetworkAttachmentDefinition: %w", err)
 	}
 }
 

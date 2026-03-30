@@ -2,10 +2,9 @@ package framework
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"text/template"
-
-	"github.com/pkg/errors"
 )
 
 // DataplaneTemplateData represents the data for dataplane templates
@@ -151,7 +150,7 @@ networking:
 func RenderDataplaneTemplate(data DataplaneTemplateData) (string, error) {
 	var buf bytes.Buffer
 	if err := dataplaneTemplate.Execute(&buf, data); err != nil {
-		return "", errors.Wrap(err, "failed to execute dataplane template")
+		return "", fmt.Errorf("failed to execute dataplane template: %w", err)
 	}
 	return buf.String(), nil
 }
@@ -160,7 +159,7 @@ func RenderDataplaneTemplate(data DataplaneTemplateData) (string, error) {
 func RenderZoneIngressTemplate(data ZoneIngressTemplateData) (string, error) {
 	var buf bytes.Buffer
 	if err := zoneIngressTemplate.Execute(&buf, data); err != nil {
-		return "", errors.Wrap(err, "failed to execute zone ingress template")
+		return "", fmt.Errorf("failed to execute zone ingress template: %w", err)
 	}
 	return buf.String(), nil
 }
@@ -169,7 +168,7 @@ func RenderZoneIngressTemplate(data ZoneIngressTemplateData) (string, error) {
 func RenderZoneEgressTemplate(data ZoneEgressTemplateData) (string, error) {
 	var buf bytes.Buffer
 	if err := zoneEgressTemplate.Execute(&buf, data); err != nil {
-		return "", errors.Wrap(err, "failed to execute zone egress template")
+		return "", fmt.Errorf("failed to execute zone egress template: %w", err)
 	}
 	return buf.String(), nil
 }

@@ -2,9 +2,9 @@ package reconcile
 
 import (
 	"context"
+	"fmt"
 
 	envoy_cache "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
-	"github.com/pkg/errors"
 
 	"github.com/kumahq/kuma/v2/pkg/core"
 	core_mesh "github.com/kumahq/kuma/v2/pkg/core/resources/apis/mesh"
@@ -125,13 +125,13 @@ func (s *SnapshotGenerator) getMatchingDataplanes(ctx context.Context, meshesWit
 	for _, meshName := range meshesWithMeshMetrics {
 		meshContext, err := s.meshCache.GetMeshContext(ctx, meshName)
 		if err != nil {
-			return nil, errors.Wrap(err, "could not get mesh context")
+			return nil, fmt.Errorf("could not get mesh context: %w", err)
 		}
 
 		for _, dp := range meshContext.DataplanesByName {
 			matchedPolicies, err := matchers.MatchedPolicies(v1alpha1.MeshMetricType, dp, meshContext.Resources)
 			if err != nil {
-				return nil, errors.Wrap(err, "error on matching dpp")
+				return nil, fmt.Errorf("error on matching dpp: %w", err)
 			}
 			if len(matchedPolicies.SingleItemRules.Rules) == 1 {
 				conf := matchedPolicies.SingleItemRules.Rules[0].Conf.(v1alpha1.Conf)

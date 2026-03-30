@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -63,7 +64,7 @@ $ kumactl generate user-token --name john.doe@example.com --group users --valid-
 				tokenClient := NewHTTPUserTokenClient(client)
 				token, err = tokenClient.Generate(args.name, args.groups, args.validFor)
 				if err != nil {
-					return errors.Wrap(err, "failed to generate a user token")
+					return fmt.Errorf("failed to generate a user token: %w", err)
 				}
 			}
 

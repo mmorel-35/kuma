@@ -2,11 +2,11 @@ package status
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
@@ -91,7 +91,7 @@ func (s *StatusUpdater) Start(stop <-chan struct{}) error {
 func (s *StatusUpdater) updateStatus(ctx context.Context) error {
 	msList := &meshservice_api.MeshServiceResourceList{}
 	if err := s.roResManager.List(ctx, msList); err != nil {
-		return errors.Wrap(err, "could not list of Dataplanes")
+		return fmt.Errorf("could not list of Dataplanes: %w", err)
 	}
 	if len(msList.Items) == 0 {
 		// skip fetching other resources if MeshService is not used
@@ -99,26 +99,26 @@ func (s *StatusUpdater) updateStatus(ctx context.Context) error {
 	}
 	dpList := core_mesh.DataplaneResourceList{}
 	if err := s.roResManager.List(ctx, &dpList); err != nil {
-		return errors.Wrap(err, "could not list of Dataplanes")
+		return fmt.Errorf("could not list of Dataplanes: %w", err)
 	}
 
 	dpInsightsList := core_mesh.DataplaneInsightResourceList{}
 	if err := s.roResManager.List(ctx, &dpInsightsList); err != nil {
-		return errors.Wrap(err, "could not list of DataplaneInsights")
+		return fmt.Errorf("could not list of DataplaneInsights: %w", err)
 	}
 
 	meshList := core_mesh.MeshResourceList{}
 	if err := s.roResManager.List(ctx, &meshList); err != nil {
-		return errors.Wrap(err, "could not list of Meshes")
+		return fmt.Errorf("could not list of Meshes: %w", err)
 	}
 
 	meshIdentities := meshidentity_api.MeshIdentityResourceList{}
 	if err := s.roResManager.List(ctx, &meshIdentities); err != nil {
-		return errors.Wrap(err, "could not list MeshIdentities")
+		return fmt.Errorf("could not list MeshIdentities: %w", err)
 	}
 	meshTrusts := meshtrust_api.MeshTrustResourceList{}
 	if err := s.roResManager.List(ctx, &meshTrusts); err != nil {
-		return errors.Wrap(err, "could not list MeshTrusts")
+		return fmt.Errorf("could not list MeshTrusts: %w", err)
 	}
 	trustDomains := meshtrust_api.GetAllTrustDomains(meshTrusts)
 

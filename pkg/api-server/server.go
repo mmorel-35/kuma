@@ -174,16 +174,16 @@ func NewApiServer(
 
 	err := addConfigEndpoints(ws, rt.Access().ControlPlaneMetadataAccess, cfg)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not create configuration webservice")
+		return nil, fmt.Errorf("could not create configuration webservice: %w", err)
 	}
 	if err := addIndexWsEndpoints(ws, rt.GetInstanceId, rt.GetClusterId, guiUrl); err != nil {
-		return nil, errors.Wrap(err, "could not create index webservice")
+		return nil, fmt.Errorf("could not create index webservice: %w", err)
 	}
 	addWhoamiEndpoints(ws)
 
 	ws.SetDynamicRoutes(true)
 	if err := rt.APIWebServiceCustomize()(ws); err != nil {
-		return nil, errors.Wrap(err, "couldn't customize webservice")
+		return nil, fmt.Errorf("couldn't customize webservice: %w", err)
 	}
 
 	container.Add(ws)
@@ -436,7 +436,7 @@ func (a *ApiServer) Start(stop <-chan struct{}) error {
 func configureTLS(cfg api_server.ApiServerConfig) (*tls.Config, error) {
 	cert, err := tls.LoadX509KeyPair(cfg.HTTPS.TlsCertFile, cfg.HTTPS.TlsKeyFile)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load TLS certificate")
+		return nil, fmt.Errorf("failed to load TLS certificate: %w", err)
 	}
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
@@ -472,7 +472,7 @@ func configureTLS(cfg api_server.ApiServerConfig) (*tls.Config, error) {
 				return nil, errors.Wrapf(err, "could not read certificate %q", path)
 			}
 			if !clientCertPool.AppendCertsFromPEM(caCert) {
-				return nil, errors.Errorf("failed to load PEM client certificate from %q", path)
+				return nil, fmt.Errorf("failed to load PEM client certificate from %q", path)
 			}
 		}
 	}
@@ -482,7 +482,7 @@ func configureTLS(cfg api_server.ApiServerConfig) (*tls.Config, error) {
 			return nil, err
 		}
 		if !clientCertPool.AppendCertsFromPEM(file) {
-			return nil, errors.Errorf("failed to load PEM client certificate from %q", cfg.HTTPS.TlsCaFile)
+			return nil, fmt.Errorf("failed to load PEM client certificate from %q", cfg.HTTPS.TlsCaFile)
 		}
 	}
 

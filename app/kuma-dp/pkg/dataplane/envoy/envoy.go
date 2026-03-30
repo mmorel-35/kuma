@@ -43,7 +43,7 @@ type Opts struct {
 
 func New(opts Opts) (*Envoy, error) {
 	if _, err := lookupEnvoyPath(opts.Config.DataplaneRuntime.BinaryPath); err != nil {
-		return nil, errors.Wrap(err, "could not find envoy executable")
+		return nil, fmt.Errorf("could not find envoy executable: %w", err)
 	}
 	if opts.OnFinish == nil {
 		opts.OnFinish = func() {}
@@ -172,7 +172,7 @@ func (e *Envoy) FailHealthchecks() error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return errors.Errorf("expected 200 status code, got %d", resp.StatusCode)
+		return fmt.Errorf("expected 200 status code, got %d", resp.StatusCode)
 	}
 	return nil
 }
@@ -188,7 +188,7 @@ func (e *Envoy) DrainForever() error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return errors.Errorf("expected 200 status code, got %d", resp.StatusCode)
+		return fmt.Errorf("expected 200 status code, got %d", resp.StatusCode)
 	}
 	return nil
 }
@@ -212,7 +212,7 @@ func GetEnvoyVersion(binaryPath string) (*EnvoyVersion, error) {
 
 	parts := strings.Split(build, "/")
 	if len(parts) != 5 { // revision/build_version_number/revision_status/build_type/ssl_version
-		return nil, errors.Errorf("wrong Envoy build format: %s", build)
+		return nil, fmt.Errorf("wrong Envoy build format: %s", build)
 	}
 	return &EnvoyVersion{
 		Build:   build,

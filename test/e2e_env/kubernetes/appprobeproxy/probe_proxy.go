@@ -246,7 +246,7 @@ func patchAndWait(t testing.TestingT, g Gomega, cluster Cluster, kubectlOpts *k8
 func checkIfAppReady(t testing.TestingT, kubectlOpts *k8s.KubectlOptions, podName, appName string) error {
 	pod, err := k8s.GetPodE(t, kubectlOpts, podName)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to get details of pod '%s'", podName))
+		return fmt.Errorf("failed to get details of pod '%s': %w", podName, err)
 	}
 
 	if !isTestServerReady(pod, appName) {

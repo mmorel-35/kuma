@@ -80,18 +80,18 @@ func convertLoggingBackend(mesh string, trafficDirection envoy.TrafficDirection,
 	case mesh_proto.LoggingFileType:
 		cfg := mesh_proto.FileLoggingBackendConfig{}
 		if err := proto.ToTyped(backend.Conf, &cfg); err != nil {
-			return nil, errors.Wrap(err, "could not parse backend config")
+			return nil, fmt.Errorf("could not parse backend config: %w", err)
 		}
 		return fileAccessLog(format, cfg.Path)
 	case mesh_proto.LoggingTcpType:
 		cfg := mesh_proto.TcpLoggingBackendConfig{}
 		if err := proto.ToTyped(backend.Conf, &cfg); err != nil {
-			return nil, errors.Wrap(err, "could not parse backend config")
+			return nil, fmt.Errorf("could not parse backend config: %w", err)
 		}
 		accessLogSocketPath := core_xds.AccessLogSocketName(proxy.Metadata.WorkDir, proxy.Id.ToResourceKey().Name, proxy.Id.ToResourceKey().Mesh)
 		return fileAccessLog(fmt.Sprintf("%s;%s", cfg.Address, format), accessLogSocketPath)
 	default: // should be caught by validator
-		return nil, errors.Errorf("could not convert LoggingBackend of type %T to AccessLog", backend.GetType())
+		return nil, fmt.Errorf("could not convert LoggingBackend of type %T to AccessLog", backend.GetType())
 	}
 }
 

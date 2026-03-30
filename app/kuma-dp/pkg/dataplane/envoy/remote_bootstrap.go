@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	net_url "net/url"
@@ -38,7 +39,7 @@ var (
 )
 
 func InvalidRequestErr(msg string) error {
-	return errors.Errorf("Invalid request: %s", msg)
+	return fmt.Errorf("Invalid request: %s", msg)
 }
 
 func IsInvalidRequestErr(err error) bool {
@@ -51,7 +52,7 @@ func (b *remoteBootstrapClient) Fetch(ctx context.Context, opts Opts, metadata m
 		return nil, nil, err
 	}
 	if bootstrapUrl.Scheme != "http" && bootstrapUrl.Scheme != "https" {
-		return nil, nil, errors.Errorf("unsupported URL scheme %q, must be http or https", bootstrapUrl.Scheme)
+		return nil, nil, fmt.Errorf("unsupported URL scheme %q, must be http or https", bootstrapUrl.Scheme)
 	}
 	client := &http.Client{Timeout: time.Second * 10}
 
@@ -156,7 +157,7 @@ func (b *remoteBootstrapClient) requestForBootstrap(ctx context.Context, client 
 
 	envoyVersion, err := GetEnvoyVersion(opts.Config.DataplaneRuntime.BinaryPath)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get Envoy version")
+		return nil, fmt.Errorf("failed to get Envoy version: %w", err)
 	}
 
 	if envoyVersion.KumaDpCompatible, err = VersionCompatible(kuma_version.Envoy, envoyVersion.Version); err != nil {
@@ -234,7 +235,7 @@ func (b *remoteBootstrapClient) requestForBootstrap(ctx context.Context, client 
 	}
 	jsonBytes, err := json.MarshalIndent(request, "", " ")
 	if err != nil {
-		return nil, errors.Wrap(err, "could not marshal request to json")
+		return nil, fmt.Errorf("could not marshal request to json: %w", err)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url.String(), bytes.NewReader(jsonBytes))
 	if err != nil {
@@ -244,7 +245,7 @@ func (b *remoteBootstrapClient) requestForBootstrap(ctx context.Context, client 
 	req.Header.Set("content-type", "application/json")
 	resp, err := client.Do(req) // #nosec G704 -- scheme validated to http/https above
 	if err != nil {
-		return nil, errors.Wrap(err, "request to bootstrap server failed")
+		return nil, fmt.Errorf("request to bootstrap server failed: %w", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
@@ -261,11 +262,11 @@ func (b *remoteBootstrapClient) requestForBootstrap(ctx context.Context, client 
 		if resp.StatusCode/100 == 4 {
 			return nil, InvalidRequestErr(string(bodyBytes))
 		}
-		return nil, errors.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not read the body of the response")
+		return nil, fmt.Errorf("could not read the body of the response: %w", err)
 	}
 	return respBytes, nil
 }

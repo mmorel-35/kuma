@@ -369,7 +369,7 @@ func addCustomIptablesRules(ctx context.Context, c testcontainers.Container) err
 	}
 
 	if len(errs) == len(iptablesCmds) {
-		return errors.Wrap(std_errors.Join(errs...), "all iptables commands used to add custom iptables rules failed")
+		return fmt.Errorf("all iptables commands used to add custom iptables rules failed: %w", std_errors.Join(errs...))
 	}
 
 	return nil

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"sync"
@@ -73,7 +74,7 @@ func (s *accessLogStreamer) Start(stop <-chan struct{}) error {
 	}()
 	select {
 	case err := <-errCh:
-		return errors.Wrap(err, "log streamer terminated with an error")
+		return fmt.Errorf("log streamer terminated with an error: %w", err)
 	case <-stop:
 		logger.Info("stopping log streamer")
 		return nil

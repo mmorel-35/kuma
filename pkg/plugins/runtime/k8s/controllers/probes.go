@@ -1,7 +1,8 @@
 package controllers
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	kube_core "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
@@ -25,7 +26,7 @@ func ProbesFor(pod *kube_core.Pod) (*mesh_proto.Dataplane_Probes, error) {
 		return nil, err
 	}
 	if !exist {
-		return nil, errors.Errorf("%s annotation doesn't exist", metadata.KumaVirtualProbesPortAnnotation)
+		return nil, fmt.Errorf("%s annotation doesn't exist", metadata.KumaVirtualProbesPortAnnotation)
 	}
 
 	probeProxyPort, _, err := metadata.Annotations(pod.Annotations).GetUint32(metadata.KumaApplicationProbeProxyPortAnnotation)
@@ -90,7 +91,7 @@ func probeFor(podProbe *kube_core.Probe, port uint32, probeProxyPort uint32) (*m
 
 	inbound, err := kumaProbe.ToReal(port)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to convert virtual probe to real")
+		return nil, fmt.Errorf("unable to convert virtual probe to real: %w", err)
 	}
 
 	if inbound.HTTPGet == nil {

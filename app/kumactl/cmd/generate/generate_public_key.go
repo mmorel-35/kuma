@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/pkg/errors"
@@ -30,14 +31,14 @@ $ kumactl generate public-key --signing-key-path=/tmp/key.pem
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			signingKey, err := os.ReadFile(args.signingKeyPath)
 			if err != nil {
-				return errors.Wrap(err, "could not read a signing key file")
+				return fmt.Errorf("could not read a signing key file: %w", err)
 			}
 			if !util_rsa.IsPrivateKeyPEMBytes(signingKey) {
 				return errors.New("provided file is not a PEM-encoded signing key")
 			}
 			key, err := util_rsa.FromPrivateKeyPEMBytesToPublicKeyPEMBytes(signingKey)
 			if err != nil {
-				return errors.Wrap(err, "could not extract public key")
+				return fmt.Errorf("could not extract public key: %w", err)
 			}
 			_, err = cmd.OutOrStdout().Write(key)
 			return err

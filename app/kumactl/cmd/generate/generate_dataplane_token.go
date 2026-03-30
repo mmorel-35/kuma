@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -53,7 +54,7 @@ $ kumactl generate dataplane-token --mesh demo --workload backend --valid-for 24
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			client, err := pctx.CurrentDataplaneTokenClient()
 			if err != nil {
-				return errors.Wrap(err, "failed to create dataplane token client")
+				return fmt.Errorf("failed to create dataplane token client: %w", err)
 			}
 
 			tags := map[string][]string{}
@@ -87,7 +88,7 @@ $ kumactl generate dataplane-token --mesh demo --workload backend --valid-for 24
 				}
 				token, err = client.Generate(name, pctx.CurrentMesh(), tags, ctx.args.proxyType, ctx.args.workload, ctx.args.validFor)
 				if err != nil {
-					return errors.Wrap(err, "failed to generate a dataplane token")
+					return fmt.Errorf("failed to generate a dataplane token: %w", err)
 				}
 			}
 

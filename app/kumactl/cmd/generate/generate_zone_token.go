@@ -70,12 +70,12 @@ $ kumactl generate zone-token --zone zone-1 --valid-for 24h --signing-key-path /
 				}
 				client, err := pctx.CurrentZoneTokenClient()
 				if err != nil {
-					return errors.Wrap(err, "failed to create zone token client")
+					return fmt.Errorf("failed to create zone token client: %w", err)
 				}
 
 				token, err = client.Generate(ctx.args.zone, ctx.args.scope, ctx.args.validFor)
 				if err != nil {
-					return errors.Wrap(err, "failed to generate a zone token")
+					return fmt.Errorf("failed to generate a zone token: %w", err)
 				}
 			}
 
@@ -106,7 +106,7 @@ func validateArgs(args *generateZoneTokenContextArgs) error {
 	}
 
 	if len(unsupportedScopes) > 0 {
-		return errors.Errorf(
+		return fmt.Errorf(
 			"invalid --scope values: %+v (supported scopes: %+v)",
 			unsupportedScopes,
 			zone.FullScope,

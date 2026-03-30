@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pkg/errors"
-
 	"github.com/kumahq/kuma/v2/pkg/core/resources/apis/mesh"
 	"github.com/kumahq/kuma/v2/pkg/core/resources/model/rest"
 	util_http "github.com/kumahq/kuma/v2/pkg/util/http"
@@ -30,7 +28,7 @@ type httpDataplaneOverviewClient struct {
 func (d *httpDataplaneOverviewClient) List(ctx context.Context, meshName string, tags map[string]string, gateway bool, ingress bool) (*mesh.DataplaneOverviewResourceList, error) {
 	resUrl, err := constructUrl(meshName, tags, gateway, ingress)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not construct the url")
+		return nil, fmt.Errorf("could not construct the url: %w", err)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, resUrl.String(), http.NoBody)
 	if err != nil {
@@ -41,7 +39,7 @@ func (d *httpDataplaneOverviewClient) List(ctx context.Context, meshName string,
 		return nil, err
 	}
 	if statusCode != 200 {
-		return nil, errors.Errorf("(%d): %s", statusCode, string(b))
+		return nil, fmt.Errorf("(%d): %s", statusCode, string(b))
 	}
 	overviews := mesh.DataplaneOverviewResourceList{}
 	if err := rest.JSON.UnmarshalListToCore(b, &overviews); err != nil {

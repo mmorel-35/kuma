@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
@@ -111,7 +112,7 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req kube_ctrl.Request) (k
 func (r *PodReconciler) reconcileDataplane(ctx context.Context, pod *kube_core.Pod, log logr.Logger) error {
 	ns := kube_core.Namespace{}
 	if err := r.Get(ctx, kube_types.NamespacedName{Name: pod.Namespace}, &ns); err != nil {
-		return errors.Wrap(err, "unable to get Namespace for Pod")
+		return fmt.Errorf("unable to get Namespace for Pod: %w", err)
 	}
 
 	if ns.Status.Phase == kube_core.NamespaceTerminating {
@@ -181,7 +182,7 @@ func (r *PodReconciler) reconcileBuiltinGatewayDataplane(ctx context.Context, po
 
 	ns := kube_core.Namespace{}
 	if err := r.Get(ctx, kube_types.NamespacedName{Name: pod.Namespace}, &ns); err != nil {
-		return errors.Wrap(err, "unable to get Namespace for Pod")
+		return fmt.Errorf("unable to get Namespace for Pod: %w", err)
 	}
 	return r.createOrUpdateBuiltinGatewayDataplane(ctx, pod, &ns)
 }
@@ -195,7 +196,7 @@ func (r *PodReconciler) reconcileZoneIngress(ctx context.Context, pod *kube_core
 	}
 
 	if pod.Namespace != r.SystemNamespace {
-		return errors.Errorf("Ingress can only be deployed in system namespace %q", r.SystemNamespace)
+		return fmt.Errorf("Ingress can only be deployed in system namespace %q", r.SystemNamespace)
 	}
 	services, err := r.findMatchingServices(ctx, pod)
 	if err != nil {
@@ -217,7 +218,7 @@ func (r *PodReconciler) reconcileZoneEgress(ctx context.Context, pod *kube_core.
 	}
 
 	if pod.Namespace != r.SystemNamespace {
-		return errors.Errorf("Egress can only be deployed in system namespace %q", r.SystemNamespace)
+		return fmt.Errorf("Egress can only be deployed in system namespace %q", r.SystemNamespace)
 	}
 	services, err := r.findMatchingServices(ctx, pod)
 	if err != nil {
@@ -240,7 +241,7 @@ func (r *PodReconciler) findByEndpointSlices(ctx context.Context, svc *kube_core
 			kube_discovery.LabelServiceName: svc.Name,
 		}),
 	); err != nil {
-		return false, errors.Wrap(err, "unable to list EndpointSlices for service")
+		return false, fmt.Errorf("unable to list EndpointSlices for service: %w", err)
 	}
 	for _, slice := range endpointSlices.Items {
 		for _, endpoint := range slice.Endpoints {
@@ -270,7 +271,7 @@ func (r *PodReconciler) findMatchingServices(ctx context.Context, pod *kube_core
 		}
 		if len(svc.Spec.Selector) == 0 {
 			if endpointMatched, err := r.findByEndpointSlices(ctx, svc, pod.UID); err != nil {
-				return nil, errors.Wrap(err, "unable to match services by EndpointSlices")
+				return nil, fmt.Errorf("unable to match services by EndpointSlices: %w", err)
 			} else if endpointMatched {
 				servicesByName[svc.Name] = svc
 			}
@@ -339,10 +340,10 @@ func (r *PodReconciler) createOrUpdateDataplane(
 	}
 	operationResult, err := kube_controllerutil.CreateOrUpdate(ctx, r.Client, dataplane, func() error {
 		if err := r.PodConverter.PodToDataplane(ctx, dataplane, pod, services, others, mesh); err != nil {
-			return errors.Wrap(err, "unable to translate a Pod into a Dataplane")
+			return fmt.Errorf("unable to translate a Pod into a Dataplane: %w", err)
 		}
 		if err := kube_controllerutil.SetControllerReference(pod, dataplane, r.Scheme); err != nil {
-			return errors.Wrap(err, "unable to set Dataplane's controller reference to Pod")
+			return fmt.Errorf("unable to set Dataplane's controller reference to Pod: %w", err)
 		}
 		return nil
 	})
@@ -376,10 +377,10 @@ func (r *PodReconciler) createOrUpdateIngress(ctx context.Context, pod *kube_cor
 	}
 	operationResult, err := kube_controllerutil.CreateOrUpdate(ctx, r.Client, ingress, func() error {
 		if err := r.PodConverter.PodToIngress(ctx, ingress, pod, services); err != nil {
-			return errors.Wrap(err, "unable to translate a Pod into a Ingress")
+			return fmt.Errorf("unable to translate a Pod into a Ingress: %w", err)
 		}
 		if err := kube_controllerutil.SetControllerReference(pod, ingress, r.Scheme); err != nil {
-			return errors.Wrap(err, "unable to set Ingress's controller reference to Pod")
+			return fmt.Errorf("unable to set Ingress's controller reference to Pod: %w", err)
 		}
 		return nil
 	})
@@ -410,10 +411,10 @@ func (r *PodReconciler) createOrUpdateEgress(ctx context.Context, pod *kube_core
 	}
 	operationResult, err := kube_controllerutil.CreateOrUpdate(ctx, r.Client, egress, func() error {
 		if err := r.PodConverter.PodToEgress(ctx, egress, pod, services); err != nil {
-			return errors.Wrap(err, "unable to translate a Pod into a Egress")
+			return fmt.Errorf("unable to translate a Pod into a Egress: %w", err)
 		}
 		if err := kube_controllerutil.SetControllerReference(pod, egress, r.Scheme); err != nil {
-			return errors.Wrap(err, "unable to set Egress's controller reference to Pod")
+			return fmt.Errorf("unable to set Egress's controller reference to Pod: %w", err)
 		}
 		return nil
 	})

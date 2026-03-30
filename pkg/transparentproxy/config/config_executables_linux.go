@@ -17,7 +17,7 @@ import (
 func (c InitializedExecutable) setupSandbox(netns ns.NetNS) error {
 	// Unshare the current process's mount namespace to isolate it from other processes
 	if err := unix.Unshare(unix.CLONE_NEWNS); err != nil {
-		return errors.Wrap(err, "failed to unshare mount namespace")
+		return fmt.Errorf("failed to unshare mount namespace: %w", err)
 	}
 
 	if err := netns.Set(); err != nil {
@@ -28,7 +28,7 @@ func (c InitializedExecutable) setupSandbox(netns ns.NetNS) error {
 	// we perform do not affect the global namespace
 	// More info: https://unix.stackexchange.com/questions/246312/why-is-my-bind-mount-visible-outside-its-mount-namespace
 	if err := mount("", "/", unix.MS_PRIVATE|unix.MS_REC); err != nil {
-		return errors.Wrap(err, "failed to remount root filesystem as private")
+		return fmt.Errorf("failed to remount root filesystem as private: %w", err)
 	}
 
 	if c.NeedLock() && c.version.LessThan(consts.IptablesVersionWithLockfileEnv) {
@@ -59,7 +59,7 @@ func (c InitializedExecutable) runInSandbox(cmd *exec.Cmd) error {
 
 	n, nerr := ns.GetCurrentNS()
 	if nerr != nil {
-		return errors.Wrap(nerr, "failed to get current network namespace")
+		return fmt.Errorf("failed to get current network namespace: %w", nerr)
 	}
 
 	// The ability to change the xtables lock path using the XTABLES_LOCKFILE environment

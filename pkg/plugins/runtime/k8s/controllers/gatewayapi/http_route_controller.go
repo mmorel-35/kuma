@@ -59,12 +59,12 @@ func (r *HTTPRouteReconciler) Reconcile(ctx context.Context, req kube_ctrl.Reque
 			if err := common.ReconcileLabelledObject(
 				ctx, r.Log, r.TypeRegistry, r.Client, req.NamespacedName, core_model.NoMesh, &mesh_proto.MeshGatewayRoute{}, "", nil,
 			); err != nil {
-				return kube_ctrl.Result{}, errors.Wrap(err, "could not delete owned GatewayRoute.kuma.io")
+				return kube_ctrl.Result{}, fmt.Errorf("could not delete owned GatewayRoute.kuma.io: %w", err)
 			}
 			if err := common.ReconcileLabelledObject(
 				ctx, r.Log, r.TypeRegistry, r.Client, req.NamespacedName, core_model.NoMesh, &meshhttproute_api.MeshHTTPRoute{}, r.SystemNamespace, nil,
 			); err != nil {
-				return kube_ctrl.Result{}, errors.Wrap(err, "could not delete owned MeshHTTPRoute.kuma.io")
+				return kube_ctrl.Result{}, fmt.Errorf("could not delete owned MeshHTTPRoute.kuma.io: %w", err)
 			}
 
 			return kube_ctrl.Result{}, nil
@@ -75,14 +75,14 @@ func (r *HTTPRouteReconciler) Reconcile(ctx context.Context, req kube_ctrl.Reque
 
 	ns := kube_core.Namespace{}
 	if err := r.Get(ctx, kube_types.NamespacedName{Name: httpRoute.Namespace}, &ns); err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to get Namespace of HTTPRoute")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to get Namespace of HTTPRoute: %w", err)
 	}
 
 	mesh := k8s_util.MeshOfByLabelOrAnnotation(r.Log, httpRoute, &ns)
 
 	meshRouteSpecs, conditions, err := r.gapiToKumaRoutes(ctx, mesh, httpRoute)
 	if err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "could not generate MeshHTTPRoute.kuma.io resources")
+		return kube_ctrl.Result{}, fmt.Errorf("could not generate MeshHTTPRoute.kuma.io resources: %w", err)
 	}
 
 	// After upgrading Kuma to version 2.7.x, MeshGatewayRoutes are no longer used internally.
@@ -93,17 +93,17 @@ func (r *HTTPRouteReconciler) Reconcile(ctx context.Context, req kube_ctrl.Reque
 	if err := common.ReconcileLabelledObject(
 		ctx, r.Log, r.TypeRegistry, r.Client, req.NamespacedName, mesh, &mesh_proto.MeshGatewayRoute{}, "", nil,
 	); err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "could not delete owned GatewayRoute.kuma.io")
+		return kube_ctrl.Result{}, fmt.Errorf("could not delete owned GatewayRoute.kuma.io: %w", err)
 	}
 
 	if err := common.ReconcileLabelledObject(
 		ctx, r.Log, r.TypeRegistry, r.Client, req.NamespacedName, mesh, &meshhttproute_api.MeshHTTPRoute{}, r.SystemNamespace, meshRouteSpecs,
 	); err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "could not reconcile owned MeshHTTPRoute.kuma.io")
+		return kube_ctrl.Result{}, fmt.Errorf("could not reconcile owned MeshHTTPRoute.kuma.io: %w", err)
 	}
 
 	if err := r.updateStatus(ctx, httpRoute, conditions); err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to update HTTPRoute status")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to update HTTPRoute status: %w", err)
 	}
 
 	return kube_ctrl.Result{}, nil

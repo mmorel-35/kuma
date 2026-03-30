@@ -165,7 +165,7 @@ func generateCertificateSecret(
 	case *system_proto.DataSource_InlineString:
 		tlsSecret.Name = names.GetSecretName("cert."+string(ktype), "inlineString", names.Join(hostnames...))
 	default:
-		return nil, errors.Errorf("unsupported datasource type %T", d)
+		return nil, fmt.Errorf("unsupported datasource type %T", d)
 	}
 
 	return tlsSecret, err
@@ -463,11 +463,11 @@ func configureTLS(
 		for _, cert := range tls.GetCertificates() {
 			secret, err := generateCertificateSecret(ctx.Mesh, hostnames, cert)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to generate TLS certificate")
+				return nil, fmt.Errorf("failed to generate TLS certificate: %w", err)
 			}
 
 			if resources.Contains(secret.Name, secret) {
-				return nil, errors.Errorf("duplicate TLS certificate %q", secret.Name)
+				return nil, fmt.Errorf("duplicate TLS certificate %q", secret.Name)
 			}
 
 			resource := NewResource(secret.Name, secret)
@@ -481,7 +481,7 @@ func configureTLS(
 
 	case mesh_proto.MeshGateway_TLS_NONE:
 		if !listener.Listener.CrossMesh {
-			return nil, errors.Errorf("unsupported TLS mode %q", mode)
+			return nil, fmt.Errorf("unsupported TLS mode %q", mode)
 		}
 
 		// We don't match on the SNI here since it won't be the hostname
@@ -502,12 +502,12 @@ func configureTLS(
 			len(ctx.Mesh.CAsByTrustDomain) > 0,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "couldn't generate downstream tls context for gateway")
+			return nil, fmt.Errorf("couldn't generate downstream tls context for gateway: %w", err)
 		}
 
 		downstream.CommonTlsContext.GetCombinedValidationContext().DefaultValidationContext.MatchTypedSubjectAltNames = nil
 	default:
-		return nil, errors.Errorf("unsupported TLS mode %q", tls.GetMode())
+		return nil, fmt.Errorf("unsupported TLS mode %q", tls.GetMode())
 	}
 
 	typedConfig, err := util_proto.MarshalAnyDeterministic(downstream)

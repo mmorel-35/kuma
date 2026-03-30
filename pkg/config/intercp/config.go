@@ -1,6 +1,7 @@
 package intercp
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/asaskevich/govalidator"
@@ -34,10 +35,10 @@ type InterCpConfig struct {
 
 func (i *InterCpConfig) Validate() error {
 	if err := i.Server.Validate(); err != nil {
-		return errors.Wrap(err, ".Server validation failed")
+		return fmt.Errorf(".Server validation failed: %w", err)
 	}
 	if err := i.Catalog.Validate(); err != nil {
-		return errors.Wrap(err, ".Catalog validation failed")
+		return fmt.Errorf(".Catalog validation failed: %w", err)
 	}
 	return nil
 }

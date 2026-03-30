@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	kube_meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -83,7 +82,7 @@ func (s *StatusUpdater) Start(stop <-chan struct{}) error {
 func (s *StatusUpdater) updateStatus(ctx context.Context) error {
 	mzSvcList := &meshmzservice_api.MeshMultiZoneServiceResourceList{}
 	if err := s.roResManager.List(ctx, mzSvcList); err != nil {
-		return errors.Wrap(err, "could not list of MeshMultiZoneServices")
+		return fmt.Errorf("could not list of MeshMultiZoneServices: %w", err)
 	}
 	if len(mzSvcList.Items) == 0 {
 		// skip fetching other resources if MeshMultiZoneService is not used
@@ -92,7 +91,7 @@ func (s *StatusUpdater) updateStatus(ctx context.Context) error {
 
 	msList := &meshservice_api.MeshServiceResourceList{}
 	if err := s.roResManager.List(ctx, msList); err != nil {
-		return errors.Wrap(err, "could not list of MeshServices")
+		return fmt.Errorf("could not list of MeshServices: %w", err)
 	}
 
 	for _, mzSvc := range mzSvcList.Items {

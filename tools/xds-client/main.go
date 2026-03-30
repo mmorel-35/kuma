@@ -106,7 +106,7 @@ func newRunCmd() *cobra.Command {
 					errCh <- func() (errs error) {
 						client, err := stream.New(args.xdsServerAddress)
 						if err != nil {
-							return errors.Wrap(err, "failed to connect to xDS server")
+							return fmt.Errorf("failed to connect to xDS server: %w", err)
 						}
 						defer func() {
 							nodeLog.Info("closing a connection ...")
@@ -118,7 +118,7 @@ func newRunCmd() *cobra.Command {
 						nodeLog.Info("opening an xDS stream ...")
 						stream, err := client.StartStream()
 						if err != nil {
-							return errors.Wrap(err, "failed to start an xDS stream")
+							return fmt.Errorf("failed to start an xDS stream: %w", err)
 						}
 						defer func() {
 							nodeLog.Info("closing an xDS stream ...")
@@ -149,12 +149,12 @@ func newRunCmd() *cobra.Command {
 							nodeLog.Info("waiting for a discovery response ...")
 							resp, err := stream.WaitForResources()
 							if err != nil {
-								return errors.Wrap(err, "failed to receive a discovery response")
+								return fmt.Errorf("failed to receive a discovery response: %w", err)
 							}
 							nodeLog.Info("received xDS resources", "type", resp.TypeUrl, "version", resp.VersionInfo, "nonce", resp.Nonce, "resources", len(resp.Resources))
 
 							if err := stream.ACK(resp.TypeUrl); err != nil {
-								return errors.Wrap(err, "failed to ACK a discovery response")
+								return fmt.Errorf("failed to ACK a discovery response: %w", err)
 							}
 							nodeLog.Info("ACKed discovery response", "type", resp.TypeUrl, "version", resp.VersionInfo, "nonce", resp.Nonce)
 						}
@@ -164,7 +164,7 @@ func newRunCmd() *cobra.Command {
 
 			err := <-errCh
 
-			return errors.Wrap(err, "one of xDS clients (Envoy simulators) terminated with an error")
+			return fmt.Errorf("one of xDS clients (Envoy simulators) terminated with an error: %w", err)
 		},
 	}
 	// flags

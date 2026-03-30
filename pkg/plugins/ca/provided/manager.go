@@ -2,6 +2,7 @@ package provided
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pkg/errors"
 
@@ -63,7 +64,7 @@ func (p *providedCaManager) ValidateBackend(ctx context.Context, mesh string, ba
 func (p *providedCaManager) getCa(ctx context.Context, mesh string, backend *mesh_proto.CertificateAuthorityBackend) (ca.KeyPair, error) {
 	cfg := &config.ProvidedCertificateAuthorityConfig{}
 	if err := util_proto.ToTyped(backend.Conf, cfg); err != nil {
-		return ca.KeyPair{}, errors.Wrap(err, "could not convert backend config to ProvidedCertificateAuthorityConfig")
+		return ca.KeyPair{}, fmt.Errorf("could not convert backend config to ProvidedCertificateAuthorityConfig: %w", err)
 	}
 	key, err := p.dataSourceLoader.Load(ctx, mesh, cfg.Key)
 	if err != nil {
@@ -87,7 +88,7 @@ func (p *providedCaManager) EnsureBackends(ctx context.Context, mesh model.Resou
 func (p *providedCaManager) UsedSecrets(mesh string, backend *mesh_proto.CertificateAuthorityBackend) ([]string, error) {
 	cfg := &config.ProvidedCertificateAuthorityConfig{}
 	if err := util_proto.ToTyped(backend.Conf, cfg); err != nil {
-		return nil, errors.Wrap(err, "could not convert backend config to ProvidedCertificateAuthorityConfig")
+		return nil, fmt.Errorf("could not convert backend config to ProvidedCertificateAuthorityConfig: %w", err)
 	}
 	var secrets []string
 	if cfg.GetCert().GetSecret() != "" {

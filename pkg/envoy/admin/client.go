@@ -74,22 +74,22 @@ func (a *envoyAdminClient) mtlsCerts(ctx context.Context) (x509.CertPool, tls.Ce
 	if a.caCertPool == nil {
 		ca, err := envoy_admin_tls.LoadCA(ctx, a.rm)
 		if err != nil {
-			return x509.CertPool{}, tls.Certificate{}, errors.Wrap(err, "could not load the CA")
+			return x509.CertPool{}, tls.Certificate{}, fmt.Errorf("could not load the CA: %w", err)
 		}
 		caCertPool := x509.NewCertPool()
 		caCert, err := x509.ParseCertificate(ca.Certificate[0])
 		if err != nil {
-			return x509.CertPool{}, tls.Certificate{}, errors.Wrap(err, "could not parse CA")
+			return x509.CertPool{}, tls.Certificate{}, fmt.Errorf("could not parse CA: %w", err)
 		}
 		caCertPool.AddCert(caCert)
 
 		pair, err := envoy_admin_tls.GenerateClientCert(ca)
 		if err != nil {
-			return x509.CertPool{}, tls.Certificate{}, errors.Wrap(err, "could not generate a client certificate")
+			return x509.CertPool{}, tls.Certificate{}, fmt.Errorf("could not generate a client certificate: %w", err)
 		}
 		clientCert, err := tls.X509KeyPair(pair.CertPEM, pair.KeyPEM)
 		if err != nil {
-			return x509.CertPool{}, tls.Certificate{}, errors.Wrap(err, "could not parse the client certificate")
+			return x509.CertPool{}, tls.Certificate{}, fmt.Errorf("could not parse the client certificate: %w", err)
 		}
 
 		// cache the certs, so we don't have to load the CA and generate them on every single request.
@@ -127,7 +127,7 @@ func (a *envoyAdminClient) PostQuit(ctx context.Context, dataplane *core_mesh.Da
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return errors.Errorf("envoy response [%d %s] [%s]", response.StatusCode, response.Status, response.Body)
+		return fmt.Errorf("envoy response [%d %s] [%s]", response.StatusCode, response.Status, response.Body)
 	}
 
 	return nil
@@ -211,7 +211,7 @@ func (a *envoyAdminClient) executeRequest(ctx context.Context, proxy core_model.
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.Errorf("envoy response [%d %s] [%s]", response.StatusCode, response.Status, response.Body)
+		return nil, fmt.Errorf("envoy response [%d %s] [%s]", response.StatusCode, response.Status, response.Body)
 	}
 
 	resp, err := io.ReadAll(response.Body)

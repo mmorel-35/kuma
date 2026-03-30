@@ -1,6 +1,7 @@
 package v3
 
 import (
+	"fmt"
 	net_url "net/url"
 	"strings"
 
@@ -8,7 +9,6 @@ import (
 	envoy_trace "github.com/envoyproxy/go-control-plane/envoy/config/trace/v3"
 	envoy_hcm "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	envoy_type "github.com/envoyproxy/go-control-plane/envoy/type/v3"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
@@ -67,7 +67,7 @@ func (c *TracingConfigurer) Configure(filterChain *envoy_listener.FilterChain) e
 func datadogConfig(cfgStr *structpb.Struct, backendName string, serviceName string, direction envoy_common.TrafficDirection, destination string) (*envoy_trace.Tracing_Http, error) {
 	cfg := mesh_proto.DatadogTracingBackendConfig{}
 	if err := proto.ToTyped(cfgStr, &cfg); err != nil {
-		return nil, errors.Wrap(err, "could not convert backend")
+		return nil, fmt.Errorf("could not convert backend: %w", err)
 	}
 
 	datadogConfig := envoy_trace.DatadogConfig{
@@ -90,11 +90,11 @@ func datadogConfig(cfgStr *structpb.Struct, backendName string, serviceName stri
 func zipkinConfig(cfgStr *structpb.Struct, backendName string) (*envoy_trace.Tracing_Http, error) {
 	cfg := mesh_proto.ZipkinTracingBackendConfig{}
 	if err := proto.ToTyped(cfgStr, &cfg); err != nil {
-		return nil, errors.Wrap(err, "could not convert backend")
+		return nil, fmt.Errorf("could not convert backend: %w", err)
 	}
 	url, err := net_url.ParseRequestURI(cfg.Url)
 	if err != nil {
-		return nil, errors.Wrap(err, "invalid URL of Zipkin")
+		return nil, fmt.Errorf("invalid URL of Zipkin: %w", err)
 	}
 
 	zipkinConfig := envoy_trace.ZipkinConfig{

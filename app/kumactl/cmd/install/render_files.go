@@ -2,11 +2,11 @@ package install
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
-	"github.com/pkg/errors"
 
 	"github.com/kumahq/kuma/v2/pkg/util/data"
 )
@@ -43,7 +43,7 @@ type templateRenderer interface {
 func simpleTemplateRenderer(text data.File) (templateRenderer, error) {
 	tmpl, err := template.New("").Funcs(sprig.TxtFuncMap()).Parse(string(text.Data))
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to parse k8s resource template")
+		return nil, fmt.Errorf("Failed to parse k8s resource template: %w", err)
 	}
 	return tmpl, nil
 }

@@ -2,6 +2,7 @@ package v1alpha1
 
 import (
 	"bytes"
+	"fmt"
 	"maps"
 	"slices"
 	"text/template"
@@ -9,7 +10,6 @@ import (
 	envoy_accesslog "github.com/envoyproxy/go-control-plane/envoy/config/accesslog/v3"
 	envoy_listener "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	routev3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
-	"github.com/pkg/errors"
 
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
 	"github.com/kumahq/kuma/v2/pkg/core/kri"
@@ -130,7 +130,7 @@ func (p plugin) Apply(rs *core_xds.ResourceSet, ctx xds_context.Context, proxy *
 	}
 
 	if err := AddLogBackendConf(*endpoints, rs, proxy); err != nil {
-		return errors.Wrap(err, "unable to add configuration for MeshAccessLog backends")
+		return fmt.Errorf("unable to add configuration for MeshAccessLog backends: %w", err)
 	}
 
 	if proxy.Metadata.HasFeature(xds_types.FeatureOtelViaKumaDp) && proxy.OtelPipeBackends != nil && endpoints.OtelPipe != nil {

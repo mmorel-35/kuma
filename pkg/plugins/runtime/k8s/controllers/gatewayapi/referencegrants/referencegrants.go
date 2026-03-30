@@ -2,9 +2,9 @@ package referencegrants
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
-	"github.com/pkg/errors"
 	kube_schema "k8s.io/apimachinery/pkg/runtime/schema"
 	kube_types "k8s.io/apimachinery/pkg/types"
 	kube_client "sigs.k8s.io/controller-runtime/pkg/client"
@@ -87,7 +87,7 @@ func IsReferencePermitted(
 
 	policies := &gatewayapi.ReferenceGrantList{}
 	if err := client.List(ctx, policies, kube_client.InNamespace(reference.toNamespace)); err != nil {
-		return false, errors.Wrap(err, "failed to list ReferenceGrants")
+		return false, fmt.Errorf("failed to list ReferenceGrants: %w", err)
 	}
 
 	for _, policy := range policies.Items {

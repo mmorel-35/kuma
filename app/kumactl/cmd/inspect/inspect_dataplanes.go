@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
@@ -36,7 +35,7 @@ func newInspectDataplanesCmd(pctx *cmd.RootContext) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			client, err := pctx.CurrentDataplaneOverviewClient()
 			if err != nil {
-				return errors.Wrap(err, "failed to create a dataplane client")
+				return fmt.Errorf("failed to create a dataplane client: %w", err)
 			}
 			overviews, err := client.List(context.Background(), pctx.CurrentMesh(), ctx.args.tags, ctx.args.gateway, ctx.args.ingress)
 			if err != nil {

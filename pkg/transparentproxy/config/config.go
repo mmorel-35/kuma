@@ -49,7 +49,7 @@ func NewValueOrRangeList[T ~[]uint16 | ~uint16 | ~string](v T) ValueOrRangeList 
 		return ValueOrRangeList(value)
 	default:
 		// Shouldn't be possible to catch this
-		panic(errors.Errorf("invalid value type: %T", value))
+		panic(fmt.Errorf("invalid value type: %T", value))
 	}
 }
 
@@ -182,12 +182,12 @@ func (c TrafficFlow) Initialize(
 
 	excludePortsForUIDs, err := parseExcludePortsForUIDs(c.ExcludePortsForUIDs)
 	if err != nil {
-		return initialized, errors.Wrap(err, "parsing excluded outbound ports for uids failed")
+		return initialized, fmt.Errorf("parsing excluded outbound ports for uids failed: %w", err)
 	}
 
 	excludePortsForIPs, err := parseExcludePortsForIPs(c.ExcludePortsForIPs, ipv6)
 	if err != nil {
-		return initialized, errors.Wrap(err, "parsing excluded outbound ports for IPs failed")
+		return initialized, fmt.Errorf("parsing excluded outbound ports for IPs failed: %w", err)
 	}
 
 	initialized.Exclusions = slices.Concat(
@@ -312,7 +312,7 @@ func (c VNet) Initialize(ipv6 bool) (InitializedVNet, error) {
 		// problem with parsing
 		pair := strings.SplitN(network, ":", 2)
 		if len(pair) < 2 {
-			return InitializedVNet{}, errors.Errorf("invalid virtual network definition: %s", network)
+			return InitializedVNet{}, fmt.Errorf("invalid virtual network definition: %s", network)
 		}
 
 		address, _, err := net.ParseCIDR(pair[1])
@@ -389,25 +389,25 @@ func (c Redirect) Initialize(
 	// .DNS
 	initialized.DNS, err = c.DNS.Initialize(l, executables, ipv6)
 	if err != nil {
-		return initialized, errors.Wrap(err, "unable to initialize .DNS")
+		return initialized, fmt.Errorf("unable to initialize .DNS: %w", err)
 	}
 
 	// .VNet
 	initialized.VNet, err = c.VNet.Initialize(ipv6)
 	if err != nil {
-		return initialized, errors.Wrap(err, "unable to initialize .VNet")
+		return initialized, fmt.Errorf("unable to initialize .VNet: %w", err)
 	}
 
 	// .Inbound
 	initialized.Inbound, err = c.Inbound.Initialize(ipv6, c.NamePrefix)
 	if err != nil {
-		return initialized, errors.Wrap(err, "unable to initialize .Inbound")
+		return initialized, fmt.Errorf("unable to initialize .Inbound: %w", err)
 	}
 
 	// .Outbound
 	initialized.Outbound, err = c.Outbound.Initialize(ipv6, c.NamePrefix)
 	if err != nil {
-		return initialized, errors.Wrap(err, "unable to initialize .Outbound")
+		return initialized, fmt.Errorf("unable to initialize .Outbound: %w", err)
 	}
 
 	return initialized, nil
@@ -436,7 +436,7 @@ func (c Ebpf) Initialize() (InitializedEbpf, error) {
 	case c.InstanceIP != "":
 		break
 	case c.InstanceIPEnvVarName != "" && os.Getenv(c.InstanceIPEnvVarName) == "":
-		return InitializedEbpf{}, errors.Errorf(
+		return InitializedEbpf{}, fmt.Errorf(
 			"environment variable '%s' does not contain an instance IP",
 			c.InstanceIPEnvVarName,
 		)
@@ -670,7 +670,7 @@ func (c Config) InitializeKumaDPUser() (string, error) {
 			return v, nil
 		}
 
-		return "", errors.Errorf(
+		return "", fmt.Errorf(
 			"the specified UID or username ('%s') does not refer to a valid user on the host",
 			c.KumaDPUser,
 		)
@@ -684,7 +684,7 @@ func (c Config) InitializeKumaDPUser() (string, error) {
 		return v, nil
 	}
 
-	return "", errors.Errorf(
+	return "", fmt.Errorf(
 		"no UID or username provided, and user with the default UID ('%s') or username ('%s') could not be found",
 		consts.OwnerDefaultUID,
 		consts.OwnerDefaultUsername,
@@ -737,7 +737,7 @@ func (e *IPFamilyMode) Set(v string) error {
 	case string(IPFamilyModeDualStack), string(IPFamilyModeIPv4):
 		*e = IPFamilyMode(v)
 	default:
-		return errors.Errorf("must be one of %s", AllowedIPFamilyModes())
+		return fmt.Errorf("must be one of %s", AllowedIPFamilyModes())
 	}
 
 	return nil
@@ -838,17 +838,17 @@ func (c Config) Initialize(ctx context.Context) (InitializedConfig, error) {
 
 	loopbackInterfaceName, err := getLoopbackInterfaceName()
 	if err != nil {
-		return InitializedConfig{}, errors.Wrap(err, "unable to initialize loopback interface name")
+		return InitializedConfig{}, fmt.Errorf("unable to initialize loopback interface name: %w", err)
 	}
 
 	executablesIPv4, err := c.Executables.InitializeIPv4(ctx, loggerIPv4, c)
 	if err != nil {
-		return InitializedConfig{}, errors.Wrap(err, "unable to initialize IPv4 executables")
+		return InitializedConfig{}, fmt.Errorf("unable to initialize IPv4 executables: %w", err)
 	}
 
 	redirectIPv4, err := c.Redirect.Initialize(loggerIPv4, executablesIPv4, false)
 	if err != nil {
-		return InitializedConfig{}, errors.Wrap(err, "unable to initialize IPv4 redirect configuration")
+		return InitializedConfig{}, fmt.Errorf("unable to initialize IPv4 redirect configuration: %w", err)
 	}
 
 	initialized := InitializedConfig{

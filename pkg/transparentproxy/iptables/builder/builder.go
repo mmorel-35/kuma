@@ -2,10 +2,9 @@ package builder
 
 import (
 	"context"
+	"fmt"
 	"slices"
 	"strings"
-
-	"github.com/pkg/errors"
 
 	"github.com/kumahq/kuma/v2/pkg/transparentproxy/config"
 	"github.com/kumahq/kuma/v2/pkg/transparentproxy/iptables/tables"
@@ -36,7 +35,7 @@ func RestoreIPTables(ctx context.Context, cfg config.InitializedConfig) (string,
 		false,
 	)
 	if err != nil {
-		return "", errors.Wrap(err, "unable to restore iptables rules")
+		return "", fmt.Errorf("unable to restore iptables rules: %w", err)
 	}
 
 	if cfg.IPv6.Enabled() {
@@ -46,7 +45,7 @@ func RestoreIPTables(ctx context.Context, cfg config.InitializedConfig) (string,
 			false,
 		)
 		if err != nil {
-			return "", errors.Wrap(err, "unable to restore ip6tables rules")
+			return "", fmt.Errorf("unable to restore ip6tables rules: %w", err)
 		}
 
 		output += ipv6Output

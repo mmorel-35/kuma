@@ -2,9 +2,9 @@ package webhooks
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
-	"github.com/pkg/errors"
 	admissionv1 "k8s.io/api/admission/v1"
 	kube_core "k8s.io/api/core/v1"
 	kube_apierrs "k8s.io/apimachinery/pkg/api/errors"
@@ -112,7 +112,7 @@ func (v *SecretValidator) validateMeshSecret(ctx context.Context, verr *validato
 	}
 	if err := v.Client.Get(ctx, key, &mesh); err != nil {
 		if !kube_apierrs.IsNotFound(err) {
-			return errors.Wrap(err, "could not fetch mesh")
+			return fmt.Errorf("could not fetch mesh: %w", err)
 		}
 	}
 

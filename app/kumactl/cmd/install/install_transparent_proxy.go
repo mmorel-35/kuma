@@ -128,7 +128,7 @@ runuser -u kuma-dp -- \
 			// the automatic usage display is disabled to prevent it from appearing for other
 			// types of errors
 			if err := cmd.Flags().ParseAll(args, parseConfigFlags); err != nil {
-				return errors.Errorf("%s\n\n%s", err, cmd.UsageString())
+				return fmt.Errorf("%s\n\n%s", err, cmd.UsageString())
 			}
 
 			// With `DisableFlagParsing` enabled, we are responsible for manually parsing all flags,
@@ -147,7 +147,7 @@ runuser -u kuma-dp -- \
 			}
 
 			if cfg.Redirect.DNS.Enabled && cfg.Redirect.DNS.CaptureAll {
-				return errors.Errorf(
+				return fmt.Errorf(
 					"only one of '--%s' or '--%s' should be specified",
 					flagRedirectDNS,
 					flagRedirectAllDNSTraffic,
@@ -157,7 +157,7 @@ runuser -u kuma-dp -- \
 			// After parsing the config flags, we load the configuration, which involves parsing
 			// the provided YAML or JSON, and including environment variables if present
 			if err := cfgLoader.Load(cmd.InOrStdin(), slices.Concat([]string{configFile}, configValues)...); err != nil {
-				return errors.Wrap(err, "failed to load configuration from provided input")
+				return fmt.Errorf("failed to load configuration from provided input: %w", err)
 			}
 
 			// Finally, we parse the remaining CLI flags, as they have the highest priority in our
@@ -173,7 +173,7 @@ runuser -u kuma-dp -- \
 
 			if cfg.Ebpf.Enabled {
 				if cfg.Ebpf.InstanceIP == "" {
-					return errors.Errorf("--ebpf-instance-ip flag has to be specified --ebpf-enabled is provided")
+					return fmt.Errorf("--ebpf-instance-ip flag has to be specified --ebpf-enabled is provided")
 				}
 
 				if cfg.StoreFirewalld {
@@ -187,12 +187,12 @@ runuser -u kuma-dp -- \
 
 			initializedConfig, err := cfg.Initialize(cmd.Context())
 			if err != nil {
-				return errors.Wrap(err, "failed to initialize config")
+				return fmt.Errorf("failed to initialize config: %w", err)
 			}
 
 			output, err := transparentproxy.Setup(cmd.Context(), initializedConfig)
 			if err != nil {
-				return errors.Wrap(err, "failed to setup transparent proxy")
+				return fmt.Errorf("failed to setup transparent proxy: %w", err)
 			}
 
 			if !cfg.Ebpf.Enabled && cfg.StoreFirewalld {

@@ -44,7 +44,7 @@ func PodOfApp(cluster Cluster, name string, namespace string) (v1.Pod, error) {
 		return v1.Pod{}, err
 	}
 	if len(pods) != 1 {
-		return v1.Pod{}, errors.Errorf("expected %d pods, got %d", 1, len(pods))
+		return v1.Pod{}, fmt.Errorf("expected %d pods, got %d", 1, len(pods))
 	}
 	return pods[0], nil
 }
@@ -61,7 +61,7 @@ func PodIPOfApp(cluster Cluster, name string, namespace string) (string, error) 
 		return "", err
 	}
 	if len(pods) != 1 {
-		return "", errors.Errorf("expected %d pods, got %d", 1, len(pods))
+		return "", fmt.Errorf("expected %d pods, got %d", 1, len(pods))
 	}
 	return pods[0].Status.PodIP, nil
 }
@@ -87,7 +87,7 @@ func UpdateKubeObject(
 	codecs := serializer.NewCodecFactory(scheme)
 	info, ok := runtime.SerializerInfoForMediaType(codecs.SupportedMediaTypes(), runtime.ContentTypeYAML)
 	if !ok {
-		return errors.Errorf("no serializer for %q", runtime.ContentTypeYAML)
+		return fmt.Errorf("no serializer for %q", runtime.ContentTypeYAML)
 	}
 
 	_, err = retry.DoWithRetryableErrorsE(t, "update object", map[string]string{"Error from server \\(Conflict\\)": "object conflict"}, 5, time.Second, func() (string, error) {
@@ -371,10 +371,10 @@ func ScaleApp(cluster Cluster, app, namespace string, replicas int) error {
 		cluster.GetKubectlOptions(namespace),
 		"scale", "deployment", app, "--replicas", strconv.Itoa(replicas),
 	); err != nil {
-		return errors.Wrap(err, "could not scale")
+		return fmt.Errorf("could not scale: %w", err)
 	}
 	if err := WaitNumPods(namespace, replicas, app)(cluster); err != nil {
-		return errors.Wrap(err, "could not wait until app is scaled")
+		return fmt.Errorf("could not wait until app is scaled: %w", err)
 	}
 	return nil
 }

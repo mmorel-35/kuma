@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net"
 	"sort"
-
-	"github.com/pkg/errors"
 )
 
 type AddressPredicate = func(address *net.IPNet) bool
@@ -18,7 +16,7 @@ func NonLoopback(address *net.IPNet) bool {
 func GetAllIPs(predicates ...AddressPredicate) ([]string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
-		return nil, errors.Wrap(err, "could not list network interfaces")
+		return nil, fmt.Errorf("could not list network interfaces: %w", err)
 	}
 	var result []string
 	for _, address := range addrs {

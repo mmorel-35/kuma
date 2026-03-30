@@ -6,7 +6,6 @@ import (
 	"regexp"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	kube_core "k8s.io/api/core/v1"
 	kube_types "k8s.io/apimachinery/pkg/types"
 
@@ -18,7 +17,7 @@ import (
 func (i *KumaInjector) preCheck(ctx context.Context, pod *kube_core.Pod, logger logr.Logger) (string, error) {
 	ns, err := i.namespaceFor(ctx, pod)
 	if err != nil {
-		return "", errors.Wrap(err, "could not retrieve namespace for pod")
+		return "", fmt.Errorf("could not retrieve namespace for pod: %w", err)
 	}
 
 	// Log deprecated annotations

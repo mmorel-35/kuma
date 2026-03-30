@@ -124,7 +124,7 @@ func (m *meshContextBuilder) BuildIfChanged(ctx context.Context, meshName string
 				managedTypes = append(managedTypes, resType)
 				rl, err = m.fetchResourceList(ctx, resType, baseMeshContext.Mesh, nil)
 				if err != nil {
-					return nil, errors.Wrap(err, fmt.Sprintf("could not fetch resources of type:%s", resType))
+					return nil, fmt.Errorf("could not fetch resources of type:%s: %w", resType, err)
 				}
 				resources.MeshLocalResources[resType] = rl
 			}
@@ -132,7 +132,7 @@ func (m *meshContextBuilder) BuildIfChanged(ctx context.Context, meshName string
 	}
 
 	if err := m.decorateWithCrossMeshResources(ctx, meshName, resources); err != nil {
-		return nil, errors.Wrap(err, "failed to retrieve cross mesh resources")
+		return nil, fmt.Errorf("failed to retrieve cross mesh resources: %w", err)
 	}
 
 	// This base64 encoding seems superfluous but keeping it for backward compatibility
@@ -152,7 +152,7 @@ func (m *meshContextBuilder) BuildIfChanged(ctx context.Context, meshName string
 	if baseMeshContext.Mesh.Spec.MeshServicesMode() != mesh_proto.Mesh_MeshServices_Exclusive {
 		virtualOutboundView, err := m.vipsPersistence.GetByMesh(ctx, meshName)
 		if err != nil {
-			return nil, errors.Wrap(err, "could not fetch vips")
+			return nil, fmt.Errorf("could not fetch vips: %w", err)
 		}
 		// resolve all the domains
 		vipDomains, vipOutbounds := xds_topology.VIPOutbounds(virtualOutboundView, m.topLevelDomain, m.vipPort)
@@ -179,7 +179,7 @@ func (m *meshContextBuilder) BuildIfChanged(ctx context.Context, meshName string
 	if len(casByTrustDomain) > 0 && mesh.MTLSEnabled() {
 		cas, _, err := m.caProvider.Get(ctx, mesh)
 		if err != nil {
-			return nil, errors.Wrap(err, "could not fetch mesh CA")
+			return nil, fmt.Errorf("could not fetch mesh CA: %w", err)
 		}
 		for _, ca := range cas.PemCerts {
 			casByTrustDomain[meshName] = append(casByTrustDomain[meshName], ca)
@@ -261,7 +261,7 @@ func (m *meshContextBuilder) BuildGlobalContextIfChanged(ctx context.Context, la
 		if desc.Scope == core_model.ScopeGlobal && desc.Name != system.ConfigType { // For config we ignore them atm and prefer to rely on more specific filters.
 			rmap[t], err = m.fetchResourceList(ctx, t, nil, nil)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to build global context")
+				return nil, fmt.Errorf("failed to build global context: %w", err)
 			}
 		}
 	}
@@ -307,7 +307,7 @@ func (m *meshContextBuilder) BuildBaseMeshContextIfChanged(ctx context.Context, 
 			// DO nothing we're not interested in this type
 		}
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to build base mesh context")
+			return nil, fmt.Errorf("failed to build base mesh context: %w", err)
 		}
 	}
 	newHash := rmap.Hash()
@@ -513,11 +513,11 @@ func (m *meshContextBuilder) decorateWithCrossMeshResources(ctx context.Context,
 			return exists && rs.(*core_mesh.MeshGatewayResource).Spec.IsCrossMesh()
 		})
 		if err != nil {
-			return errors.Wrap(err, "could not fetch cross mesh meshGateway resources")
+			return fmt.Errorf("could not fetch cross mesh meshGateway resources: %w", err)
 		}
 		gatewaysByMesh, err = core_model.ResourceListByMesh(rl)
 		if err != nil {
-			return errors.Wrap(err, "failed building cross mesh meshGateway resources")
+			return fmt.Errorf("failed building cross mesh meshGateway resources: %w", err)
 		}
 	}
 	if _, ok := m.typeSet[core_mesh.DataplaneType]; ok {
@@ -535,7 +535,7 @@ func (m *meshContextBuilder) decorateWithCrossMeshResources(ctx context.Context,
 				return xds_topology.SelectGateway(gwResources, dp.Spec.Matches) != nil
 			})
 			if err != nil {
-				return errors.Wrap(err, "could not fetch cross mesh meshGateway resources")
+				return fmt.Errorf("could not fetch cross mesh meshGateway resources: %w", err)
 			}
 			resources.CrossMeshResources[otherMeshName][core_mesh.DataplaneType] = rl
 			resources.CrossMeshResources[otherMeshName][core_mesh.MeshGatewayType] = gws

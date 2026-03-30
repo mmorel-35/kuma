@@ -2,8 +2,7 @@ package v1alpha1
 
 import (
 	"context"
-
-	"github.com/pkg/errors"
+	"fmt"
 
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
 	core_plugins "github.com/kumahq/kuma/v2/pkg/core/plugins"
@@ -76,7 +75,7 @@ func ApplyToOutbounds(
 
 	listeners, err := generateListeners(proxy, policies.ToRules, servicesAccumulator, ctx.Mesh)
 	if err != nil {
-		return errors.Wrap(err, "couldn't generate listener resources")
+		return fmt.Errorf("couldn't generate listener resources: %w", err)
 	}
 	rs.AddSet(listeners)
 
@@ -84,13 +83,13 @@ func ApplyToOutbounds(
 
 	clusters, err := meshroute.GenerateClusters(proxy, ctx.Mesh, services, ctx.ControlPlane.SystemNamespace)
 	if err != nil {
-		return errors.Wrap(err, "couldn't generate cluster resources")
+		return fmt.Errorf("couldn't generate cluster resources: %w", err)
 	}
 	rs.AddSet(clusters)
 
 	endpoints, err := meshroute.GenerateEndpoints(proxy, ctx, services)
 	if err != nil {
-		return errors.Wrap(err, "couldn't generate endpoint resources")
+		return fmt.Errorf("couldn't generate endpoint resources: %w", err)
 	}
 	rs.AddSet(endpoints)
 

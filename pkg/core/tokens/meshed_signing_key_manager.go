@@ -3,8 +3,8 @@ package tokens
 import (
 	"context"
 	"crypto/rsa"
+	"fmt"
 
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	system_proto "github.com/kumahq/kuma/v2/api/system/v1alpha1"
@@ -37,7 +37,7 @@ var _ SigningKeyManager = &meshedSigningKeyManager{}
 func (s *meshedSigningKeyManager) GetLatestSigningKey(ctx context.Context) (*rsa.PrivateKey, KeyID, error) {
 	resources := system.SecretResourceList{}
 	if err := s.manager.List(ctx, &resources, store.ListByMesh(s.mesh)); err != nil {
-		return nil, "", errors.Wrap(err, "could not retrieve signing key from secret manager")
+		return nil, "", fmt.Errorf("could not retrieve signing key from secret manager: %w", err)
 	}
 	return latestSigningKey(&resources, s.signingKeyPrefix, s.mesh)
 }

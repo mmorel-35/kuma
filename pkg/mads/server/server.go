@@ -10,7 +10,6 @@ import (
 
 	"github.com/bakito/go-log-logr-adapter/adapter"
 	"github.com/emicklei/go-restful/v3"
-	"github.com/pkg/errors"
 	http_prometheus "github.com/slok/go-http-metrics/metrics/prometheus"
 	"github.com/slok/go-http-metrics/middleware"
 
@@ -61,7 +60,7 @@ func (s *muxServer) Start(stop <-chan struct{}) error {
 	if s.config.TlsEnabled {
 		cert, err := tls.LoadX509KeyPair(s.config.TlsCertFile, s.config.TlsKeyFile)
 		if err != nil {
-			return errors.Wrap(err, "failed to load TLS certificate")
+			return fmt.Errorf("failed to load TLS certificate: %w", err)
 		}
 		tlsConfig = &tls.Config{Certificates: []tls.Certificate{cert}, MinVersion: tls.VersionTLS12} // To make gosec happy
 		if tlsConfig.MinVersion, err = config_types.TLSVersion(s.config.TlsMinVersion); err != nil {

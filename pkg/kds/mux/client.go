@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"net/url"
 	"os"
 	"time"
@@ -105,11 +106,11 @@ func (c *client) Start(stop <-chan struct{}) (errs error) {
 	case "grpcs":
 		tlsConfig, err := tlsConfig(c.config.RootCAFile, c.config.TlsSkipVerify)
 		if err != nil {
-			return errors.Wrap(err, "could not ")
+			return fmt.Errorf("could not : %w", err)
 		}
 		dialOpts = append(dialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 	default:
-		return errors.Errorf("unsupported scheme %q. Use one of %s", u.Scheme, []string{"grpc", "grpcs"})
+		return fmt.Errorf("unsupported scheme %q. Use one of %s", u.Scheme, []string{"grpc", "grpcs"})
 	}
 	conn, err := grpc.NewClient(u.Host, dialOpts...)
 	if err != nil {
@@ -157,7 +158,7 @@ func (c *client) startGlobalToZoneSync(ctx context.Context, log logr.Logger, con
 
 	cfgJson, err := config.ConfigForDisplay(pointer.To(c.rt.Config()))
 	if err != nil {
-		errorCh <- errors.Wrap(err, "could not marshall config to json")
+		errorCh <- fmt.Errorf("could not marshall config to json: %w", err)
 		return
 	}
 
@@ -187,7 +188,7 @@ func (c *client) startGlobalToZoneSync(ctx context.Context, log logr.Logger, con
 	)
 
 	if err := syncClient.Receive(); err != nil && !errors.Is(err, context.Canceled) {
-		errorCh <- errors.Wrap(err, "GlobalToZoneSyncClient finished with an error")
+		errorCh <- fmt.Errorf("GlobalToZoneSyncClient finished with an error: %w", err)
 		return
 	}
 
@@ -217,7 +218,7 @@ func (c *client) startZoneToGlobalSync(ctx context.Context, log logr.Logger, con
 	}
 
 	if err != nil && !errors.Is(err, context.Canceled) {
-		errorCh <- errors.Wrap(err, "ZoneToGlobalSync finished with an error")
+		errorCh <- fmt.Errorf("ZoneToGlobalSync finished with an error: %w", err)
 		return
 	}
 
@@ -306,7 +307,7 @@ func (c *client) startHealthCheck(
 				return
 			}
 			log.Error(err, "health check failed")
-			errorCh <- errors.Wrap(err, "zone health check request failed")
+			errorCh <- fmt.Errorf("zone health check request failed: %w", err)
 		} else if interval := resp.Interval.AsDuration(); interval > 0 {
 			if prevInterval != interval {
 				prevInterval = interval

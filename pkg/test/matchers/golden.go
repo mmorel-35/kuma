@@ -1,6 +1,7 @@
 package matchers
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -64,7 +65,7 @@ func (g *GoldenMatcher) Match(actual any) (bool, error) {
 			}
 			err := os.WriteFile(g.GoldenFilePath, []byte(actualContent), 0o600)
 			if err != nil {
-				return false, errors.Wrap(err, "could not update golden file")
+				return false, fmt.Errorf("could not update golden file: %w", err)
 			}
 		}
 	}
@@ -115,6 +116,6 @@ func (g *GoldenMatcher) actualString(actual any) (string, error) {
 	case string:
 		return actual, nil
 	default:
-		return "", errors.Errorf("not supported type %T for MatchGolden", actual)
+		return "", fmt.Errorf("not supported type %T for MatchGolden", actual)
 	}
 }

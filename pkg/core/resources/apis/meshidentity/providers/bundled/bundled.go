@@ -84,7 +84,7 @@ func NewBundledIdentityProvider(roSecretManager manager.ReadOnlyResourceManager,
 func (b *bundledIdentityProvider) Validate(ctx context.Context, identity *meshidentity_api.MeshIdentityResource) error {
 	if !pointer.DerefOr(identity.Spec.Provider.Bundled.InsecureAllowSelfSigned, false) {
 		if identity.Spec.Provider.Bundled.Autogenerate != nil && pointer.DerefOr(identity.Spec.Provider.Bundled.Autogenerate.Enabled, false) {
-			return errors.Errorf("self-signed certificates are not allowed")
+			return fmt.Errorf("self-signed certificates are not allowed")
 		}
 		ca, err := b.getRootCA(ctx, identity)
 		if err != nil {
@@ -95,7 +95,7 @@ func (b *bundledIdentityProvider) Validate(ctx context.Context, identity *meshid
 			return err
 		}
 		if selfSigned {
-			return errors.Errorf("self-signed certificates are not allowed")
+			return fmt.Errorf("self-signed certificates are not allowed")
 		}
 	}
 	b.logger.V(1).Info("identity is valid", "identity", model.MetaToResourceKey(identity.GetMeta()))
@@ -224,7 +224,7 @@ func (b *bundledIdentityProvider) CreateIdentity(ctx context.Context, identity *
 	}
 	caCert, caPrivateKey, err := loadKeyPair(*pair)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load CA key pair")
+		return nil, fmt.Errorf("failed to load CA key pair: %w", err)
 	}
 	publicKey, privateKey, err := generateKey(caPrivateKey)
 	if err != nil {
@@ -270,7 +270,7 @@ func (b *bundledIdentityProvider) CreateIdentity(ctx context.Context, identity *
 	}
 	workloadCert, err := x509.CreateCertificate(rand.Reader, template, caCert, publicKey, caPrivateKey)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate X509 certificate")
+		return nil, fmt.Errorf("failed to generate X509 certificate: %w", err)
 	}
 	identityPair, err := util_tls.ToKeyPair(privateKey, workloadCert)
 	if err != nil {
@@ -404,11 +404,11 @@ func newSerialNumber() (*big.Int, error) {
 func loadKeyPair(pair util_tls.KeyPair) (*x509.Certificate, crypto.PrivateKey, error) {
 	root, err := tls.X509KeyPair(pair.CertPEM, pair.KeyPEM)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to parse TLS key pair")
+		return nil, nil, fmt.Errorf("failed to parse TLS key pair: %w", err)
 	}
 	rootCert, err := x509.ParseCertificate(root.Certificate[0])
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to parse X509 certificate")
+		return nil, nil, fmt.Errorf("failed to parse X509 certificate: %w", err)
 	}
 	return rootCert, root.PrivateKey, nil
 }

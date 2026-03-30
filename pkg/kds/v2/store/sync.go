@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
@@ -414,7 +413,7 @@ func addNamespaceSuffix(kubeFactory resources_k8s.KubeFactory, upstream client_v
 	// KubernetesStore parses Name and considers substring after the last dot as a Namespace's Name.
 	kubeObject, err := kubeFactory.NewObject(upstream.AddedResources.NewItem())
 	if err != nil {
-		return errors.Wrap(err, "could not convert object")
+		return fmt.Errorf("could not convert object: %w", err)
 	}
 	if kubeObject.Scope() == k8s_model.ScopeNamespace {
 		util.AddSuffixToNames(upstream.AddedResources.GetItems(), ns)

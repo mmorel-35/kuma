@@ -161,8 +161,7 @@ func (v *Validator) RunClient(
 			return nil
 		},
 	); err != nil {
-		return errors.Wrap(err, "client failed to connect to the verification server after retries - "+
-			"most likely the transparent proxy is not established correctly, please check CNI logs")
+		return fmt.Errorf("client failed to connect to the verification server after retries - most likely the transparent proxy is not established correctly, please check CNI logs: %w", err)
 	}
 
 	v.Logger.Info("validation successful, iptables rules applied correctly")

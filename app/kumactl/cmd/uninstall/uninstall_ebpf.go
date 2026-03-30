@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -75,12 +74,12 @@ func newUninstallEbpf(root *kumactl_cmd.RootContext) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			kubeClientConfig, err := k8s.DefaultClientConfig("", "")
 			if err != nil {
-				return errors.Wrap(err, "Could not detect Kubernetes configuration")
+				return fmt.Errorf("Could not detect Kubernetes configuration: %w", err)
 			}
 
 			k8sClient, err := kubernetes.NewForConfig(kubeClientConfig)
 			if err != nil {
-				return errors.Wrap(err, "Could not create Kubernetes client")
+				return fmt.Errorf("Could not create Kubernetes client: %w", err)
 			}
 
 			ctx, cancel := context.WithTimeout(cmd.Context(), args.Timeout)
@@ -88,7 +87,7 @@ func newUninstallEbpf(root *kumactl_cmd.RootContext) *cobra.Command {
 
 			nodes, err := k8sClient.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 			if err != nil {
-				return errors.Wrap(err, "Failed obtaining nodes from Kubernetes cluster")
+				return fmt.Errorf("Failed obtaining nodes from Kubernetes cluster: %w", err)
 			}
 
 			jobResource := CleanupJob{
@@ -107,7 +106,7 @@ func newUninstallEbpf(root *kumactl_cmd.RootContext) *cobra.Command {
 
 			if args.RemoveOnly {
 				if err := jobResource.Cleanup(ctx, cleanupAppSelector); err != nil {
-					return errors.Wrap(err, "Failed cleaning jobs")
+					return fmt.Errorf("Failed cleaning jobs: %w", err)
 				}
 				return nil
 			}
@@ -123,7 +122,7 @@ func newUninstallEbpf(root *kumactl_cmd.RootContext) *cobra.Command {
 				jobSpec := genJobSpec(jobName, node.Name, &args)
 				_, _ = fmt.Fprintf(jobResource.stdout, "creating job %s, on node %s \n", jobName, node.Name)
 				if _, err := jobResource.jobClient.Create(ctx, jobSpec, metav1.CreateOptions{}); err != nil {
-					return errors.Wrap(err, "failed creating cleanup job")
+					return fmt.Errorf("failed creating cleanup job: %w", err)
 				}
 
 				jobResource.startedJobs[jobName] = &CleanupJobProps{
@@ -136,7 +135,7 @@ func newUninstallEbpf(root *kumactl_cmd.RootContext) *cobra.Command {
 				Watch:         true,
 			})
 			if err != nil {
-				return errors.Wrap(err, "failed to create pod watcher")
+				return fmt.Errorf("failed to create pod watcher: %w", err)
 			}
 
 			jobResource.Watch(ctx, watcher)

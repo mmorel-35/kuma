@@ -74,7 +74,7 @@ func (r *GatewayClassReconciler) Reconcile(ctx context.Context, req kube_ctrl.Re
 
 	_, condition, err := getParametersRef(ctx, r.Client, class.Spec.ParametersRef)
 	if err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to get parametersRef")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to get parametersRef: %w", err)
 	}
 
 	if condition == nil {
@@ -96,7 +96,7 @@ func (r *GatewayClassReconciler) Reconcile(ctx context.Context, req kube_ctrl.Re
 		if kube_apierrs.IsNotFound(err) {
 			return kube_ctrl.Result{}, nil
 		}
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to update status subresource")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to update status subresource: %w", err)
 	}
 
 	return kube_ctrl.Result{}, nil

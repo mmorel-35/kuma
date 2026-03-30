@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pkg/errors"
 	"go.uber.org/multierr"
@@ -47,7 +48,7 @@ func InTx(ctx context.Context, transactions Transactions, fn func(ctx context.Co
 	// as it will end up with "conn closed" error
 	if err := fn(CtxWithTx(ctx, tx)); err != nil && !errors.Is(err, context.Canceled) {
 		if rollbackErr := tx.Rollback(ctx); rollbackErr != nil {
-			return multierr.Append(errors.Wrap(rollbackErr, "could not rollback transaction"), err)
+			return multierr.Append(fmt.Errorf("could not rollback transaction: %w", rollbackErr), err)
 		}
 		return err
 	}

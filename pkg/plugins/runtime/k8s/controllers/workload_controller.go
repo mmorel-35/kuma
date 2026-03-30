@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
@@ -49,7 +50,7 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req kube_ctrl.Reques
 
 	dataplanes := &mesh_k8s.DataplaneList{}
 	if err := r.List(ctx, dataplanes, kube_client.InNamespace(req.Namespace)); err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to list Dataplanes")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to list Dataplanes: %w", err)
 	}
 
 	meshNames := make(map[string]bool)

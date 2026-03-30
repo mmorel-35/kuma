@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"time"
@@ -30,7 +31,7 @@ func (b *BootstrapServerConfig) PostProcess() error {
 
 func (b *BootstrapServerConfig) Validate() error {
 	if err := b.Params.Validate(); err != nil {
-		return errors.Wrap(err, "Params validation failed")
+		return fmt.Errorf("Params validation failed: %w", err)
 	}
 	return nil
 }

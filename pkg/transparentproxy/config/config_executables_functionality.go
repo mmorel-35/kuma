@@ -3,9 +3,8 @@ package config
 import (
 	"context"
 	std_errors "errors"
+	"fmt"
 	"strings"
-
-	"github.com/pkg/errors"
 
 	"github.com/kumahq/kuma/v2/pkg/transparentproxy/consts"
 )
@@ -75,19 +74,19 @@ func verifyMinimalRequirements(functionality Functionality) error {
 	var errs []error
 
 	if !functionality.Tables.Nat {
-		errs = append(errs, errors.Errorf("missing table: %q", "nat"))
+		errs = append(errs, fmt.Errorf("missing table: %q", "nat"))
 	}
 
 	if !functionality.Modules.Tcp {
-		errs = append(errs, errors.Errorf("missing module: %q", "tcp"))
+		errs = append(errs, fmt.Errorf("missing module: %q", "tcp"))
 	}
 
 	if !functionality.Modules.Owner {
-		errs = append(errs, errors.Errorf("missing module: %q", "owner"))
+		errs = append(errs, fmt.Errorf("missing module: %q", "owner"))
 	}
 
 	if len(errs) > 0 {
-		return errors.Wrap(std_errors.Join(errs...), "unmet minimal requirements")
+		return fmt.Errorf("unmet minimal requirements: %w", std_errors.Join(errs...))
 	}
 
 	return nil

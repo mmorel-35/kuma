@@ -1,6 +1,8 @@
 package multizone
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"go.uber.org/multierr"
 
@@ -56,7 +58,7 @@ func (c *KdsServerConfig) PostProcess() error {
 func (c *KdsServerConfig) Validate() error {
 	var errs error
 	if c.GrpcPort > 65535 {
-		errs = multierr.Append(errs, errors.Errorf(".GrpcPort must be in the range [0, 65535]"))
+		errs = multierr.Append(errs, fmt.Errorf(".GrpcPort must be in the range [0, 65535]"))
 	}
 	if c.RefreshInterval.Duration <= 0 {
 		errs = multierr.Append(errs, errors.New(".RefreshInterval must be positive"))
@@ -80,7 +82,7 @@ func (c *KdsServerConfig) Validate() error {
 		errs = multierr.Append(errs, errors.New(".TlsCipherSuites"+err.Error()))
 	}
 	if err := c.ZoneHealthCheck.Validate(); err != nil {
-		errs = multierr.Append(errs, errors.Wrap(err, "invalid zoneHealthCheck config"))
+		errs = multierr.Append(errs, fmt.Errorf("invalid zoneHealthCheck config: %w", err))
 	}
 	return errs
 }

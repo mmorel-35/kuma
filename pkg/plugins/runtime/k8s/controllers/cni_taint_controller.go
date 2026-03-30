@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"slices"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	kube_core "k8s.io/api/core/v1"
 	kube_apierrs "k8s.io/apimachinery/pkg/api/errors"
 	kube_types "k8s.io/apimachinery/pkg/types"
@@ -57,7 +57,7 @@ func (r *CniNodeTaintReconciler) Reconcile(ctx context.Context, req kube_ctrl.Re
 
 	err := r.updateTaints(ctx, log, node, kubeSystemPods.Items)
 	if err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "unable to update node taints")
+		return kube_ctrl.Result{}, fmt.Errorf("unable to update node taints: %w", err)
 	}
 
 	return kube_ctrl.Result{}, err
@@ -144,7 +144,7 @@ func podToNodeMapper(log logr.Logger, cniApp string, cniNamespace string) kube_h
 	return func(_ context.Context, obj kube_client.Object) []kube_reconcile.Request {
 		pod, ok := obj.(*kube_core.Pod)
 		if !ok {
-			log.WithValues("pod", obj.GetName()).Error(errors.Errorf("wrong argument type: expected %T, got %T", pod, obj), "wrong argument type")
+			log.WithValues("pod", obj.GetName()).Error(fmt.Errorf("wrong argument type: expected %T, got %T", pod, obj), "wrong argument type")
 			return nil
 		}
 

@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pkg/errors"
-
 	"github.com/kumahq/kuma/v2/api/openapi/types"
 	api_server_types "github.com/kumahq/kuma/v2/pkg/api-server/types"
 	core_model "github.com/kumahq/kuma/v2/pkg/core/resources/model"
@@ -35,7 +33,7 @@ type httpPolicyInspectClient struct {
 func (h *httpPolicyInspectClient) DataplanesForPolicy(ctx context.Context, policyDesc core_model.ResourceTypeDescriptor, mesh string, name string) (types.InspectDataplanesForPolicyResponse, error) {
 	resUrl, err := url.Parse(fmt.Sprintf("/meshes/%s/%s/%s/-resources/dataplanes", mesh, policyDesc.WsPath, name))
 	if err != nil {
-		return types.InspectDataplanesForPolicyResponse{}, errors.Wrap(err, "could not construct the url")
+		return types.InspectDataplanesForPolicyResponse{}, fmt.Errorf("could not construct the url: %w", err)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, resUrl.String(), http.NoBody)
 	if err != nil {
@@ -46,7 +44,7 @@ func (h *httpPolicyInspectClient) DataplanesForPolicy(ctx context.Context, polic
 		return types.InspectDataplanesForPolicyResponse{}, err
 	}
 	if statusCode != 200 {
-		return types.InspectDataplanesForPolicyResponse{}, errors.Errorf("(%d): %s", statusCode, string(b))
+		return types.InspectDataplanesForPolicyResponse{}, fmt.Errorf("(%d): %s", statusCode, string(b))
 	}
 	entryList := types.InspectDataplanesForPolicyResponse{}
 	if err := json.Unmarshal(b, &entryList); err != nil {
@@ -58,7 +56,7 @@ func (h *httpPolicyInspectClient) DataplanesForPolicy(ctx context.Context, polic
 func (h *httpPolicyInspectClient) Inspect(ctx context.Context, policyDesc core_model.ResourceTypeDescriptor, mesh, name string) (*api_server_types.PolicyInspectEntryList, error) {
 	resUrl, err := url.Parse(fmt.Sprintf("/meshes/%s/%s/%s/dataplanes", mesh, policyDesc.WsPath, name))
 	if err != nil {
-		return nil, errors.Wrap(err, "could not construct the url")
+		return nil, fmt.Errorf("could not construct the url: %w", err)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, resUrl.String(), http.NoBody)
 	if err != nil {
@@ -69,7 +67,7 @@ func (h *httpPolicyInspectClient) Inspect(ctx context.Context, policyDesc core_m
 		return nil, err
 	}
 	if statusCode != 200 {
-		return nil, errors.Errorf("(%d): %s", statusCode, string(b))
+		return nil, fmt.Errorf("(%d): %s", statusCode, string(b))
 	}
 	entryList := &api_server_types.PolicyInspectEntryList{}
 	if err := json.Unmarshal(b, entryList); err != nil {

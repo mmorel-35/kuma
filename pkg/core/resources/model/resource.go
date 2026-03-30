@@ -220,14 +220,14 @@ func newObject(baseResource Resource) Resource {
 	resource := reflect.New(resType).Interface().(Resource)
 
 	if err := resource.SetSpec(newSpec); err != nil {
-		panic(errors.Wrap(err, "could not set spec on the new resource"))
+		panic(fmt.Errorf("could not set spec on the new resource: %w", err))
 	}
 
 	if baseResource.Descriptor().HasStatus {
 		statusType := reflect.TypeOf(baseResource.GetStatus()).Elem()
 		newStatus := reflect.New(statusType).Interface().(ResourceSpec)
 		if err := resource.SetStatus(newStatus); err != nil {
-			panic(errors.Wrap(err, "could not set spec on the new resource"))
+			panic(fmt.Errorf("could not set spec on the new resource: %w", err))
 		}
 	}
 

@@ -84,7 +84,7 @@ func (d *DpServer) Start(stop <-chan struct{}) error {
 	var err error
 	cert, err := tls.LoadX509KeyPair(d.config.TlsCertFile, d.config.TlsKeyFile)
 	if err != nil {
-		return errors.Wrap(err, "failed to load TLS certificate")
+		return fmt.Errorf("failed to load TLS certificate: %w", err)
 	}
 	tlsConfig := &tls.Config{Certificates: []tls.Certificate{cert}, MinVersion: tls.VersionTLS12} // To make gosec happy
 	if tlsConfig.MinVersion, err = config_types.TLSVersion(d.config.TlsMinVersion); err != nil {

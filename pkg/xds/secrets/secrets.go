@@ -198,7 +198,7 @@ func (s *secrets) get(
 
 		certs, err := s.generateCerts(ctx, tags, mesh, otherMeshes, certs, updateKinds)
 		if err != nil {
-			return nil, nil, MeshCa{}, errors.Wrap(err, "could not generate certificates")
+			return nil, nil, MeshCa{}, fmt.Errorf("could not generate certificates: %w", err)
 		}
 
 		key := certCacheKey{
@@ -320,7 +320,7 @@ func (s *secrets) generateCerts(
 
 		identitySecret, issuedBackend, err := s.identityProvider.Get(ctx, requester, mesh)
 		if err != nil {
-			return nil, errors.Wrap(err, "could not get Dataplane cert pair")
+			return nil, fmt.Errorf("could not get Dataplane cert pair: %w", err)
 		}
 
 		s.certGenerationsMetric.WithLabelValues(requester.Mesh).Inc()
@@ -328,7 +328,7 @@ func (s *secrets) generateCerts(
 		block, _ := pem.Decode(identitySecret.PemCerts[0])
 		cert, err := x509.ParseCertificate(block.Bytes)
 		if err != nil {
-			return nil, errors.Wrap(err, "could not extract info about certificate")
+			return nil, fmt.Errorf("could not extract info about certificate: %w", err)
 		}
 
 		info.Tags = tags
@@ -341,7 +341,7 @@ func (s *secrets) generateCerts(
 	if updateKinds.HasType(OwnMeshChange) {
 		caSecret, supportedBackends, err := s.caProvider.Get(ctx, mesh)
 		if err != nil {
-			return nil, errors.Wrap(err, "could not get mesh CA cert")
+			return nil, fmt.Errorf("could not get mesh CA cert: %w", err)
 		}
 
 		ownCa = MeshCa{

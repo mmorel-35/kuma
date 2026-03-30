@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/bakito/go-log-logr-adapter/adapter"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	diagnostics_config "github.com/kumahq/kuma/v2/pkg/config/diagnostics"
@@ -63,7 +62,7 @@ func (s *diagnosticsServer) Start(stop <-chan struct{}) error {
 	if s.config.TlsEnabled {
 		cert, err := tls.LoadX509KeyPair(s.config.TlsCertFile, s.config.TlsKeyFile)
 		if err != nil {
-			return errors.Wrap(err, "failed to load TLS certificate")
+			return fmt.Errorf("failed to load TLS certificate: %w", err)
 		}
 		tlsConfig = &tls.Config{
 			Certificates: []tls.Certificate{cert},

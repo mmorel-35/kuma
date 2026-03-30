@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"context"
+	"fmt"
 	"maps"
 	"strings"
 	"time"
@@ -50,9 +51,9 @@ func (s *KubernetesStore) Create(ctx context.Context, r core_model.Resource, fs 
 	obj, err := s.Converter.ToKubernetesObject(r)
 	if err != nil {
 		if typeIsUnregistered(err) {
-			return errors.Errorf("cannot create instance of unregistered type %q", r.Descriptor().Name)
+			return fmt.Errorf("cannot create instance of unregistered type %q", r.Descriptor().Name)
 		}
-		return errors.Wrap(err, "failed to convert core model into k8s counterpart")
+		return fmt.Errorf("failed to convert core model into k8s counterpart: %w", err)
 	}
 	name, namespace, err := k8sNameNamespace(opts.Name, obj.Scope())
 	if err != nil {
@@ -69,10 +70,10 @@ func (s *KubernetesStore) Create(ctx context.Context, r core_model.Resource, fs 
 	if opts.Owner != nil {
 		k8sOwner, err := s.Converter.ToKubernetesObject(opts.Owner)
 		if err != nil {
-			return errors.Wrap(err, "failed to convert core model into k8s counterpart")
+			return fmt.Errorf("failed to convert core model into k8s counterpart: %w", err)
 		}
 		if err := controllerutil.SetOwnerReference(k8sOwner, obj, s.Scheme); err != nil {
-			return errors.Wrap(err, "failed to set owner reference for object")
+			return fmt.Errorf("failed to set owner reference for object: %w", err)
 		}
 	}
 
@@ -80,11 +81,11 @@ func (s *KubernetesStore) Create(ctx context.Context, r core_model.Resource, fs 
 		if kube_apierrs.IsAlreadyExists(err) {
 			return store.ErrorResourceAlreadyExists(r.Descriptor().Name, opts.Name, opts.Mesh)
 		}
-		return errors.Wrap(err, "failed to create k8s resource")
+		return fmt.Errorf("failed to create k8s resource: %w", err)
 	}
 	err = s.Converter.ToCoreResource(obj, r)
 	if err != nil {
-		return errors.Wrap(err, "failed to convert k8s model into core counterpart")
+		return fmt.Errorf("failed to convert k8s model into core counterpart: %w", err)
 	}
 	return nil
 }
@@ -95,7 +96,7 @@ func (s *KubernetesStore) Update(ctx context.Context, r core_model.Resource, fs 
 	obj, err := s.Converter.ToKubernetesObject(r)
 	if err != nil {
 		if typeIsUnregistered(err) {
-			return errors.Errorf("cannot update instance of unregistered type %q", r.Descriptor().Name)
+			return fmt.Errorf("cannot update instance of unregistered type %q", r.Descriptor().Name)
 		}
 		return errors.Wrapf(err, "failed to convert core model of type %s into k8s counterpart", r.Descriptor().Name)
 	}
@@ -113,11 +114,11 @@ func (s *KubernetesStore) Update(ctx context.Context, r core_model.Resource, fs 
 		if kube_apierrs.IsConflict(err) {
 			return store.ErrorResourceConflict(r.Descriptor().Name, r.GetMeta().GetName(), r.GetMeta().GetMesh())
 		}
-		return errors.Wrap(err, "failed to update k8s resource")
+		return fmt.Errorf("failed to update k8s resource: %w", err)
 	}
 	err = s.Converter.ToCoreResource(obj, r)
 	if err != nil {
-		return errors.Wrap(err, "failed to convert k8s model into core counterpart")
+		return fmt.Errorf("failed to convert k8s model into core counterpart: %w", err)
 	}
 	return nil
 }
@@ -149,7 +150,7 @@ func (s *KubernetesStore) Delete(ctx context.Context, r core_model.Resource, fs 
 		if kube_apierrs.IsNotFound(err) {
 			return nil
 		}
-		return errors.Wrap(err, "failed to delete k8s resource")
+		return fmt.Errorf("failed to delete k8s resource: %w", err)
 	}
 	return nil
 }
@@ -171,10 +172,10 @@ func (s *KubernetesStore) Get(ctx context.Context, r core_model.Resource, fs ...
 		if kube_apierrs.IsNotFound(err) {
 			return store.ErrorResourceNotFound(r.Descriptor().Name, opts.Name, opts.Mesh)
 		}
-		return errors.Wrap(err, "failed to get k8s resource")
+		return fmt.Errorf("failed to get k8s resource: %w", err)
 	}
 	if err := s.Converter.ToCoreResource(obj, r); err != nil {
-		return errors.Wrap(err, "failed to convert k8s model into core counterpart")
+		return fmt.Errorf("failed to convert k8s model into core counterpart: %w", err)
 	}
 	if opts.Version != "" && r.GetMeta().GetVersion() != opts.Version {
 		return store.ErrorResourceConflict(r.Descriptor().Name, opts.Name, opts.Mesh)
@@ -195,7 +196,7 @@ func (s *KubernetesStore) List(ctx context.Context, rs core_model.ResourceList, 
 		return errors.Wrapf(err, "failed to convert core list model of type %s into k8s counterpart", rs.GetItemType())
 	}
 	if err := s.Client.List(ctx, obj); err != nil {
-		return errors.Wrap(err, "failed to list k8s resources")
+		return fmt.Errorf("failed to list k8s resources: %w", err)
 	}
 	predicate := func(r core_model.Resource) bool {
 		if opts.Mesh != "" && r.GetMeta().GetMesh() != opts.Mesh {
@@ -211,7 +212,7 @@ func (s *KubernetesStore) List(ctx context.Context, rs core_model.ResourceList, 
 		return err
 	}
 	if err := s.Converter.ToCoreList(obj, fullList, predicate); err != nil {
-		return errors.Wrap(err, "failed to convert k8s model into core counterpart")
+		return fmt.Errorf("failed to convert k8s model into core counterpart: %w", err)
 	}
 
 	for _, item := range fullList.GetItems() {
@@ -236,7 +237,7 @@ func k8sNameNamespace(coreName string, scope k8s_model.Scope) (string, string, e
 		}
 		return name, ns, nil
 	default:
-		return "", "", errors.Errorf("unknown scope %s", scope)
+		return "", "", fmt.Errorf("unknown scope %s", scope)
 	}
 }
 

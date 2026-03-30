@@ -1,7 +1,7 @@
 package outbound
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
 
 	common_api "github.com/kumahq/kuma/v2/api/common/v1alpha1"
 	"github.com/kumahq/kuma/v2/pkg/core/kri"
@@ -75,7 +75,7 @@ type ToEntry interface {
 func BuildRules(policies core_model.ResourceList, reader kri.ResourceReader) (ResourceRules, error) {
 	entries, err := GetEntries(policies)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get 'to' entries")
+		return nil, fmt.Errorf("failed to get 'to' entries: %w", err)
 	}
 	return buildRules(entries, reader)
 }

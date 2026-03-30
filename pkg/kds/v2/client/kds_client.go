@@ -2,6 +2,7 @@ package client
 
 import (
 	std_errors "errors"
+	"fmt"
 	"io"
 	"time"
 
@@ -79,7 +80,7 @@ func (s *kdsSyncClient) Receive() error {
 	for _, typ := range s.resourceTypes {
 		s.log.V(1).Info("sending DeltaDiscoveryRequest", "type", typ)
 		if err := s.kdsStream.DeltaDiscoveryRequest(typ); err != nil {
-			return errors.Wrap(err, "discovering failed")
+			return fmt.Errorf("discovering failed: %w", err)
 		}
 	}
 
@@ -89,7 +90,7 @@ func (s *kdsSyncClient) Receive() error {
 			if err == io.EOF {
 				return nil
 			}
-			return errors.Wrap(err, "failed to receive a discovery response")
+			return fmt.Errorf("failed to receive a discovery response: %w", err)
 		}
 		s.log.V(1).Info("DeltaDiscoveryResponse received", "response", received)
 		validationErrors := received.Validate()
@@ -101,7 +102,7 @@ func (s *kdsSyncClient) Receive() error {
 					if err == io.EOF {
 						return nil
 					}
-					return errors.Wrap(err, "failed to NACK a discovery response")
+					return fmt.Errorf("failed to NACK a discovery response: %w", err)
 				}
 				continue
 			}
@@ -110,7 +111,7 @@ func (s *kdsSyncClient) Receive() error {
 				if err == io.EOF {
 					return nil
 				}
-				return errors.Wrap(err, "failed to ACK a discovery response")
+				return fmt.Errorf("failed to ACK a discovery response: %w", err)
 			}
 			continue
 		}
@@ -125,7 +126,7 @@ func (s *kdsSyncClient) Receive() error {
 				if err == io.EOF {
 					return nil
 				}
-				return errors.Wrap(err, "failed to NACK a discovery response")
+				return fmt.Errorf("failed to NACK a discovery response: %w", err)
 			}
 			continue
 		}
@@ -139,7 +140,7 @@ func (s *kdsSyncClient) Receive() error {
 			if err == io.EOF {
 				return nil
 			}
-			return errors.Wrap(err, "failed to ACK a discovery response")
+			return fmt.Errorf("failed to ACK a discovery response: %w", err)
 		}
 	}
 }

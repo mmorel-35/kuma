@@ -192,7 +192,7 @@ func (i *KumaInjector) InjectKuma(ctx context.Context, pod *kube_core.Pod) error
 	if i.cfg.TransparentProxyConfigMapName != "" {
 		tpCfgBase, err := i.getTransparentProxyConfigMap(ctx, i.cfg.TransparentProxyConfigMapName, i.systemNamespace, logger)
 		if err != nil {
-			return errors.Wrap(err, "could not retrieve transparent proxy configuration")
+			return fmt.Errorf("could not retrieve transparent proxy configuration: %w", err)
 		}
 
 		tpCfg, err := tproxy_k8s.ConfigForKubernetes(tpCfgBase, i.cfg, pod.Annotations, logger)
@@ -220,7 +220,7 @@ func (i *KumaInjector) InjectKuma(ctx context.Context, pod *kube_core.Pod) error
 
 		annotations, err := tproxy_k8s.ConfigToAnnotations(tpCfg, i.cfg, pod.Annotations, i.defaultAdminPort)
 		if err != nil {
-			return errors.Wrap(err, "could not generate annotations for pod")
+			return fmt.Errorf("could not generate annotations for pod: %w", err)
 		}
 
 		maps.Copy(pod.Annotations, annotations)
@@ -248,7 +248,7 @@ func (i *KumaInjector) InjectKuma(ctx context.Context, pod *kube_core.Pod) error
 	} else { // this is legacy and deprecated - will be removed soon
 		annotations, err := i.NewAnnotations(pod, logger)
 		if err != nil {
-			return errors.Wrap(err, "could not generate annotations for pod")
+			return fmt.Errorf("could not generate annotations for pod: %w", err)
 		}
 
 		maps.Copy(pod.Annotations, annotations)
@@ -444,7 +444,7 @@ func (i *KumaInjector) getTransparentProxyConfigMap(
 		return cfg, nil
 	}
 
-	err = errors.Errorf(
+	err = fmt.Errorf(
 		"key '%s' is missing or empty",
 		tproxy_consts.KubernetesConfigMapDataKey,
 	)
@@ -555,7 +555,7 @@ func (i *KumaInjector) NewVolumeMounts(pod *kube_core.Pod) ([]kube_core.VolumeMo
 			}
 		}
 
-		return nil, errors.Errorf("volume (%s) specified for %s but volume does not exist in pod spec", volumeName, metadata.KumaSidecarTokenVolumeAnnotation)
+		return nil, fmt.Errorf("volume (%s) specified for %s but volume does not exist in pod spec", volumeName, metadata.KumaSidecarTokenVolumeAnnotation)
 	}
 
 	if enabled, _, err := metadata.Annotations(pod.Annotations).GetEnabledWithDefault(i.cfg.Spire.Enabled, metadata.KumaSpireSupport); err != nil {
@@ -855,17 +855,11 @@ func (i *KumaInjector) NewAnnotations(pod *kube_core.Pod, logger logr.Logger) (m
 		pod.Annotations,
 		i.cfg.VirtualProbesEnabled,
 	); err != nil {
-		return nil, errors.Wrap(
-			err,
-			fmt.Sprintf("unable to set %s", metadata.KumaVirtualProbesAnnotation),
-		)
+		return nil, fmt.Errorf("unable to set %s: %w", metadata.KumaVirtualProbesAnnotation, err)
 	}
 
 	if err := setVirtualProbesPortAnnotation(result, pod, i.cfg); err != nil {
-		return nil, errors.Wrap(
-			err,
-			fmt.Sprintf("unable to set %s", metadata.KumaVirtualProbesPortAnnotation),
-		)
+		return nil, fmt.Errorf("unable to set %s: %w", metadata.KumaVirtualProbesPortAnnotation, err)
 	}
 
 	if err := probes.SetApplicationProbeProxyPortAnnotation(
@@ -873,10 +867,7 @@ func (i *KumaInjector) NewAnnotations(pod *kube_core.Pod, logger logr.Logger) (m
 		pod.Annotations,
 		i.cfg.ApplicationProbeProxyPort,
 	); err != nil {
-		return nil, errors.Wrap(
-			err,
-			fmt.Sprintf("unable to set %s", metadata.KumaApplicationProbeProxyPortAnnotation),
-		)
+		return nil, fmt.Errorf("unable to set %s: %w", metadata.KumaApplicationProbeProxyPortAnnotation, err)
 	}
 
 	if v, _ := annotations.GetStringWithDefault(

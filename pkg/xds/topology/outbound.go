@@ -2,12 +2,12 @@ package topology
 
 import (
 	"context"
+	"fmt"
 	"maps"
 	"net"
 	"strconv"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/pkg/errors"
 
 	common_tls "github.com/kumahq/kuma/v2/api/common/v1alpha1/tls"
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
@@ -690,18 +690,18 @@ func setTlsConfiguration(ctx context.Context, tls *meshexternalservice_api.Tls, 
 		if tls.Verification.CaCert != nil {
 			caCert, err = loadBytes(ctx, tls.Verification.CaCert.ConvertToProto(), meshName, loader)
 			if err != nil {
-				return errors.Wrap(err, "could not load caCert")
+				return fmt.Errorf("could not load caCert: %w", err)
 			}
 			es.CaCert = caCert
 		}
 		if tls.Verification.ClientKey != nil && tls.Verification.ClientCert != nil {
 			clientCert, err = loadBytes(ctx, tls.Verification.ClientCert.ConvertToProto(), meshName, loader)
 			if err != nil {
-				return errors.Wrap(err, "could not load clientCert")
+				return fmt.Errorf("could not load clientCert: %w", err)
 			}
 			clientKey, err = loadBytes(ctx, tls.Verification.ClientKey.ConvertToProto(), meshName, loader)
 			if err != nil {
-				return errors.Wrap(err, "could not load clientKey")
+				return fmt.Errorf("could not load clientKey: %w", err)
 			}
 			es.ClientCert = clientCert
 			es.ClientKey = clientKey
@@ -847,15 +847,15 @@ func NewExternalServiceEndpoint(
 
 	caCert, err := loadBytes(ctx, tls.GetCaCert(), meshName, loader)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not load caCert")
+		return nil, fmt.Errorf("could not load caCert: %w", err)
 	}
 	clientCert, err := loadBytes(ctx, tls.GetClientCert(), meshName, loader)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not load clientCert")
+		return nil, fmt.Errorf("could not load clientCert: %w", err)
 	}
 	clientKey, err := loadBytes(ctx, tls.GetClientKey(), meshName, loader)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not load clientKey")
+		return nil, fmt.Errorf("could not load clientKey: %w", err)
 	}
 
 	es := &core_xds.ExternalService{

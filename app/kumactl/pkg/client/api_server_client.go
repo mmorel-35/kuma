@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -24,7 +25,7 @@ func ApiServerClient(coordinates *config_proto.ControlPlaneCoordinates_ApiServer
 		Timeout: timeout,
 	}
 	if err := util_http.ConfigureMTLS(client, coordinates.CaCertFile, coordinates.ClientCertFile, coordinates.ClientKeyFile); err != nil {
-		return nil, errors.Wrap(err, "could not configure HTTP client with TLS")
+		return nil, fmt.Errorf("could not configure HTTP client with TLS: %w", err)
 	}
 	for _, h := range coordinates.Headers {
 		headers[h.Key] = h.Value

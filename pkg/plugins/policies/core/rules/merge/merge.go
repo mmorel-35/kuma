@@ -39,7 +39,7 @@ func Confs(confs []any) ([]any, error) {
 
 		result, err := mergeJSONPatches(confs)
 		if err != nil {
-			return nil, errors.Wrap(err, "couldn't merge JSON patches")
+			return nil, fmt.Errorf("couldn't merge JSON patches: %w", err)
 		}
 
 		valueResult := reflect.ValueOf(result)

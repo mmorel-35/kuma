@@ -2,6 +2,7 @@ package reconcile
 
 import (
 	"context"
+	"fmt"
 	"maps"
 	"sync"
 
@@ -94,11 +95,11 @@ func (r *reconciler) Reconcile(ctx context.Context, node *envoy_core.Node, chang
 	if old != nil {
 		// this should already be computed by SetSnapshot, but we call it just to make sure we have versions.
 		if err := old.ConstructVersionMap(); err != nil {
-			return errors.Wrap(err, "could not construct version map"), false
+			return fmt.Errorf("could not construct version map: %w", err), false
 		}
 	}
 	if err := n.ConstructVersionMap(); err != nil {
-		return errors.Wrap(err, "could not construct version map"), false
+		return fmt.Errorf("could not construct version map: %w", err), false
 	}
 
 	if changed := r.changedTypes(old, n); len(changed) > 0 {

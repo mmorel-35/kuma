@@ -2,9 +2,8 @@ package generator
 
 import (
 	"context"
+	"fmt"
 	"net"
-
-	"github.com/pkg/errors"
 
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
 	"github.com/kumahq/kuma/v2/pkg/core"
@@ -35,7 +34,7 @@ func (g PrometheusEndpointGenerator) Generate(_ context.Context, _ *core_xds.Res
 	unifiedNaming := unified_naming.Enabled(proxy.Metadata, xdsCtx.Mesh.Resource)
 	prometheusEndpoint, err := proxy.Dataplane.GetPrometheusConfig(xdsCtx.Mesh.Resource)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not get prometheus endpoint")
+		return nil, fmt.Errorf("could not get prometheus endpoint: %w", err)
 	}
 	if prometheusEndpoint == nil {
 		// Prometheus metrics must be enabled Mesh-wide for Prometheus endpoint to be generated.

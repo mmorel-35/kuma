@@ -2,6 +2,7 @@ package kumactl
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"os"
 	"strings"
@@ -55,7 +56,7 @@ func NewKumactlOptions(
 func (k *KumactlOptions) RunKumactl(args ...string) error {
 	out, err := k.RunKumactlAndGetOutput(args...)
 	if err != nil {
-		return errors.Wrap(err, out)
+		return fmt.Errorf("%s: %w", out, err)
 	}
 	return nil
 }

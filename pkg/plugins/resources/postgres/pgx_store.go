@@ -90,7 +90,7 @@ func (r *pgxResourceStore) Create(ctx context.Context, resource core_model.Resou
 
 	bytes, err := core_model.ToJSON(resource.GetSpec())
 	if err != nil {
-		return errors.Wrap(err, "failed to convert spec to json")
+		return fmt.Errorf("failed to convert spec to json: %w", err)
 	}
 
 	var ownerName *string
@@ -166,7 +166,7 @@ func (r *pgxResourceStore) Update(ctx context.Context, resource core_model.Resou
 	version, err := strconv.Atoi(resource.GetMeta().GetVersion())
 	newVersion := version + 1
 	if err != nil {
-		return errors.Wrap(err, "failed to convert meta version to int")
+		return fmt.Errorf("failed to convert meta version to int: %w", err)
 	}
 
 	updateLabels := resource.GetMeta().GetLabels()
@@ -275,12 +275,12 @@ func (r *pgxResourceStore) Get(ctx context.Context, resource core_model.Resource
 	}
 
 	if err := core_model.FromJSON([]byte(spec), resource.GetSpec()); err != nil {
-		return errors.Wrap(err, "failed to convert json to spec")
+		return fmt.Errorf("failed to convert json to spec: %w", err)
 	}
 
 	if resource.Descriptor().HasStatus {
 		if err := core_model.FromJSON([]byte(status), resource.GetStatus()); err != nil {
-			return errors.Wrap(err, "failed to convert json to status")
+			return fmt.Errorf("failed to convert json to status: %w", err)
 		}
 	}
 
@@ -293,7 +293,7 @@ func (r *pgxResourceStore) Get(ctx context.Context, resource core_model.Resource
 		Labels:           map[string]string{},
 	}
 	if err := json.Unmarshal([]byte(labels), &meta.Labels); err != nil {
-		return errors.Wrap(err, "failed to convert json to labels")
+		return fmt.Errorf("failed to convert json to labels: %w", err)
 	}
 
 	resource.SetMeta(meta)
@@ -413,17 +413,17 @@ func rowToItem(resources core_model.ResourceList, rows pgx.Rows) (core_model.Res
 	var labels string
 	var status string
 	if err := rows.Scan(&name, &mesh, &spec, &version, &creationTime, &modificationTime, &labels, &status); err != nil {
-		return nil, errors.Wrap(err, "failed to retrieve elements from query")
+		return nil, fmt.Errorf("failed to retrieve elements from query: %w", err)
 	}
 
 	item := resources.NewItem()
 	if err := core_model.FromJSON([]byte(spec), item.GetSpec()); err != nil {
-		return nil, errors.Wrap(err, "failed to convert json to spec")
+		return nil, fmt.Errorf("failed to convert json to spec: %w", err)
 	}
 
 	if item.Descriptor().HasStatus {
 		if err := core_model.FromJSON([]byte(status), item.GetStatus()); err != nil {
-			return nil, errors.Wrap(err, "failed to convert json to status")
+			return nil, fmt.Errorf("failed to convert json to status: %w", err)
 		}
 	}
 
@@ -436,7 +436,7 @@ func rowToItem(resources core_model.ResourceList, rows pgx.Rows) (core_model.Res
 		Labels:           map[string]string{},
 	}
 	if err := json.Unmarshal([]byte(labels), &meta.Labels); err != nil {
-		return nil, errors.Wrap(err, "failed to convert json to labels")
+		return nil, fmt.Errorf("failed to convert json to labels: %w", err)
 	}
 	item.SetMeta(meta)
 
@@ -599,7 +599,7 @@ func (r *pgxResourceStore) Begin(ctx context.Context) (store.Transaction, error)
 func prepareLabels(labels map[string]string) (string, error) {
 	lblBytes, err := json.Marshal(labels)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to convert labels to json")
+		return "", fmt.Errorf("failed to convert labels to json: %w", err)
 	}
 	return string(lblBytes), nil
 }
@@ -610,7 +610,7 @@ func prepareStatus(resource core_model.Resource) (string, error) {
 	}
 	statusBytes, err := core_model.ToJSON(resource.GetStatus())
 	if err != nil {
-		return "", errors.Wrap(err, "failed to convert spec to json")
+		return "", fmt.Errorf("failed to convert spec to json: %w", err)
 	}
 	return string(statusBytes), nil
 }

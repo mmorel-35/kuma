@@ -6,7 +6,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/pkg/errors"
 	kube_core "k8s.io/api/core/v1"
 	kube_apierrs "k8s.io/apimachinery/pkg/api/errors"
 	kube_apimeta "k8s.io/apimachinery/pkg/api/meta"
@@ -489,7 +488,7 @@ func (r *HTTPRouteReconciler) gapiToKumaRef(
 		namespacedName := policyRef.NamespacedNameReferredTo()
 
 		if permitted, err := referencegrants.IsReferencePermitted(ctx, r.Client, policyRef); err != nil {
-			return common_api.TargetRef{}, nil, errors.Wrap(err, "couldn't determine if backend reference is permitted")
+			return common_api.TargetRef{}, nil, fmt.Errorf("couldn't determine if backend reference is permitted: %w", err)
 		} else if !permitted {
 			return unresolvedTargetRef,
 				&ResolvedRefsConditionFalse{

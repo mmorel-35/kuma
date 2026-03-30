@@ -2,6 +2,7 @@ package tokens
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -49,7 +50,7 @@ func (j *jwtTokenIssuer) Generate(ctx context.Context, claims Claims, validFor t
 	token.Header[KeyIDHeader] = keyID
 	tokenString, err := token.SignedString(signingKey)
 	if err != nil {
-		return "", errors.Wrap(err, "could not sign a token")
+		return "", fmt.Errorf("could not sign a token: %w", err)
 	}
 	return tokenString, nil
 }

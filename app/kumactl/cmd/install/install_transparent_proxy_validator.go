@@ -51,7 +51,7 @@ The result will be shown as text in stdout as well as the exit code.
 
 				tpCfg = pointer.To(tproxy_dp.DefaultDataplaneConfig())
 				if err := config.NewLoader(tpCfg).WithValidation().Load(cmd.InOrStdin(), tpCfgValues...); err != nil {
-					return errors.Wrap(err, "failed to load transparent proxy configuration from provided input")
+					return fmt.Errorf("failed to load transparent proxy configuration from provided input: %w", err)
 				}
 
 				ipFamilyMode = tpCfg.IPFamilyMode
@@ -79,10 +79,10 @@ The result will be shown as text in stdout as well as the exit code.
 				return validator.RunClient(cmd.Context(), 0, exitC)
 			}
 
-			return errors.Wrap(
-				std_errors.Join(validate(false), validate(true)),
-				"validation failed",
-			)
+			if err := std_errors.Join(validate(false), validate(true)); err != nil {
+				return fmt.Errorf("validation failed: %w", err)
+			}
+			return nil
 		},
 	}
 

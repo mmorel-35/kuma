@@ -2,9 +2,8 @@ package hostname
 
 import (
 	"context"
+	"fmt"
 	"reflect"
-
-	"github.com/pkg/errors"
 
 	hostnamegenerator_api "github.com/kumahq/kuma/v2/pkg/core/resources/apis/hostnamegenerator/api/v1alpha1"
 	"github.com/kumahq/kuma/v2/pkg/core/resources/apis/hostnamegenerator/hostname"
@@ -30,7 +29,7 @@ func NewMeshServiceHostnameGenerator(
 func (g *MeshServiceHostnameGenerator) GetResources(ctx context.Context) (model.ResourceList, error) {
 	resources := &meshservice_api.MeshServiceResourceList{}
 	if err := g.resManager.List(ctx, resources); err != nil {
-		return nil, errors.Wrap(err, "could not list MeshServices")
+		return nil, fmt.Errorf("could not list MeshServices: %w", err)
 	}
 	return resources, nil
 }
@@ -38,12 +37,12 @@ func (g *MeshServiceHostnameGenerator) GetResources(ctx context.Context) (model.
 func (g *MeshServiceHostnameGenerator) UpdateResourceStatus(ctx context.Context, resource model.Resource, statuses []hostnamegenerator_api.HostnameGeneratorStatus, addresses []hostnamegenerator_api.Address) error {
 	service, ok := resource.(*meshservice_api.MeshServiceResource)
 	if !ok {
-		return errors.Errorf("invalid resource type: expected=%T, got=%T", (*meshservice_api.MeshServiceResource)(nil), resource)
+		return fmt.Errorf("invalid resource type: expected=%T, got=%T", (*meshservice_api.MeshServiceResource)(nil), resource)
 	}
 	service.Status.Addresses = addresses
 	service.Status.HostnameGenerators = statuses
 	if err := g.resManager.Update(ctx, resource); err != nil {
-		return errors.Wrap(err, "couldn't update MeshService status")
+		return fmt.Errorf("couldn't update MeshService status: %w", err)
 	}
 	return nil
 }
@@ -51,7 +50,7 @@ func (g *MeshServiceHostnameGenerator) UpdateResourceStatus(ctx context.Context,
 func (g *MeshServiceHostnameGenerator) HasStatusChanged(resource model.Resource, generatorStatuses []hostnamegenerator_api.HostnameGeneratorStatus, addresses []hostnamegenerator_api.Address) (bool, error) {
 	service, ok := resource.(*meshservice_api.MeshServiceResource)
 	if !ok {
-		return false, errors.Errorf("invalid resource type: expected=%T, got=%T", (*meshservice_api.MeshServiceResource)(nil), resource)
+		return false, fmt.Errorf("invalid resource type: expected=%T, got=%T", (*meshservice_api.MeshServiceResource)(nil), resource)
 	}
 
 	return !reflect.DeepEqual(addresses, service.Status.Addresses) || !reflect.DeepEqual(generatorStatuses, service.Status.HostnameGenerators), nil
@@ -60,7 +59,7 @@ func (g *MeshServiceHostnameGenerator) HasStatusChanged(resource model.Resource,
 func (g *MeshServiceHostnameGenerator) GenerateHostname(localZone string, generator *hostnamegenerator_api.HostnameGeneratorResource, resource model.Resource) (string, error) {
 	service, ok := resource.(*meshservice_api.MeshServiceResource)
 	if !ok {
-		return "", errors.Errorf("invalid resource type: expected=%T, got=%T", (*meshservice_api.MeshServiceResource)(nil), resource)
+		return "", fmt.Errorf("invalid resource type: expected=%T, got=%T", (*meshservice_api.MeshServiceResource)(nil), resource)
 	}
 	if generator.Spec.Selector.MeshService == nil {
 		return "", nil

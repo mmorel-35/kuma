@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	kube_ctrl "sigs.k8s.io/controller-runtime"
 
 	core_ca "github.com/kumahq/kuma/v2/pkg/core/ca"
@@ -36,7 +36,7 @@ func (r *MeshReconciler) Reconcile(ctx context.Context, req kube_ctrl.Request) (
 		if store.IsNotFound(err) {
 			return kube_ctrl.Result{}, nil
 		}
-		return kube_ctrl.Result{}, errors.Wrap(err, "could not get default mesh resources")
+		return kube_ctrl.Result{}, fmt.Errorf("could not get default mesh resources: %w", err)
 	}
 
 	r.Log.V(1).Info("ensuring CAs for mesh exist")
@@ -69,7 +69,7 @@ func (r *MeshReconciler) ensureDefaultResources(ctx context.Context, mesh *core_
 		r.K8sStore,
 		r.SystemNamespace,
 	); err != nil {
-		return errors.Wrap(err, "could not create default mesh resources")
+		return fmt.Errorf("could not create default mesh resources: %w", err)
 	}
 
 	if mesh.GetMeta().(*k8s.KubernetesMetaAdapter).GetAnnotations() == nil {
@@ -80,7 +80,7 @@ func (r *MeshReconciler) ensureDefaultResources(ctx context.Context, mesh *core_
 	r.Log.Info("marking mesh that default resources were generated", "mesh", mesh.GetMeta().GetName())
 
 	if err := r.ResourceManager.Update(ctx, mesh); err != nil {
-		return errors.Wrap(err, "could not mark Mesh that default resources were generated")
+		return fmt.Errorf("could not mark Mesh that default resources were generated: %w", err)
 	}
 	return nil
 }

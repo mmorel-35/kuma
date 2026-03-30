@@ -168,7 +168,7 @@ func (d *Dataplane) PostProcess() error {
 		d.Name = fmt.Sprintf("%s.%s", podName, podNamespace)
 
 		if err := validateMeshOrName(".Name", d.Name); err != nil {
-			return errors.Wrap(err, "Dataplane configuration post processing failed")
+			return fmt.Errorf("Dataplane configuration post processing failed: %w", err)
 		}
 	}
 
@@ -182,11 +182,11 @@ func (d *Dataplane) IsZoneProxy() bool {
 
 func validateMeshOrName[V ~string](typ string, value V) error {
 	if value == "" {
-		return errors.Errorf("%s must be non-empty", typ)
+		return fmt.Errorf("%s must be non-empty", typ)
 	}
 
 	if strings.ContainsAny(string(value), "$(){}") {
-		return errors.Errorf("%s %+q contains invalid characters", typ, value)
+		return fmt.Errorf("%s %+q contains invalid characters", typ, value)
 	}
 
 	return nil
@@ -341,28 +341,28 @@ func (d *Dataplane) Validate() error {
 	case mesh_proto.DataplaneProxyType, mesh_proto.IngressProxyType, mesh_proto.EgressProxyType:
 	default:
 		if err := proxyType.IsValid(); err != nil {
-			errs = multierr.Append(errs, errors.Wrap(err, ".ProxyType is not valid"))
+			errs = multierr.Append(errs, fmt.Errorf(".ProxyType is not valid: %w", err))
 		} else {
 			// Not all Dataplane types are allowed to be set directly in config.
-			errs = multierr.Append(errs, errors.Errorf(".ProxyType %q is not supported", proxyType))
+			errs = multierr.Append(errs, fmt.Errorf(".ProxyType %q is not supported", proxyType))
 		}
 	}
 
 	if d.Mesh == "" && proxyType != mesh_proto.IngressProxyType && proxyType != mesh_proto.EgressProxyType {
-		errs = multierr.Append(errs, errors.Errorf(".Mesh must be non-empty"))
+		errs = multierr.Append(errs, fmt.Errorf(".Mesh must be non-empty"))
 	}
 
 	if d.Name == "" {
-		errs = multierr.Append(errs, errors.Errorf(".Name must be non-empty"))
+		errs = multierr.Append(errs, fmt.Errorf(".Name must be non-empty"))
 	}
 
 	// Notice that d.AdminPort is always valid by design of PortRange
 	if d.DrainTime.Duration <= 0 {
-		errs = multierr.Append(errs, errors.Errorf(".DrainTime must be positive"))
+		errs = multierr.Append(errs, fmt.Errorf(".DrainTime must be positive"))
 	}
 
 	if d.ReadinessPort > 65353 || d.ReadinessPort == 0 {
-		errs = multierr.Append(errs, errors.Errorf(".ReadinessPort has to be in (0, 65353] range"))
+		errs = multierr.Append(errs, fmt.Errorf(".ReadinessPort has to be in (0, 65353] range"))
 	}
 
 	return errs
@@ -372,7 +372,7 @@ func (d *Dataplane) ValidateForTemplate() error {
 	var errs error
 	// Notice that d.AdminPort is always valid by design of PortRange
 	if d.DrainTime.Duration <= 0 {
-		errs = multierr.Append(errs, errors.Errorf(".DrainTime must be positive"))
+		errs = multierr.Append(errs, fmt.Errorf(".DrainTime must be positive"))
 	}
 	return errs
 }
@@ -382,7 +382,7 @@ var _ config.Config = &DataplaneRuntime{}
 func (d *DataplaneRuntime) Validate() error {
 	var errs error
 	if d.BinaryPath == "" {
-		errs = multierr.Append(errs, errors.Errorf(".BinaryPath must be non-empty"))
+		errs = multierr.Append(errs, fmt.Errorf(".BinaryPath must be non-empty"))
 	}
 	if d.EnvoyXdsTransportProtocolVariant != "" {
 		switch d.EnvoyXdsTransportProtocolVariant {
@@ -390,7 +390,7 @@ func (d *DataplaneRuntime) Validate() error {
 		case "GRPC":
 		default:
 			errs = multierr.Append(
-				errs, errors.Errorf(".EnvoyXdsTransportProtocolVariant invalid value: %s . Must be one of: DELTA_GRPC or GRPC when defined", d.EnvoyXdsTransportProtocolVariant))
+				errs, fmt.Errorf(".EnvoyXdsTransportProtocolVariant invalid value: %s . Must be one of: DELTA_GRPC or GRPC when defined", d.EnvoyXdsTransportProtocolVariant))
 		}
 	}
 	return errs
@@ -401,15 +401,15 @@ var _ config.Config = &ApiServer{}
 func (d *ApiServer) Validate() error {
 	var errs error
 	if d.URL == "" {
-		errs = multierr.Append(errs, errors.Errorf(".URL must be non-empty"))
+		errs = multierr.Append(errs, fmt.Errorf(".URL must be non-empty"))
 	}
 	if url, err := url.Parse(d.URL); err != nil {
 		errs = multierr.Append(errs, errors.Wrapf(err, ".URL must be a valid absolute URI"))
 	} else if !url.IsAbs() {
-		errs = multierr.Append(errs, errors.Errorf(".URL must be a valid absolute URI"))
+		errs = multierr.Append(errs, fmt.Errorf(".URL must be a valid absolute URI"))
 	}
 	if err := d.Retry.Validate(); err != nil {
-		errs = multierr.Append(errs, errors.Wrap(err, ".Retry is not valid"))
+		errs = multierr.Append(errs, fmt.Errorf(".Retry is not valid: %w", err))
 	}
 	return errs
 }

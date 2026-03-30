@@ -1,12 +1,12 @@
 package v1alpha1
 
 import (
+	"fmt"
 	"slices"
 
 	envoy_listener "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	envoy_hcm "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	envoy_resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
@@ -69,10 +69,10 @@ func (h *httpFilterModificator) applyHCMModification(hcm *envoy_hcm.HttpConnecti
 		h.remove(hcm)
 	case api.ModOpPatch:
 		if err := h.patch(hcm, filter); err != nil {
-			return errors.Wrap(err, "could not patch the resource")
+			return fmt.Errorf("could not patch the resource: %w", err)
 		}
 	default:
-		return errors.Errorf("invalid operation: %s", h.Operation)
+		return fmt.Errorf("invalid operation: %s", h.Operation)
 	}
 	return nil
 }

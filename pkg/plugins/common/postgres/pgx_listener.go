@@ -2,12 +2,12 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/go-logr/logr"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pkg/errors"
 
 	"github.com/kumahq/kuma/v2/pkg/config/plugins/resources/postgres"
 )
@@ -76,7 +76,7 @@ func (l *PgxListener) run(ctx context.Context) {
 func (l *PgxListener) handleNotifications(ctx context.Context) error {
 	conn, err := l.db.Acquire(ctx)
 	if err != nil {
-		return errors.Wrap(err, "error getting connection")
+		return fmt.Errorf("error getting connection: %w", err)
 	}
 	defer conn.Release()
 

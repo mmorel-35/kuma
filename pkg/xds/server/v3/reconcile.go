@@ -2,6 +2,7 @@ package v3
 
 import (
 	"context"
+	"fmt"
 
 	envoy_core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_types "github.com/envoyproxy/go-control-plane/pkg/cache/types"
@@ -92,12 +93,12 @@ func (r *reconciler) Reconcile(ctx context.Context, xdsCtx xds_context.Context, 
 	}
 
 	if err := snapshot.Consistent(); err != nil {
-		return false, errors.Wrap(err, "inconsistent snapshot")
+		return false, fmt.Errorf("inconsistent snapshot: %w", err)
 	}
 	log.Info("config has changed", "versions", changed)
 
 	if err := r.cacher.Cache(ctx, node, snapshot); err != nil {
-		return false, errors.Wrap(err, "failed to store snapshot")
+		return false, fmt.Errorf("failed to store snapshot: %w", err)
 	}
 
 	for _, version := range changed {
@@ -178,7 +179,7 @@ func (s *TemplateSnapshotGenerator) GenerateSnapshot(ctx context.Context, xdsCtx
 		}
 	}
 	if err := modifications.Apply(rs, template.GetConf().GetModifications(), proxy.APIVersion); err != nil {
-		return nil, errors.Wrap(err, "could not apply modifications")
+		return nil, fmt.Errorf("could not apply modifications: %w", err)
 	}
 
 	version := "" // empty value is a sign to other components to generate the version automatically

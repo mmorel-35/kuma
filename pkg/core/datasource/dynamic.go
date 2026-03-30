@@ -2,6 +2,7 @@ package datasource
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/pkg/errors"
@@ -40,7 +41,7 @@ func (l *dynamicLoader) Load(ctx context.Context, mesh string, source *system_pr
 		return nil, errors.New("unsupported type of the DataSource")
 	}
 	if err != nil {
-		return nil, errors.Wrap(err, "could not load data")
+		return nil, fmt.Errorf("could not load data: %w", err)
 	}
 	return data, nil
 }

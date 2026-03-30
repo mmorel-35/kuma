@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -54,7 +53,7 @@ func startSendingRequests(address string, streamCounter int, unary bool) error {
 		}),
 	)
 	if err != nil {
-		return errors.Wrap(err, "dial failed")
+		return fmt.Errorf("dial failed: %w", err)
 	}
 	defer conn.Close()
 
@@ -69,7 +68,7 @@ func startStreamingRequests(c api.GreeterClient, streamCounter int) error {
 	for {
 		clientStream, err := c.SayHellos(context.Background())
 		if err != nil {
-			return errors.Wrap(err, "SayHellos failed")
+			return fmt.Errorf("SayHellos failed: %w", err)
 		}
 
 		requestCounter := 0
@@ -78,12 +77,12 @@ func startStreamingRequests(c api.GreeterClient, streamCounter int) error {
 				Name: fmt.Sprintf("Request #%d.%d", streamCounter, requestCounter),
 			})
 			if err != nil {
-				return errors.Wrap(err, "Send failed")
+				return fmt.Errorf("Send failed: %w", err)
 			}
 
 			resp, err := clientStream.Recv()
 			if err != nil {
-				return errors.Wrap(err, "Recv failed")
+				return fmt.Errorf("Recv failed: %w", err)
 			}
 			grpcClientLog.Info("received response", "msg", resp.GetMessage())
 
@@ -100,7 +99,7 @@ func startUnaryRequests(c api.GreeterClient, streamCounter int) error {
 			Name: fmt.Sprintf("Request #%d.%d", streamCounter, requestCounter),
 		})
 		if err != nil {
-			return errors.Wrap(err, "Send failed")
+			return fmt.Errorf("Send failed: %w", err)
 		}
 		grpcClientLog.Info("received response", "msg", resp.GetMessage())
 

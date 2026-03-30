@@ -119,7 +119,7 @@ func addGatewayReconcilers(mgr kube_ctrl.Manager, rt core_runtime.Runtime, conve
 		ResourceManager: rt.ResourceManager(),
 	}
 	if err := gatewayInstanceReconciler.SetupWithManager(mgr); err != nil {
-		return errors.Wrap(err, "could not setup MeshGatewayInstance reconciler")
+		return fmt.Errorf("could not setup MeshGatewayInstance reconciler: %w", err)
 	}
 
 	if err := addGatewayAPIReconcilers(mgr, rt, proxyFactory); err != nil {
@@ -154,7 +154,7 @@ func addGatewayAPIReconcilers(mgr kube_ctrl.Manager, rt core_runtime.Runtime, pr
 		Log:    core.Log.WithName("controllers").WithName("gatewayapi").WithName("GatewayClass"),
 	}
 	if err := gatewayAPIGatewayClassReconciler.SetupWithManager(mgr); err != nil {
-		return errors.Wrap(err, "could not setup Gateway API GatewayClass reconciler")
+		return fmt.Errorf("could not setup Gateway API GatewayClass reconciler: %w", err)
 	}
 
 	gatewayAPIGatewayReconciler := &gatewayapi_controllers.GatewayReconciler{
@@ -167,7 +167,7 @@ func addGatewayAPIReconcilers(mgr kube_ctrl.Manager, rt core_runtime.Runtime, pr
 		ResourceManager: rt.ResourceManager(),
 	}
 	if err := gatewayAPIGatewayReconciler.SetupWithManager(mgr); err != nil {
-		return errors.Wrap(err, "could not setup Gateway API Gateway reconciler")
+		return fmt.Errorf("could not setup Gateway API Gateway reconciler: %w", err)
 	}
 
 	gatewayAPIHTTPRouteReconciler := &gatewayapi_controllers.HTTPRouteReconciler{
@@ -180,7 +180,7 @@ func addGatewayAPIReconcilers(mgr kube_ctrl.Manager, rt core_runtime.Runtime, pr
 		Zone:            rt.Config().Multizone.Zone.Name,
 	}
 	if err := gatewayAPIHTTPRouteReconciler.SetupWithManager(mgr); err != nil {
-		return errors.Wrap(err, "could not setup Gateway API HTTPRoute reconciler")
+		return fmt.Errorf("could not setup Gateway API HTTPRoute reconciler: %w", err)
 	}
 
 	secretController := &gatewayapi_controllers.SecretController{
@@ -190,7 +190,7 @@ func addGatewayAPIReconcilers(mgr kube_ctrl.Manager, rt core_runtime.Runtime, pr
 		SupportGatewaySecretsInAllNamespaces: rt.Config().Runtime.Kubernetes.SupportGatewaySecretsInAllNamespaces,
 	}
 	if err := secretController.SetupWithManager(mgr); err != nil {
-		return errors.Wrap(err, "could not setup Secret reconciler")
+		return fmt.Errorf("could not setup Secret reconciler: %w", err)
 	}
 
 	return nil

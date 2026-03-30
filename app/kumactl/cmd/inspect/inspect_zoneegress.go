@@ -35,7 +35,7 @@ func newInspectZoneEgressCmd(pctx *cmd.RootContext) *cobra.Command {
 
 			client, err := pctx.CurrentInspectEnvoyProxyClient(mesh.ZoneEgressResourceTypeDescriptor)
 			if err != nil {
-				return errors.Wrap(err, "failed to create a zoneegress inspect client")
+				return fmt.Errorf("failed to create a zoneegress inspect client: %w", err)
 			}
 			name := args[0]
 			resourceKey := core_model.ResourceKey{Name: name, Mesh: core_model.NoMesh}

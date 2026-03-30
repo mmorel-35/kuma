@@ -6,7 +6,6 @@ import (
 	"maps"
 	"time"
 
-	"github.com/pkg/errors"
 	kube_core "k8s.io/api/core/v1"
 	kube_apierrs "k8s.io/apimachinery/pkg/api/errors"
 	kube_meta "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -54,7 +53,7 @@ func (s *KubernetesStore) Create(ctx context.Context, r core_model.Resource, fs 
 	opts := core_store.NewCreateOptions(fs...)
 	secret, err := s.secretsConverter.ToKubernetesObject(r)
 	if err != nil {
-		return errors.Wrap(err, "failed to convert core Secret into k8s counterpart")
+		return fmt.Errorf("failed to convert core Secret into k8s counterpart: %w", err)
 	}
 	secret.Namespace = s.namespace
 	secret.Name = opts.Name
@@ -64,10 +63,10 @@ func (s *KubernetesStore) Create(ctx context.Context, r core_model.Resource, fs 
 	if opts.Owner != nil {
 		k8sOwner, err := s.resourcesConverter.ToKubernetesObject(opts.Owner)
 		if err != nil {
-			return errors.Wrap(err, "failed to convert core model into k8s counterpart")
+			return fmt.Errorf("failed to convert core model into k8s counterpart: %w", err)
 		}
 		if err := controllerutil.SetOwnerReference(k8sOwner, secret, s.scheme); err != nil {
-			return errors.Wrap(err, "failed to set owner reference for object")
+			return fmt.Errorf("failed to set owner reference for object: %w", err)
 		}
 	}
 
@@ -75,11 +74,11 @@ func (s *KubernetesStore) Create(ctx context.Context, r core_model.Resource, fs 
 		if kube_apierrs.IsAlreadyExists(err) {
 			return core_store.ErrorResourceAlreadyExists(r.Descriptor().Name, secret.Name, opts.Mesh)
 		}
-		return errors.Wrap(err, "failed to create k8s Secret")
+		return fmt.Errorf("failed to create k8s Secret: %w", err)
 	}
 	err = s.secretsConverter.ToCoreResource(secret, r)
 	if err != nil {
-		return errors.Wrap(err, "failed to convert k8s Secret into core counterpart")
+		return fmt.Errorf("failed to convert k8s Secret into core counterpart: %w", err)
 	}
 	return nil
 }
@@ -89,7 +88,7 @@ func (s *KubernetesStore) Update(ctx context.Context, r core_model.Resource, fs 
 
 	secret, err := s.secretsConverter.ToKubernetesObject(r)
 	if err != nil {
-		return errors.Wrap(err, "failed to convert core Secret into k8s counterpart")
+		return fmt.Errorf("failed to convert core Secret into k8s counterpart: %w", err)
 	}
 	secret.Namespace = s.namespace
 
@@ -104,11 +103,11 @@ func (s *KubernetesStore) Update(ctx context.Context, r core_model.Resource, fs 
 		if kube_apierrs.IsConflict(err) {
 			return core_store.ErrorResourceConflict(r.Descriptor().Name, secret.Name, r.GetMeta().GetMesh())
 		}
-		return errors.Wrap(err, "failed to update k8s Secret")
+		return fmt.Errorf("failed to update k8s Secret: %w", err)
 	}
 	err = s.secretsConverter.ToCoreResource(secret, r)
 	if err != nil {
-		return errors.Wrap(err, "failed to convert k8s Secret into core counterpart")
+		return fmt.Errorf("failed to convert k8s Secret into core counterpart: %w", err)
 	}
 	return nil
 }
@@ -130,18 +129,18 @@ func setLabelsAnnotationsAndMesh(s *kube_core.Secret, mesh string, labels map[st
 func (s *KubernetesStore) Delete(ctx context.Context, r core_model.Resource, fs ...core_store.DeleteOptionsFunc) error {
 	opts := core_store.NewDeleteOptions(fs...)
 	if err := s.Get(ctx, r, core_store.GetByKey(opts.Name, opts.Mesh)); err != nil {
-		return errors.Wrap(err, "failed to delete k8s secret")
+		return fmt.Errorf("failed to delete k8s secret: %w", err)
 	}
 
 	secret, err := s.secretsConverter.ToKubernetesObject(r)
 	if err != nil {
-		return errors.Wrap(err, "failed to convert core Secret into k8s counterpart")
+		return fmt.Errorf("failed to convert core Secret into k8s counterpart: %w", err)
 	}
 	secret.Namespace = s.namespace
 	secret.Name = opts.Name
 
 	if err := s.writer.Delete(ctx, secret); err != nil {
-		return errors.Wrap(err, "failed to delete k8s Secret")
+		return fmt.Errorf("failed to delete k8s Secret: %w", err)
 	}
 	return nil
 }
@@ -153,10 +152,10 @@ func (s *KubernetesStore) Get(ctx context.Context, r core_model.Resource, fs ...
 		if kube_apierrs.IsNotFound(err) {
 			return core_store.ErrorResourceNotFound(r.Descriptor().Name, opts.Name, opts.Mesh)
 		}
-		return errors.Wrap(err, "failed to get k8s secret")
+		return fmt.Errorf("failed to get k8s secret: %w", err)
 	}
 	if err := s.secretsConverter.ToCoreResource(secret, r); err != nil {
-		return errors.Wrap(err, "failed to convert k8s Secret into core counterpart")
+		return fmt.Errorf("failed to convert k8s Secret into core counterpart: %w", err)
 	}
 	if err := assertFound(r, secret, opts.Name, opts.Mesh); err != nil {
 		return err
@@ -206,10 +205,10 @@ func (s *KubernetesStore) List(ctx context.Context, rs core_model.ResourceList, 
 		}
 	}
 	if err := s.reader.List(ctx, secrets, kube_client.InNamespace(s.namespace), labels, fields); err != nil {
-		return errors.Wrap(err, "failed to list k8s Secrets")
+		return fmt.Errorf("failed to list k8s Secrets: %w", err)
 	}
 	if err := s.secretsConverter.ToCoreList(secrets, rs); err != nil {
-		return errors.Wrap(err, "failed to convert k8s Secret into core counterpart")
+		return fmt.Errorf("failed to convert k8s Secret into core counterpart: %w", err)
 	}
 	return nil
 }
@@ -289,7 +288,7 @@ func (c *SimpleConverter) ToKubernetesObject(r core_model.Resource) (*kube_core.
 			"value": r.(*secret_model.GlobalSecretResource).Spec.GetData().GetValue(),
 		}
 	default:
-		return nil, errors.Errorf("invalid type %s, expected %s or %s", r.Descriptor().Name, secret_model.SecretType, secret_model.GlobalSecretType)
+		return nil, fmt.Errorf("invalid type %s, expected %s or %s", r.Descriptor().Name, secret_model.SecretType, secret_model.GlobalSecretType)
 	}
 	if r.GetMeta() != nil {
 		if adapter, ok := r.GetMeta().(*KubernetesMetaAdapter); ok {
@@ -337,7 +336,7 @@ func (c *SimpleConverter) ToCoreList(in *kube_core.SecretList, out core_model.Re
 			secOut.Items[i] = r
 		}
 	default:
-		return errors.Errorf("invalid type %s, expected %s or %s", out.GetItemType(), secret_model.SecretType, secret_model.GlobalSecretType)
+		return fmt.Errorf("invalid type %s, expected %s or %s", out.GetItemType(), secret_model.SecretType, secret_model.GlobalSecretType)
 	}
 	return nil
 }

@@ -363,19 +363,19 @@ func (r *resyncer) processEvent(ctx context.Context, start time.Time, event resy
 	r.timeToProcessItem.Observe(float64(startProcessingTime.Sub(event.time).Milliseconds()))
 	dpOverviews, err := r.dpOverviews(ctx, event.mesh)
 	if err != nil {
-		return errors.Wrap(err, "unable to get DataplaneOverviews to recompute insights")
+		return fmt.Errorf("unable to get DataplaneOverviews to recompute insights: %w", err)
 	}
 
 	externalServices := &core_mesh.ExternalServiceResourceList{}
 	if err := r.rm.List(ctx, externalServices, store.ListByMesh(event.mesh)); err != nil {
-		return errors.Wrap(err, "unable to get ExternalServices to recompute insights")
+		return fmt.Errorf("unable to get ExternalServices to recompute insights: %w", err)
 	}
 
 	anyChanged := false
 	if event.flag&FlagService == FlagService {
 		err, changed := r.createOrUpdateServiceInsight(ctx, event.mesh, dpOverviews, externalServices.Items)
 		if err != nil {
-			return errors.Wrap(err, "unable to resync ServiceInsight")
+			return fmt.Errorf("unable to resync ServiceInsight: %w", err)
 		}
 		if changed {
 			anyChanged = true
@@ -384,7 +384,7 @@ func (r *resyncer) processEvent(ctx context.Context, start time.Time, event resy
 	if event.flag&FlagMesh == FlagMesh {
 		err, changed := r.createOrUpdateMeshInsight(ctx, event.mesh, dpOverviews, externalServices.Items, event.types)
 		if err != nil {
-			return errors.Wrap(err, "unable to resync MeshInsight")
+			return fmt.Errorf("unable to resync MeshInsight: %w", err)
 		}
 		if changed {
 			anyChanged = true

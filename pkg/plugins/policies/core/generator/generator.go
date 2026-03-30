@@ -3,6 +3,7 @@ package generator
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/pkg/errors"
 
@@ -54,7 +55,7 @@ func writeUnifiedOtelRoute(rs *xds.ResourceSet, xdsCtx xds_context.Context, prox
 
 	data, err := json.Marshal(dpConfig)
 	if err != nil {
-		return errors.Wrap(err, "marshaling otel dp config")
+		return fmt.Errorf("marshaling otel dp config: %w", err)
 	}
 
 	unifiedNamingEnabled := unified_naming.Enabled(proxy.Metadata, xdsCtx.Mesh.Resource)

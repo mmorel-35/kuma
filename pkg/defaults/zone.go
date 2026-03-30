@@ -2,9 +2,9 @@ package defaults
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 
 	kuma_cp "github.com/kumahq/kuma/v2/pkg/config/app/kuma-cp"
 	config_core "github.com/kumahq/kuma/v2/pkg/config/core"
@@ -27,7 +27,7 @@ func EnsureOnlyOneZoneExists(
 	logger.V(1).Info("ensuring Zone resource exists", "name", zoneName)
 	zones := &system.ZoneResourceList{}
 	if err := resManager.List(ctx, zones); err != nil {
-		return errors.Wrap(err, "cannot list zones")
+		return fmt.Errorf("cannot list zones: %w", err)
 	}
 	exists := false
 	for _, zone := range zones.Items {
@@ -36,7 +36,7 @@ func EnsureOnlyOneZoneExists(
 		} else {
 			logger.Info("detected Zone resource with different name than Zone CP name. Deleting. This might happen if you change the name of the Zone CP", "name", zoneName)
 			if err := resManager.Delete(ctx, zone, store.DeleteByKey(zone.GetMeta().GetName(), model.NoMesh)); err != nil {
-				return errors.Wrap(err, "cannot delete old zone")
+				return fmt.Errorf("cannot delete old zone: %w", err)
 			}
 		}
 	}

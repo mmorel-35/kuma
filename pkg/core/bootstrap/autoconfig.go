@@ -29,12 +29,12 @@ func autoconfigure(cfg *kuma_cp.Config) error {
 	}
 	autoconfigureDpServerAuth(cfg)
 	if err := autoconfigureTLS(cfg); err != nil {
-		return errors.Wrap(err, "could not autogenerate TLS certificate")
+		return fmt.Errorf("could not autogenerate TLS certificate: %w", err)
 	}
 	autoconfigureServersTLS(cfg)
 	autoconfigBootstrapXdsParams(cfg)
 	if err := autoconfigureInterCp(cfg); err != nil {
-		return errors.Wrap(err, "could not autoconfigure Inter CP config")
+		return fmt.Errorf("could not autoconfigure Inter CP config: %w", err)
 	}
 	return nil
 }
@@ -43,7 +43,7 @@ func autoconfigureGeneral(cfg *kuma_cp.Config) error {
 	if cfg.General.WorkDir == "" {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			return errors.Errorf("failed to create a working directory inside $HOME: %v, "+
+			return fmt.Errorf("failed to create a working directory inside $HOME: %v, "+
 				"please pick a working directory by setting KUMA_GENERAL_WORK_DIR manually", err)
 		}
 		cfg.General.WorkDir = path.Join(home, ".kuma")
@@ -133,20 +133,20 @@ func autoconfigureTLS(cfg *kuma_cp.Config) error {
 
 	ips, err := util_net.GetAllIPs()
 	if err != nil {
-		return errors.Wrap(err, "could not list all IPs of the machine")
+		return fmt.Errorf("could not list all IPs of the machine: %w", err)
 	}
 	hostname, err := os.Hostname()
 	if err != nil {
-		return errors.Wrap(err, "could not get a hostname of the machine")
+		return fmt.Errorf("could not get a hostname of the machine: %w", err)
 	}
 	hosts := append([]string{hostname, "localhost"}, ips...)
 	cert, err := tls.NewSelfSignedCert(tls.ServerCertType, tls.DefaultKeyType, hosts...)
 	if err != nil {
-		return errors.Wrap(err, "failed to auto-generate TLS certificate")
+		return fmt.Errorf("failed to auto-generate TLS certificate: %w", err)
 	}
 	crtFile, keyFile, err := saveKeyPair(cert, workDir(cfg.General.WorkDir))
 	if err != nil {
-		return errors.Errorf("failed to save auto-generated TLS cert and key into a working directory: %v, "+
+		return fmt.Errorf("failed to save auto-generated TLS cert and key into a working directory: %v, "+
 			"working directory could be changed using KUMA_GENERAL_WORK_DIR environment variable", err)
 	}
 	cfg.General.TlsCertFile = crtFile
@@ -174,7 +174,7 @@ func (w workDir) Open(name string) (*os.File, error) {
 func tryReadKeyPair(dir workDir) (string, string, error) {
 	crtFile, err := dir.Open(crtFileName)
 	if err != nil {
-		return "", "", errors.Wrap(err, "failed to open a file with TLS cert")
+		return "", "", fmt.Errorf("failed to open a file with TLS cert: %w", err)
 	}
 	defer func() {
 		if err := crtFile.Close(); err != nil {
@@ -191,7 +191,7 @@ func tryReadKeyPair(dir workDir) (string, string, error) {
 	}
 	keyFile, err := dir.Open(keyFileName)
 	if err != nil {
-		return "", "", errors.Wrap(err, "failed to open a file with TLS key")
+		return "", "", fmt.Errorf("failed to open a file with TLS key: %w", err)
 	}
 	defer func() {
 		if err := keyFile.Close(); err != nil {
@@ -211,7 +211,7 @@ func tryReadKeyPair(dir workDir) (string, string, error) {
 func saveKeyPair(pair tls.KeyPair, dir workDir) (string, string, error) {
 	crtFile, err := dir.Open(crtFileName)
 	if err != nil {
-		return "", "", errors.Wrap(err, "failed to create a file with TLS cert")
+		return "", "", fmt.Errorf("failed to create a file with TLS cert: %w", err)
 	}
 	defer func() {
 		if err := crtFile.Close(); err != nil {
@@ -224,7 +224,7 @@ func saveKeyPair(pair tls.KeyPair, dir workDir) (string, string, error) {
 
 	keyFile, err := dir.Open(keyFileName)
 	if err != nil {
-		return "", "", errors.Wrap(err, "failed to create a file with TLS key")
+		return "", "", fmt.Errorf("failed to create a file with TLS key: %w", err)
 	}
 	defer func() {
 		if err := keyFile.Close(); err != nil {
@@ -244,7 +244,7 @@ func autoconfigureInterCp(cfg *kuma_cp.Config) error {
 	}
 	ips, err := util_net.GetAllIPs(util_net.NonLoopback)
 	if err != nil {
-		return errors.Wrap(err, "could not list all IPs of the machine")
+		return fmt.Errorf("could not list all IPs of the machine: %w", err)
 	}
 	if len(ips) == 0 {
 		return errors.New("there is 0 non-loopback interfaces on the machine. Set KUMA_INTER_CP_CATALOG_INSTANCE_ADDRESS explicitly.")

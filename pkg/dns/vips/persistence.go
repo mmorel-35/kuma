@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/pkg/errors"
-
 	config_manager "github.com/kumahq/kuma/v2/pkg/core/config/manager"
 	core_mesh "github.com/kumahq/kuma/v2/pkg/core/resources/apis/mesh"
 	config_model "github.com/kumahq/kuma/v2/pkg/core/resources/apis/system"
@@ -103,12 +101,12 @@ func (m *Persistence) Set(ctx context.Context, mesh string, vips *VirtualOutboun
 		view := NewTagFirstOutboundView(vips)
 		jsonBytes, err = json.Marshal(view)
 		if err != nil {
-			return errors.Wrap(err, "unable to marshall VIP list")
+			return fmt.Errorf("unable to marshall VIP list: %w", err)
 		}
 	} else {
 		jsonBytes, err = json.Marshal(vips.byHostname)
 		if err != nil {
-			return errors.Wrap(err, "unable to marshall VIP list")
+			return fmt.Errorf("unable to marshall VIP list: %w", err)
 		}
 	}
 

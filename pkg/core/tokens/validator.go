@@ -84,10 +84,9 @@ func (j *jwtTokenValidator) ParseWithValidation(ctx context.Context, rawToken To
 			return signingKeyError
 		}
 		if j.storeType == store_config.MemoryStore {
-			return errors.Wrap(err, "could not parse token. kuma-cp runs with an in-memory database and its state isn't preserved between restarts."+
-				" Keep in mind that an in-memory database cannot be used with multiple instances of the control plane")
+			return fmt.Errorf("could not parse token. kuma-cp runs with an in-memory database and its state isn't preserved between restarts. Keep in mind that an in-memory database cannot be used with multiple instances of the control plane: %w", err)
 		}
-		return errors.Wrap(err, "could not parse token")
+		return fmt.Errorf("could not parse token: %w", err)
 	}
 	if !token.Valid {
 		return errors.New("token is not valid")
@@ -95,7 +94,7 @@ func (j *jwtTokenValidator) ParseWithValidation(ctx context.Context, rawToken To
 
 	revoked, err := j.revocations.IsRevoked(ctx, claims.ID())
 	if err != nil {
-		return errors.Wrap(err, "could not check if the token is revoked")
+		return fmt.Errorf("could not check if the token is revoked: %w", err)
 	}
 	if revoked {
 		return errors.New("token is revoked")

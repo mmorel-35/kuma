@@ -11,7 +11,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/spiffe/go-spiffe/v2/spiffeid"
 
 	"github.com/kumahq/kuma/v2/pkg/core"
@@ -36,11 +35,11 @@ func PrivateKeyName(resourceName string) string {
 func GenerateRootCA(trustDomain string) (*core_ca.KeyPair, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, defaultKeySize)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate ecdsa key")
+		return nil, fmt.Errorf("failed to generate ecdsa key: %w", err)
 	}
 	cert, err := newCACert(privateKey, trustDomain)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate X509 certificate")
+		return nil, fmt.Errorf("failed to generate X509 certificate: %w", err)
 	}
 	return util_tls.ToKeyPair(privateKey, cert)
 }

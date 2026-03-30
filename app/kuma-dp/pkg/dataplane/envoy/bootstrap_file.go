@@ -1,10 +1,9 @@
 package envoy
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/pkg/errors"
 
 	kuma_dp "github.com/kumahq/kuma/v2/pkg/config/app/kuma-dp"
 )
@@ -12,7 +11,7 @@ import (
 func GenerateBootstrapFile(cfg kuma_dp.DataplaneRuntime, config []byte) (string, error) {
 	configFile := filepath.Join(cfg.WorkDir, "bootstrap.yaml")
 	if err := writeFile(configFile, config, 0o600); err != nil {
-		return "", errors.Wrap(err, "failed to persist Envoy bootstrap config on disk")
+		return "", fmt.Errorf("failed to persist Envoy bootstrap config on disk: %w", err)
 	}
 	return configFile, nil
 }

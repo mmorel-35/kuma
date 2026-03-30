@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -132,10 +133,10 @@ func (a *authCallbacks) onStreamRequest(streamID core_xds.StreamID, req util_xds
 	if !s.authenticated {
 		credential, err := ExtractCredential(s.ctx)
 		if err != nil {
-			return errors.Wrap(err, "could not extract credential from DiscoveryRequest")
+			return fmt.Errorf("could not extract credential from DiscoveryRequest: %w", err)
 		}
 		if err := a.authenticator.Authenticate(user.Ctx(s.ctx, user.ControlPlane), s.resource, credential); err != nil {
-			return errors.Wrap(err, "authentication failed")
+			return fmt.Errorf("authentication failed: %w", err)
 		}
 		s.authenticated = true
 	}
@@ -158,7 +159,7 @@ func (a *authCallbacks) stream(streamID core_xds.StreamID, req util_xds.Request,
 	}
 
 	if s.nodeID != req.NodeId() {
-		return stream{}, errors.Errorf("stream was authenticated for ID %s. Received request is for node with ID %s. Node ID cannot be changed after stream is initialized", s.nodeID, req.NodeId())
+		return stream{}, fmt.Errorf("stream was authenticated for ID %s. Received request is for node with ID %s. Node ID cannot be changed after stream is initialized", s.nodeID, req.NodeId())
 	}
 
 	if s.resource == nil {
@@ -180,7 +181,7 @@ func (a *authCallbacks) resource(ctx context.Context, md *core_xds.DataplaneMeta
 	// Otherwise, search for the pre-created resource.
 	proxyId, err := core_xds.ParseProxyIdFromString(nodeID)
 	if err != nil {
-		return nil, errors.Wrap(err, "request must have a valid Proxy ID")
+		return nil, fmt.Errorf("request must have a valid Proxy ID: %w", err)
 	}
 
 	var resource model.Resource
@@ -192,14 +193,14 @@ func (a *authCallbacks) resource(ctx context.Context, md *core_xds.DataplaneMeta
 	case mesh_proto.DataplaneProxyType:
 		resource = core_mesh.NewDataplaneResource()
 	default:
-		return nil, errors.Errorf("unsupported proxy type %q", md.GetProxyType())
+		return nil, fmt.Errorf("unsupported proxy type %q", md.GetProxyType())
 	}
 
 	backoff := retry.WithMaxRetries(uint64(a.dpNotFoundRetry.MaxTimes), retry.NewConstant(a.dpNotFoundRetry.Backoff))
 	err = retry.Do(ctx, backoff, func(ctx context.Context) error {
 		err := a.resManager.Get(ctx, resource, core_store.GetBy(proxyId.ToResourceKey()))
 		if core_store.IsNotFound(err) {
-			return retry.RetryableError(errors.Errorf(
+			return retry.RetryableError(fmt.Errorf(
 				"resource %q not found; create a %s in Kuma CP first or pass it as an argument to kuma-dp",
 				proxyId, resource.Descriptor().Name))
 		}
@@ -211,11 +212,11 @@ func (a *authCallbacks) resource(ctx context.Context, md *core_xds.DataplaneMeta
 func ExtractCredential(ctx context.Context) (Credential, error) {
 	metadata, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return "", errors.Errorf("request has no metadata")
+		return "", fmt.Errorf("request has no metadata")
 	}
 	if values, ok := metadata[authorization]; ok {
 		if len(values) != 1 {
-			return "", errors.Errorf("request must have exactly 1 %q header, got %d", authorization, len(values))
+			return "", fmt.Errorf("request must have exactly 1 %q header, got %d", authorization, len(values))
 		}
 		return values[0], nil
 	}

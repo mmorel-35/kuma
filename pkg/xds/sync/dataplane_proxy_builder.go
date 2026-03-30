@@ -2,6 +2,7 @@ package sync
 
 import (
 	"context"
+	"fmt"
 	"net"
 
 	"github.com/pkg/errors"
@@ -50,7 +51,7 @@ func (p *DataplaneProxyBuilder) Build(ctx context.Context, key core_model.Resour
 
 	matchedPolicies, err := p.matchPolicies(meshContext, dp, destinations)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not match policies")
+		return nil, fmt.Errorf("could not match policies: %w", err)
 	}
 
 	matchedPolicies.TrafficRoutes = routing.TrafficRoutes
@@ -210,7 +211,7 @@ func (p *DataplaneProxyBuilder) resolveVIPOutbounds(
 func (p *DataplaneProxyBuilder) matchPolicies(meshContext xds_context.MeshContext, dataplane *core_mesh.DataplaneResource, outboundSelectors core_xds.DestinationMap) (*core_xds.MatchedPolicies, error) {
 	additionalInbounds, err := manager_dataplane.AdditionalInbounds(dataplane, meshContext.Resource)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not fetch additional inbounds")
+		return nil, fmt.Errorf("could not fetch additional inbounds: %w", err)
 	}
 	inbounds := append(dataplane.Spec.GetNetworking().GetInbound(), additionalInbounds...)
 

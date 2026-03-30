@@ -2,9 +2,9 @@ package defaults
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 
 	kuma_cp "github.com/kumahq/kuma/v2/pkg/config/app/kuma-cp"
 	config_core "github.com/kumahq/kuma/v2/pkg/config/core"
@@ -28,14 +28,14 @@ func EnsureEnvoyAdminCaExists(
 		return nil
 	}
 	if !store.IsNotFound(err) {
-		return errors.Wrap(err, "error while loading envoy admin CA")
+		return fmt.Errorf("error while loading envoy admin CA: %w", err)
 	}
 	pair, err := tls.GenerateCA()
 	if err != nil {
-		return errors.Wrap(err, "could not generate envoy admin CA")
+		return fmt.Errorf("could not generate envoy admin CA: %w", err)
 	}
 	if err := tls.CreateCA(ctx, *pair, resManager); err != nil {
-		return errors.Wrap(err, "could not create envoy admin CA")
+		return fmt.Errorf("could not create envoy admin CA: %w", err)
 	}
 	logger.Info("Envoy Admin CA created")
 	return nil

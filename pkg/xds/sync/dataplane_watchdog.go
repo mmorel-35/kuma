@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/base64"
 	std_errors "errors"
+	"fmt"
 	"hash/fnv"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 
 	mesh_proto "github.com/kumahq/kuma/v2/api/mesh/v1alpha1"
 	"github.com/kumahq/kuma/v2/pkg/core"
@@ -122,7 +122,7 @@ func (d *DataplaneWatchdog) Cleanup() error {
 func (d *DataplaneWatchdog) syncDataplane(ctx context.Context) (SyncResult, error) {
 	meshCtx, err := d.MeshCache.GetMeshContext(ctx, d.key.Mesh)
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not get mesh context")
+		return SyncResult{}, fmt.Errorf("could not get mesh context: %w", err)
 	}
 	result := SyncResult{
 		ProxyType: mesh_proto.DataplaneProxyType,
@@ -172,12 +172,12 @@ func (d *DataplaneWatchdog) syncDataplane(ctx context.Context) (SyncResult, erro
 	}
 	proxy, err := d.DataplaneProxyBuilder.Build(ctx, d.key, d.xdsMeta, meshCtx)
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not build dataplane proxy")
+		return SyncResult{}, fmt.Errorf("could not build dataplane proxy: %w", err)
 	}
 	if syncIdentity {
 		identity, err := d.EnvoyCpCtx.IdentityManager.GetWorkloadIdentity(ctx, proxy, identity)
 		if err != nil {
-			return SyncResult{}, errors.Wrap(err, "could not get identity")
+			return SyncResult{}, fmt.Errorf("could not get identity: %w", err)
 		}
 		d.workloadIdentity = identity
 	}
@@ -187,7 +187,7 @@ func (d *DataplaneWatchdog) syncDataplane(ctx context.Context) (SyncResult, erro
 	networking := proxy.Dataplane.Spec.Networking
 	envoyAdminMTLS, err := d.getEnvoyAdminMTLS(ctx, networking.Address, networking.AdvertisedAddress)
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not get Envoy Admin mTLS certs")
+		return SyncResult{}, fmt.Errorf("could not get Envoy Admin mTLS certs: %w", err)
 	}
 	proxy.EnvoyAdminMTLSCerts = envoyAdminMTLS
 	if !envoyCtx.Mesh.Resource.MTLSEnabled() {
@@ -195,7 +195,7 @@ func (d *DataplaneWatchdog) syncDataplane(ctx context.Context) (SyncResult, erro
 	}
 	changed, err := d.DataplaneReconciler.Reconcile(ctx, *envoyCtx, proxy)
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not reconcile")
+		return SyncResult{}, fmt.Errorf("could not reconcile: %w", err)
 	}
 	d.lastHash = meshCtx.Hash
 	d.lastIdentityHash = identityHash
@@ -226,7 +226,7 @@ func (d *DataplaneWatchdog) syncIngress(ctx context.Context) (SyncResult, error)
 
 	aggregatedMeshCtxs, err := xds_context.AggregateMeshContexts(ctx, d.ResManager, d.MeshCache.GetMeshContext)
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not aggregate mesh contexts")
+		return SyncResult{}, fmt.Errorf("could not aggregate mesh contexts: %w", err)
 	}
 
 	result := SyncResult{
@@ -256,17 +256,17 @@ func (d *DataplaneWatchdog) syncIngress(ctx context.Context) (SyncResult, error)
 
 	proxy, err := d.IngressProxyBuilder.Build(ctx, d.key, d.xdsMeta, aggregatedMeshCtxs)
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not build ingress proxy")
+		return SyncResult{}, fmt.Errorf("could not build ingress proxy: %w", err)
 	}
 	networking := proxy.ZoneIngressProxy.ZoneIngressResource.Spec.GetNetworking()
 	envoyAdminMTLS, err := d.getEnvoyAdminMTLS(ctx, networking.GetAddress(), networking.GetAdvertisedAddress())
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not get Envoy Admin mTLS certs")
+		return SyncResult{}, fmt.Errorf("could not get Envoy Admin mTLS certs: %w", err)
 	}
 	proxy.EnvoyAdminMTLSCerts = envoyAdminMTLS
 	changed, err := d.IngressReconciler.Reconcile(ctx, *envoyCtx, proxy)
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not reconcile")
+		return SyncResult{}, fmt.Errorf("could not reconcile: %w", err)
 	}
 	if changed {
 		result.Status = ChangedStatus
@@ -286,7 +286,7 @@ func (d *DataplaneWatchdog) syncEgress(ctx context.Context) (SyncResult, error) 
 
 	aggregatedMeshCtxs, err := xds_context.AggregateMeshContexts(ctx, d.ResManager, d.MeshCache.GetMeshContext)
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not aggregate mesh contexts")
+		return SyncResult{}, fmt.Errorf("could not aggregate mesh contexts: %w", err)
 	}
 
 	result := SyncResult{
@@ -316,17 +316,17 @@ func (d *DataplaneWatchdog) syncEgress(ctx context.Context) (SyncResult, error) 
 
 	proxy, err := d.EgressProxyBuilder.Build(ctx, d.key, d.xdsMeta, aggregatedMeshCtxs)
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not build egress proxy")
+		return SyncResult{}, fmt.Errorf("could not build egress proxy: %w", err)
 	}
 	networking := proxy.ZoneEgressProxy.ZoneEgressResource.Spec.Networking
 	envoyAdminMTLS, err := d.getEnvoyAdminMTLS(ctx, networking.Address, "")
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not get Envoy Admin mTLS certs")
+		return SyncResult{}, fmt.Errorf("could not get Envoy Admin mTLS certs: %w", err)
 	}
 	proxy.EnvoyAdminMTLSCerts = envoyAdminMTLS
 	changed, err := d.EgressReconciler.Reconcile(ctx, *envoyCtx, proxy)
 	if err != nil {
-		return SyncResult{}, errors.Wrap(err, "could not reconcile")
+		return SyncResult{}, fmt.Errorf("could not reconcile: %w", err)
 	}
 	if changed {
 		result.Status = ChangedStatus
@@ -340,7 +340,7 @@ func (d *DataplaneWatchdog) getEnvoyAdminMTLS(ctx context.Context, address strin
 	if d.envoyAdminMTLS == nil || d.dpAddress != address {
 		ca, err := envoy_admin_tls.LoadCA(ctx, d.ResManager)
 		if err != nil {
-			return core_xds.ServerSideMTLSCerts{}, errors.Wrap(err, "could not load the CA")
+			return core_xds.ServerSideMTLSCerts{}, fmt.Errorf("could not load the CA: %w", err)
 		}
 		caPair, err := util_tls.ToKeyPair(ca.PrivateKey, ca.Certificate[0])
 		if err != nil {
@@ -352,7 +352,7 @@ func (d *DataplaneWatchdog) getEnvoyAdminMTLS(ctx context.Context, address strin
 		}
 		serverPair, err := envoy_admin_tls.GenerateServerCert(ca, ips...)
 		if err != nil {
-			return core_xds.ServerSideMTLSCerts{}, errors.Wrap(err, "could not generate server certificate")
+			return core_xds.ServerSideMTLSCerts{}, fmt.Errorf("could not generate server certificate: %w", err)
 		}
 
 		envoyAdminMTLS := core_xds.ServerSideMTLSCerts{

@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -8,7 +9,6 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/httpfs"
-	"github.com/pkg/errors"
 
 	postgres_cfg "github.com/kumahq/kuma/v2/pkg/config/plugins/resources/postgres"
 	core_plugins "github.com/kumahq/kuma/v2/pkg/core/plugins"
@@ -39,9 +39,9 @@ func MigrateDb(cfg postgres_cfg.PostgresStoreConfig) (core_plugins.DbVersion, er
 			if err != nil {
 				return 0, err
 			}
-			return 0, errors.Errorf("DB is migrated to newer version than Kuma. DB migration version %d. Kuma migration version %d. Run newer version of Kuma", dbVer, appVer)
+			return 0, fmt.Errorf("DB is migrated to newer version than Kuma. DB migration version %d. Kuma migration version %d. Run newer version of Kuma", dbVer, appVer)
 		}
-		return 0, errors.Wrap(err, "error while executing up migration")
+		return 0, fmt.Errorf("error while executing up migration: %w", err)
 	}
 	ver, _, err := m.Version()
 	if err != nil {

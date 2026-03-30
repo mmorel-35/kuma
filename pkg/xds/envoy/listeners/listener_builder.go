@@ -1,6 +1,8 @@
 package listeners
 
 import (
+	"fmt"
+
 	envoy_listener_v3 "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	"github.com/pkg/errors"
 
@@ -106,7 +108,7 @@ func (b *ListenerBuilder) Build() (envoy.NamedResource, error) {
 func (b *ListenerBuilder) MustBuild() envoy.NamedResource {
 	listener, err := b.Build()
 	if err != nil {
-		panic(errors.Wrap(err, "failed to build Envoy Listener").Error())
+		panic(fmt.Errorf("failed to build Envoy Listener: %w", err).Error())
 	}
 
 	return listener

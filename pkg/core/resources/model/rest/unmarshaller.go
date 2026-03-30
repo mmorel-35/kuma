@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/pkg/errors"
 	"k8s.io/apiextensions-apiserver/pkg/apiserver/schema/defaulting"
 	"k8s.io/kube-openapi/pkg/validation/validate"
 	"sigs.k8s.io/yaml"
@@ -134,7 +133,7 @@ func (u *unmarshaler) UnmarshalListToCore(b []byte, rs core_model.ResourceList) 
 	if rsr.Next != nil {
 		uri, err := url.ParseRequestURI(*rsr.Next)
 		if err != nil {
-			return errors.Wrap(err, "invalid next URL from the server")
+			return fmt.Errorf("invalid next URL from the server: %w", err)
 		}
 		offset := uri.Query().Get("offset")
 		// we do not preserve here the size of the page, but since it is used in kumactl

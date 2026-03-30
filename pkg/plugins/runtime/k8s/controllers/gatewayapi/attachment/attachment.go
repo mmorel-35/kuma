@@ -2,9 +2,9 @@ package attachment
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
-	"github.com/pkg/errors"
 	kube_core "k8s.io/api/core/v1"
 	kube_apierrs "k8s.io/apimachinery/pkg/api/errors"
 	kube_meta "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -67,7 +67,7 @@ func checkListenerFrom(
 			// error
 			selector, err := kube_meta.LabelSelectorAsSelector(ns.Selector)
 			if err != nil {
-				return Unknown, errors.Wrap(err, "internal error: couldn't convert to selector")
+				return Unknown, fmt.Errorf("internal error: couldn't convert to selector: %w", err)
 			}
 
 			if !selector.Matches(kube_labels.Set(routeNs.GetLabels())) {
@@ -182,7 +182,7 @@ func evaluateGatewayAttachment(
 ) (Attachment, error) {
 	gateway, err := getParentRefGateway(ctx, client, routeNs.GetName(), ref)
 	if err != nil {
-		return Unknown, errors.Wrap(err, "couldn't find Gateway referrent")
+		return Unknown, fmt.Errorf("couldn't find Gateway referrent: %w", err)
 	}
 	if gateway == nil {
 		return Unknown, nil

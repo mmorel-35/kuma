@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"reflect"
@@ -67,7 +68,7 @@ func (l *Loader) LoadFile(filename string) error {
 	}
 
 	if _, err := os.Stat(filename); err != nil {
-		return errors.Errorf("unable to access configuration file '%s', please check if the file exists and has the correct permissions", filename)
+		return fmt.Errorf("unable to access configuration file '%s', please check if the file exists and has the correct permissions", filename)
 	}
 
 	content, err := os.ReadFile(filename)
@@ -89,7 +90,7 @@ func (l *Loader) LoadReader(r io.Reader) error {
 
 	content, err := io.ReadAll(r)
 	if err != nil {
-		return errors.Wrap(err, "reading configuration from reader failed")
+		return fmt.Errorf("reading configuration from reader failed: %w", err)
 	}
 
 	return l.LoadBytes(content)
@@ -105,7 +106,7 @@ func (l *Loader) LoadBytes(content []byte) error {
 	}
 
 	if err := l.unmarshal(content); err != nil {
-		return errors.Wrap(err, "unable to parse configuration")
+		return fmt.Errorf("unable to parse configuration: %w", err)
 	}
 
 	return l.postProcess()
@@ -122,17 +123,17 @@ func (l *Loader) unmarshal(content []byte) error {
 func (l *Loader) postProcess() error {
 	if l.includeEnv {
 		if err := envconfig.Process(l.envVarsPrefix, l.cfg); err != nil {
-			return errors.Wrap(err, "processing environment variables failed")
+			return fmt.Errorf("processing environment variables failed: %w", err)
 		}
 	}
 
 	if err := l.cfg.PostProcess(); err != nil {
-		return errors.Wrap(err, "configuration post-processing failed")
+		return fmt.Errorf("configuration post-processing failed: %w", err)
 	}
 
 	if l.validate {
 		if err := l.cfg.Validate(); err != nil {
-			return errors.Wrap(err, "configuration validation failed")
+			return fmt.Errorf("configuration validation failed: %w", err)
 		}
 	}
 

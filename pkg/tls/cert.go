@@ -7,11 +7,10 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"fmt"
 	"math/big"
 	"net"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/kumahq/kuma/v2/pkg/core"
 	util_rsa "github.com/kumahq/kuma/v2/pkg/util/rsa"
@@ -43,7 +42,7 @@ var DefaultKeyType = RSAKeyType
 func NewSelfSignedCert(certType CertType, keyType KeyType, hosts ...string) (KeyPair, error) {
 	key, err := keyType()
 	if err != nil {
-		return KeyPair{}, errors.Wrap(err, "failed to generate TLS key")
+		return KeyPair{}, fmt.Errorf("failed to generate TLS key: %w", err)
 	}
 
 	csr, err := newCert(nil, certType, hosts...)
@@ -52,7 +51,7 @@ func NewSelfSignedCert(certType CertType, keyType KeyType, hosts ...string) (Key
 	}
 	certDerBytes, err := x509.CreateCertificate(rand.Reader, &csr, &csr, key.Public(), key)
 	if err != nil {
-		return KeyPair{}, errors.Wrap(err, "failed to generate TLS certificate")
+		return KeyPair{}, fmt.Errorf("failed to generate TLS certificate: %w", err)
 	}
 
 	certBytes, err := pemEncodeCert(certDerBytes)
@@ -81,7 +80,7 @@ func NewCert(
 ) (KeyPair, error) {
 	key, err := keyType()
 	if err != nil {
-		return KeyPair{}, errors.Wrap(err, "failed to generate TLS key")
+		return KeyPair{}, fmt.Errorf("failed to generate TLS key: %w", err)
 	}
 
 	csr, err := newCert(&parent.Subject, certType, hosts...)
@@ -91,7 +90,7 @@ func NewCert(
 
 	certDerBytes, err := x509.CreateCertificate(rand.Reader, &csr, &parent, key.Public(), parentKey)
 	if err != nil {
-		return KeyPair{}, errors.Wrap(err, "failed to generate TLS certificate")
+		return KeyPair{}, fmt.Errorf("failed to generate TLS certificate: %w", err)
 	}
 
 	certBytes, err := pemEncodeCert(certDerBytes)
@@ -116,7 +115,7 @@ func newCert(issuer *pkix.Name, certType CertType, hosts ...string) (x509.Certif
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 	if err != nil {
-		return x509.Certificate{}, errors.Wrap(err, "failed to generate serial number")
+		return x509.Certificate{}, fmt.Errorf("failed to generate serial number: %w", err)
 	}
 	csr := x509.Certificate{
 		SerialNumber:          serialNumber,
@@ -139,7 +138,7 @@ func newCert(issuer *pkix.Name, certType CertType, hosts ...string) (x509.Certif
 	case ClientCertType:
 		csr.ExtKeyUsage = append(csr.ExtKeyUsage, x509.ExtKeyUsageClientAuth)
 	default:
-		return x509.Certificate{}, errors.Errorf("invalid certificate type %q, expected either %q or %q",
+		return x509.Certificate{}, fmt.Errorf("invalid certificate type %q, expected either %q or %q",
 			certType, ServerCertType, ClientCertType)
 	}
 	for _, host := range hosts {
@@ -155,7 +154,7 @@ func newCert(issuer *pkix.Name, certType CertType, hosts ...string) (x509.Certif
 func GenerateCA(keyType KeyType, subject pkix.Name) (*KeyPair, error) {
 	key, err := keyType()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate a private key")
+		return nil, fmt.Errorf("failed to generate a private key: %w", err)
 	}
 
 	now := core.Now()

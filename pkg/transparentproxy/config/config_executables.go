@@ -72,7 +72,7 @@ func (c Executable) Initialize(
 			return initialized, nil
 		}
 
-		return InitializedExecutable{}, errors.Errorf("specified path '%s' for executable '%s' does not exist", c.path, nameWithoutMode)
+		return InitializedExecutable{}, fmt.Errorf("specified path '%s' for executable '%s' does not exist", c.path, nameWithoutMode)
 	}
 
 	for _, path := range getPathsToSearchForExecutable(nameWithMode, nameWithoutMode) {
@@ -85,7 +85,7 @@ func (c Executable) Initialize(
 		}
 	}
 
-	return InitializedExecutable{}, errors.Errorf("could not locate executable '%s' with mode '%s'", nameWithoutMode, c.mode)
+	return InitializedExecutable{}, fmt.Errorf("could not locate executable '%s' with mode '%s'", nameWithoutMode, c.mode)
 }
 
 type InitializedExecutable struct {
@@ -191,17 +191,17 @@ func (c ExecutablesIPvX) Initialize(
 	}
 
 	if len(errs) != 0 {
-		return InitializedExecutablesIPvX{}, errors.Wrap(std_errors.Join(errs...), "initialization of one or more executables failed")
+		return InitializedExecutablesIPvX{}, fmt.Errorf("initialization of one or more executables failed: %w", std_errors.Join(errs...))
 	}
 
 	mode, err := inferIptablesMode(iptables, iptablesSave, iptablesRestore)
 	if err != nil {
-		return InitializedExecutablesIPvX{}, errors.Wrap(err, "failed to infer consistent iptables mode")
+		return InitializedExecutablesIPvX{}, fmt.Errorf("failed to infer consistent iptables mode: %w", err)
 	}
 
 	functionality, err := verifyFunctionality(ctx, iptables, iptablesSave)
 	if err != nil {
-		return InitializedExecutablesIPvX{}, errors.Wrap(err, "functionality verification failed")
+		return InitializedExecutablesIPvX{}, fmt.Errorf("functionality verification failed: %w", err)
 	}
 
 	retry := cfg.Retry.Initialize()
@@ -271,7 +271,7 @@ func (c InitializedExecutablesIPvX) restore(
 		}
 	}
 
-	return "", errors.Errorf("%s failed", c.IptablesRestore.Path)
+	return "", fmt.Errorf("%s failed", c.IptablesRestore.Path)
 }
 
 // Restore executes the iptables-restore command with the given rules and the
@@ -314,31 +314,31 @@ func (c InitializedExecutablesIPvX) RestoreWithFlush(
 	// Create a backup file for existing iptables rules.
 	backupFile, err := createBackupFile(c.IptablesRestore.prefix)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to create backup file for iptables rules")
+		return "", fmt.Errorf("failed to create backup file for iptables rules: %w", err)
 	}
 	defer backupFile.Close()
 
 	// Save the current iptables rules to the backup file.
 	stdout, _, err := c.IptablesSave.Exec(ctx)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to execute iptables-save command")
+		return "", fmt.Errorf("failed to execute iptables-save command: %w", err)
 	}
 
 	if err := writeToFile(stdout.String(), backupFile); err != nil {
-		return "", errors.Wrap(err, "failed to write current iptables rules to backup file")
+		return "", fmt.Errorf("failed to write current iptables rules to backup file: %w", err)
 	}
 
 	// Create a temporary file for the new iptables rules.
 	restoreFile, err := createTempFile(c.IptablesRestore.prefix)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to create temporary file for new iptables rules")
+		return "", fmt.Errorf("failed to create temporary file for new iptables rules: %w", err)
 	}
 	defer restoreFile.Close()
 	defer os.Remove(restoreFile.Name())
 
 	// Write the new iptables rules to the temporary file.
 	if err := writeToFile(rules, restoreFile); err != nil {
-		return "", errors.Wrap(err, "failed to write new iptables rules to temporary file")
+		return "", fmt.Errorf("failed to write new iptables rules to temporary file: %w", err)
 	}
 
 	// Attempt to restore the new iptables rules from the temporary file.
@@ -392,7 +392,7 @@ func (c InitializedExecutablesIPvX) RestoreTest(
 			return "", nil
 		}
 
-		return "", errors.Wrap(err, "rules are invalid")
+		return "", fmt.Errorf("rules are invalid: %w", err)
 	}
 
 	return stdout.String(), nil
@@ -458,7 +458,7 @@ func (c *Executables) InitializeIPv4(
 		l.Warn(WarningDryRunNoValidIptablesFound)
 		return InitializedExecutablesIPvX{}, nil
 	case len(errs) == 2:
-		return InitializedExecutablesIPvX{}, errors.Wrap(std_errors.Join(errs...), "failed to find valid nft or legacy executables")
+		return InitializedExecutablesIPvX{}, fmt.Errorf("failed to find valid nft or legacy executables: %w", std_errors.Join(errs...))
 	case legacyErr != nil:
 		return nft, nil
 	case nftErr != nil:
@@ -498,7 +498,7 @@ func (c *Executables) InitializeIPv6(
 	case consts.IptablesModeLegacy:
 		return c.legacyIPv6.Initialize(ctx, l, cfg)
 	default:
-		return InitializedExecutablesIPvX{}, errors.Errorf("unknown iptables mode '%s'", modeIPv4)
+		return InitializedExecutablesIPvX{}, fmt.Errorf("unknown iptables mode '%s'", modeIPv4)
 	}
 }
 
@@ -514,7 +514,7 @@ func (c *Executables) Set(s string) error {
 		if !found {
 			errs = append(
 				errs,
-				errors.Errorf("invalid format in '%s': expected '<name>:<path>' (e.g., 'iptables:/usr/sbin/iptables' or 'ip6tables-save:/usr/sbin/ip6tables-save')", block),
+				fmt.Errorf("invalid format in '%s': expected '<name>:<path>' (e.g., 'iptables:/usr/sbin/iptables' or 'ip6tables-save:/usr/sbin/ip6tables-save')", block),
 			)
 			continue
 		}
@@ -537,7 +537,7 @@ func (c *Executables) Set(s string) error {
 		default:
 			errs = append(
 				errs,
-				errors.Errorf("unsupported executable name '%s': valid names are %s", name, getNamesString(c.ExecutablesPathsIPv4, c.ExecutablesPathsIPv6)),
+				fmt.Errorf("unsupported executable name '%s': valid names are %s", name, getNamesString(c.ExecutablesPathsIPv4, c.ExecutablesPathsIPv6)),
 			)
 		}
 	}
@@ -648,7 +648,7 @@ func getIptablesVersion(ctx context.Context, path string) (Version, error) {
 
 	matched := consts.IptablesModeRegex.FindStringSubmatch(stdout.String())
 	if len(matched) < 2 {
-		return Version{}, errors.Wrap(formatIptablesVersionError(stdout.String()), "unable to parse iptables version")
+		return Version{}, fmt.Errorf("unable to parse iptables version: %w", formatIptablesVersionError(stdout.String()))
 	}
 
 	version, err := k8s_version.ParseGeneric(matched[1])
@@ -688,7 +688,7 @@ func inferIptablesMode(executables ...InitializedExecutable) (consts.IptablesMod
 	modes := util_maps.AllKeys(modesSet)
 
 	if len(modes) != 1 {
-		return consts.IptablesModeUnknown, errors.Errorf(
+		return consts.IptablesModeUnknown, fmt.Errorf(
 			"executables are of mixed types; all must be of the same type ('%s' or '%s') [%s]",
 			consts.IptablesModeNft,
 			consts.IptablesModeLegacy,
@@ -710,7 +710,7 @@ func tryInitializeExecutablePaths(
 	}
 
 	if paths := getNonEmptyPaths(ep); len(paths) != 0 && len(paths) != 3 {
-		return InitializedExecutablesIPvX{}, false, errors.Errorf(
+		return InitializedExecutablesIPvX{}, false, fmt.Errorf(
 			"provided incomplete executables configuration: %s must all be specified together; provided paths (%s) will be ignored and automatic executables detection will proceed",
 			getNamesString(ep),
 			getNamesWithPathsString(ep),
@@ -719,10 +719,7 @@ func tryInitializeExecutablePaths(
 
 	initialized, err := ep.convert().Initialize(ctx, l, cfg)
 	if err != nil {
-		return InitializedExecutablesIPvX{}, false, errors.Wrap(
-			err,
-			"failed to initialize executables from the provided paths; automatic detection will proceed",
-		)
+		return InitializedExecutablesIPvX{}, false, fmt.Errorf("failed to initialize executables from the provided paths; automatic detection will proceed: %w", err)
 	}
 
 	l.Infof("provided executables will be used (%s)", getNamesWithPathsString(ep))

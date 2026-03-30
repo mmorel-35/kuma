@@ -2,8 +2,7 @@ package secrets
 
 import (
 	"context"
-
-	"github.com/pkg/errors"
+	"fmt"
 
 	"github.com/kumahq/kuma/v2/pkg/core"
 	"github.com/kumahq/kuma/v2/pkg/core/naming"
@@ -56,7 +55,7 @@ func (g Generator) GenerateForZoneEgress(
 
 	identity, ca, err := xdsCtx.ControlPlane.Secrets.GetForZoneEgress(ctx, zoneEgress, mesh)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate ZoneEgress secrets")
+		return nil, fmt.Errorf("failed to generate ZoneEgress secrets: %w", err)
 	}
 
 	rs := core_xds.NewResourceSet()
@@ -115,7 +114,7 @@ func (g Generator) Generate(
 	if usedAllInOne {
 		identity, allInOneCa, err := xdsCtx.ControlPlane.Secrets.GetAllInOne(ctx, xdsCtx.Mesh.Resource, proxy.Dataplane, otherMeshes)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to generate all in one CA")
+			return nil, fmt.Errorf("failed to generate all in one CA: %w", err)
 		}
 
 		caSecretName := getNameOrDefault(
@@ -142,7 +141,7 @@ func (g Generator) Generate(
 		}
 		identity, generatedMeshCAs, err := xdsCtx.ControlPlane.Secrets.GetForDataPlane(ctx, proxy.Dataplane, xdsCtx.Mesh.Resource, usedCAsMeshes)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to generate dataplane identity cert and CAs")
+			return nil, fmt.Errorf("failed to generate dataplane identity cert and CAs: %w", err)
 		}
 
 		identitySecretName := getNameOrDefault(

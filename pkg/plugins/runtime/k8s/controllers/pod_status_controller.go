@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	kube_core "k8s.io/api/core/v1"
 	kube_apierrs "k8s.io/apimachinery/pkg/api/errors"
 	kube_runtime "k8s.io/apimachinery/pkg/runtime"
@@ -66,7 +66,7 @@ func (r *PodStatusReconciler) Reconcile(ctx context.Context, req kube_ctrl.Reque
 
 	log.Info("sending request to terminate Envoy")
 	if err := r.EnvoyAdminClient.PostQuit(ctx, dp); err != nil {
-		return kube_ctrl.Result{}, errors.Wrap(err, "envoy admin client failed. Most probably the pod is already going down.")
+		return kube_ctrl.Result{}, fmt.Errorf("envoy admin client failed. Most probably the pod is already going down.: %w", err)
 	}
 	return kube_ctrl.Result{}, nil
 }

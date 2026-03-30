@@ -47,7 +47,7 @@ func EnsureDefaultMeshResources(
 
 	created, err := ensureDataplaneTokenSigningKey(ctx, resManager, mesh)
 	if err != nil {
-		return errors.Wrap(err, "could not create default Dataplane Token Signing Key")
+		return fmt.Errorf("could not create default Dataplane Token Signing Key: %w", err)
 	}
 	if created {
 		resKey := tokens.SigningKeyResourceKey(system.DataplaneTokenSigningKey(meshName), tokens.DefaultKeyID, meshName)
@@ -109,10 +109,10 @@ func ensureDefaultResource(ctx context.Context, resManager manager.ResourceManag
 		return nil, false
 	}
 	if !store.IsNotFound(err) {
-		return errors.Wrap(err, "could not retrieve a resource"), false
+		return fmt.Errorf("could not retrieve a resource: %w", err), false
 	}
 	if err := resManager.Create(ctx, res, store.CreateBy(resourceKey)); err != nil {
-		return errors.Wrap(err, "could not create a resource"), false
+		return fmt.Errorf("could not create a resource: %w", err), false
 	}
 	return nil, true
 }

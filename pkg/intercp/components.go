@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -51,7 +52,7 @@ func Setup(rt runtime.Runtime) error {
 	registerComponent := component.ComponentFunc(func(stop <-chan struct{}) error {
 		certs, err := generateCerts(ctx, rt.ReadOnlyResourceManager(), cfg.Catalog.InstanceAddress)
 		if err != nil {
-			return errors.Wrap(err, "could not generate certificates to start inter-cp server")
+			return fmt.Errorf("could not generate certificates to start inter-cp server: %w", err)
 		}
 		pool.SetTLSConfig(&client.TLSConfig{
 			CaCert:     certs.ca,
@@ -60,7 +61,7 @@ func Setup(rt runtime.Runtime) error {
 
 		interCpServer, err := server.New(cfg.Server, rt.Metrics(), certs.server, certs.ca, instance.Id)
 		if err != nil {
-			return errors.Wrap(err, "could not start inter-cp server")
+			return fmt.Errorf("could not start inter-cp server: %w", err)
 		}
 		system_proto.RegisterInterCpPingServiceServer(interCpServer.GrpcServer(), catalog.NewServer(heartbeats, rt.LeaderInfo()))
 
@@ -76,7 +77,7 @@ func Setup(rt runtime.Runtime) error {
 		heartbeatComponent, err := catalog.NewHeartbeatComponent(c, instance, cfg.Catalog.HeartbeatInterval.Duration, func(serverURL string) (system_proto.InterCpPingServiceClient, error) {
 			conn, err := pool.Client(serverURL)
 			if err != nil {
-				return nil, errors.Wrap(err, "could not create inter-cp client")
+				return nil, fmt.Errorf("could not create inter-cp client: %w", err)
 			}
 			return system_proto.NewInterCpPingServiceClient(conn), nil
 		}, rt.Metrics())

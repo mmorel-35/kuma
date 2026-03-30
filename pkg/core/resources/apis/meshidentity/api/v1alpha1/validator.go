@@ -1,9 +1,8 @@
 package v1alpha1
 
 import (
+	"fmt"
 	"text/template"
-
-	"github.com/pkg/errors"
 
 	"github.com/kumahq/kuma/v2/pkg/core/validators"
 	"github.com/kumahq/kuma/v2/pkg/util/pointer"
@@ -26,7 +25,7 @@ func validateSPIFFEID(spiffeID SpiffeID) validators.ValidationError {
 			Funcs(map[string]any{"label": func(key string) (string, error) { return "", nil }}).
 			Parse(pointer.Deref(spiffeID.TrustDomain))
 		if err != nil {
-			verr.AddViolation("trustDomain", errors.Wrap(err, "couldn't parse template").Error())
+			verr.AddViolation("trustDomain", fmt.Errorf("couldn't parse template: %w", err).Error())
 		}
 	}
 	if pointer.Deref(spiffeID.Path) != "" {
@@ -34,7 +33,7 @@ func validateSPIFFEID(spiffeID SpiffeID) validators.ValidationError {
 			Funcs(map[string]any{"label": func(key string) (string, error) { return "", nil }}).
 			Parse(pointer.Deref(spiffeID.Path))
 		if err != nil {
-			verr.AddViolation("path", errors.Wrap(err, "couldn't parse template").Error())
+			verr.AddViolation("path", fmt.Errorf("couldn't parse template: %w", err).Error())
 		}
 	}
 	return verr

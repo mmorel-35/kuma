@@ -51,7 +51,7 @@ type: system.kuma.io/global-secret
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			key, err := ctx.GenerateContext.NewSigningKey()
 			if err != nil {
-				return errors.Wrap(err, "could not generate signing key")
+				return fmt.Errorf("could not generate signing key: %w", err)
 			}
 			var out []byte
 			switch args.format {

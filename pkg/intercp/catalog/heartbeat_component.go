@@ -2,9 +2,9 @@ package catalog
 
 import (
 	"context"
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 
 	system_proto "github.com/kumahq/kuma/v2/api/system/v1alpha1"
@@ -139,7 +139,7 @@ func (h *heartbeatComponent) connectToLeader(ctx context.Context) error {
 	)
 	_, err = h.getClientFn(h.leader.InterCpURL())
 	if err != nil {
-		return errors.Wrap(err, "could not create a client to a leader")
+		return fmt.Errorf("could not create a client to a leader: %w", err)
 	}
 	return nil
 }

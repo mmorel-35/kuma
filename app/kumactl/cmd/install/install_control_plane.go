@@ -52,7 +52,7 @@ func (cv *componentVersion) Type() string {
 func getVersionSet(client discovery.ServerResourcesInterface) (chartcommon.VersionSet, error) {
 	groups, resources, err := client.ServerGroupsAndResources()
 	if err != nil && !discovery.IsGroupDiscoveryFailedError(err) {
-		return chartcommon.DefaultVersionSet, errors.Wrap(err, "could not get apiVersions from Kubernetes")
+		return chartcommon.DefaultVersionSet, fmt.Errorf("could not get apiVersions from Kubernetes: %w", err)
 	}
 
 	if len(groups) == 0 && len(resources) == 0 {
@@ -101,7 +101,7 @@ func getCapabilities(kubeConfig *rest.Config) (*chartcommon.Capabilities, error)
 
 	kubeVersion, err := dc.ServerVersion()
 	if err != nil {
-		return nil, errors.Wrap(err, "could not get server version from Kubernetes")
+		return nil, fmt.Errorf("could not get server version from Kubernetes: %w", err)
 	}
 
 	// Issue #6361:
@@ -111,7 +111,7 @@ func getCapabilities(kubeConfig *rest.Config) (*chartcommon.Capabilities, error)
 	// See https://github.com/kubernetes/kubernetes/issues/72051#issuecomment-521157642
 	apiVersions, err := getVersionSet(dc)
 	if err != nil && !discovery.IsGroupDiscoveryFailedError(err) {
-		return nil, errors.Wrap(err, "could not get apiVersions from Kubernetes")
+		return nil, fmt.Errorf("could not get apiVersions from Kubernetes: %w", err)
 	}
 
 	return &chartcommon.Capabilities{
@@ -137,7 +137,7 @@ This command requires that the KUBECONFIG environment is set`,
 
 			templateFiles, err := ctx.InstallCpTemplateFiles(&args)
 			if err != nil {
-				return errors.Wrap(err, "Failed to read template files")
+				return fmt.Errorf("Failed to read template files: %w", err)
 			}
 			if args.DumpValues {
 				fList := templateFiles.Filter(func(file data.File) bool {
@@ -177,11 +177,11 @@ This command requires that the KUBECONFIG environment is set`,
 			// User specified a value via --set
 			for _, value := range args.Values {
 				if err := strvals.ParseInto(value, vals); err != nil {
-					return errors.Wrap(err, "failed parsing --set data")
+					return fmt.Errorf("failed parsing --set data: %w", err)
 				}
 			}
 			if err != nil {
-				return errors.Wrap(err, "Failed to evaluate helm values")
+				return fmt.Errorf("Failed to evaluate helm values: %w", err)
 			}
 
 			if args.UseNodePort && args.ControlPlane_mode == config_core.Global {
@@ -190,7 +190,7 @@ This command requires that the KUBECONFIG environment is set`,
 					v = fmt.Sprintf("%s.%s", ctx.HELMValuesPrefix, v)
 				}
 				if err := strvals.ParseInto(v, vals); err != nil {
-					return errors.Wrap(err, "Failed using NodePort")
+					return fmt.Errorf("Failed using NodePort: %w", err)
 				}
 			}
 
@@ -200,7 +200,7 @@ This command requires that the KUBECONFIG environment is set`,
 					v = fmt.Sprintf("%s.%s", ctx.HELMValuesPrefix, v)
 				}
 				if err := strvals.ParseInto(v, vals); err != nil {
-					return errors.Wrap(err, "Failed using NodePort for ingress")
+					return fmt.Errorf("Failed using NodePort for ingress: %w", err)
 				}
 			}
 
@@ -209,7 +209,7 @@ This command requires that the KUBECONFIG environment is set`,
 				var err error
 				kubeClientConfig, err = k8s.DefaultClientConfig("", "")
 				if err != nil {
-					return errors.Wrap(err, "could not detect Kubernetes configuration")
+					return fmt.Errorf("could not detect Kubernetes configuration: %w", err)
 				}
 			}
 
@@ -217,7 +217,7 @@ This command requires that the KUBECONFIG environment is set`,
 			if !args.WithoutKubernetesConnection {
 				capabilities, err = getCapabilities(kubeClientConfig)
 				if err != nil {
-					return errors.Wrap(err, "could not get Capabilities")
+					return fmt.Errorf("could not get Capabilities: %w", err)
 				}
 			}
 			for _, version := range args.APIVersions {
@@ -226,18 +226,18 @@ This command requires that the KUBECONFIG environment is set`,
 
 			renderedFiles, err := renderHelmFiles(templateFiles, args.Namespace, vals, kubeClientConfig, *capabilities)
 			if err != nil {
-				return errors.Wrap(err, "Failed to render helm template files")
+				return fmt.Errorf("Failed to render helm template files: %w", err)
 			}
 
 			sortedResources, err := k8s.SortResourcesByKind(renderedFiles, args.SkipKinds...)
 			if err != nil {
-				return errors.Wrap(err, "Failed to sort resources by kind")
+				return fmt.Errorf("Failed to sort resources by kind: %w", err)
 			}
 
 			singleFile := data.JoinYAML(sortedResources)
 
 			if _, err := cmd.OutOrStdout().Write(singleFile.Data); err != nil {
-				return errors.Wrap(err, "Failed to output rendered resources")
+				return fmt.Errorf("Failed to output rendered resources: %w", err)
 			}
 
 			return nil

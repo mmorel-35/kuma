@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	kube_meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -91,22 +90,22 @@ func (s *StatusUpdater) NeedLeaderElection() bool {
 func (s *StatusUpdater) updateStatus(ctx context.Context) error {
 	motbList := &motb_api.MeshOpenTelemetryBackendResourceList{}
 	if err := s.roResManager.List(ctx, motbList); err != nil {
-		return errors.Wrap(err, "could not list MeshOpenTelemetryBackends")
+		return fmt.Errorf("could not list MeshOpenTelemetryBackends: %w", err)
 	}
 
 	meshMetrics := &meshmetric_api.MeshMetricResourceList{}
 	if err := s.roResManager.List(ctx, meshMetrics); err != nil {
-		return errors.Wrap(err, "could not list MeshMetrics")
+		return fmt.Errorf("could not list MeshMetrics: %w", err)
 	}
 
 	meshTraces := &meshtrace_api.MeshTraceResourceList{}
 	if err := s.roResManager.List(ctx, meshTraces); err != nil {
-		return errors.Wrap(err, "could not list MeshTraces")
+		return fmt.Errorf("could not list MeshTraces: %w", err)
 	}
 
 	meshAccessLogs := &meshaccesslog_api.MeshAccessLogResourceList{}
 	if err := s.roResManager.List(ctx, meshAccessLogs); err != nil {
-		return errors.Wrap(err, "could not list MeshAccessLogs")
+		return fmt.Errorf("could not list MeshAccessLogs: %w", err)
 	}
 
 	backendsByMesh := buildBackendIndex(motbList.Items)
